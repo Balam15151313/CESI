@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Salon;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Escuela;
+use Illuminate\Validation\Rule;
 use App\Models\Maestro;
 use Illuminate\Http\Request;
 
@@ -92,7 +93,7 @@ class SalonController extends Controller
     public function update(Request $request, Salon $salon)
     {
         // Validar con la función de validaciones
-        $this->validateRequest($request);
+        $this->validateRequest($request,$salon->id);
 
         $salon->update($request->all());
 
@@ -118,33 +119,29 @@ class SalonController extends Controller
     /**
      * Validar los datos de la solicitud.
      */
-    private function validateRequest(Request $request, $salonId = null)
+    private function validateRequest(Request $request, $id = null)
     {
         // Reglas básicas de validación
         $rules = [
-            'salon_grado' => ['nullable', 'string', 'max:2'],
+            'salon_grado' => [
+                'nullable',
+                'string',
+                'max:2',
+                Rule::unique('cesi_salons', 'salon_grado')
+                    ->where(function ($query) use ($request) {
+                        return $query->where('salon_grupo', $request->input('salon_grupo'))
+                                    ->where('cesi_escuela_id', $request->input('cesi_escuela_id'));
+                    })
+                    ->ignore($id),
+            ],
+
             'salon_grupo' => ['nullable', 'string', 'max:2'],
             'cesi_escuela_id' => ['required', 'exists:cesi_escuelas,id'],
             'cesi_maestro_id' => ['required', 'exists:cesi_maestros,id'],
         ];
 
-        // Validación personalizada para evitar duplicados
-        $rules['salon_grado'][] = function ($attribute, $value, $fail) use ($request, $salonId) {
-            $exists = Salon::where('salon_grado', $request->input('salon_grado'))
-                ->where('salon_grupo', $request->input('salon_grupo'))
-                ->where('cesi_escuela_id', $request->input('cesi_escuela_id'))
-                ->when($salonId, function ($query) use ($salonId) {
-                    $query->where('id', '<>', $salonId); // Excluir el salón actual si es una actualización
-                })
-                ->exists();
-
-            if ($exists) {
-                $fail("El grupo {$request->input('salon_grado')}°{$request->input('salon_grupo')} ya está asignado en esta escuela.");
-            }
-        };
-
-        // Mensajes personalizados
         $messages = [
+            'salon_grado.unique' => 'El grado y grupo ya están asignados en esta escuela.',
             'salon_grado.max' => 'El grado no puede tener más de 2 caracteres.',
             'salon_grupo.max' => 'El grupo no puede tener más de 2 caracteres.',
             'cesi_escuela_id.required' => 'La escuela es obligatoria.',
