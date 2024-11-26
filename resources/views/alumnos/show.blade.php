@@ -3,14 +3,14 @@
 @section('title', 'Ver Alumno')
 
 @section('content')
-    <h1 class="text-center mb-4">Información del Alumno</h1>
+    <h1 class="mb-4 text-center">Información del Alumno</h1>
 
     <div class="card">
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
                     @if ($alumno->alumno_foto)
-                        <img src="{{ asset('storage/' . $alumno->alumno_foto) }}" alt="Foto del Alumno" class="foto-show"> 
+                        <img src="{{ asset('storage/' . $alumno->alumno_foto) }}" alt="Foto del Alumno" class="foto-show">
                     @else
                         <p>Sin foto</p>
                     @endif
@@ -18,10 +18,11 @@
                 <div class="col-md-8">
                     <h5 class="card-title">Nombre: {{ $alumno->alumno_nombre }}</h5>
                     <p class="card-text">Fecha de nacimiento: {{ $alumno->alumno_nacimiento }}</p>
-                    <p class="card-text">Escuela: {{ $alumno->salones->escuela->escuela_nombre }}</p> 
-                    <p class="card-text">Salón: {{ $alumno->salones->salon_grado . ' ' . $alumno->salones->salon_grupo }}</p>
-                    @if ($alumno->salones->maestros) 
-                        <p class="card-text">Docente: {{ $alumno->salones->maestros->maestro_nombre }}</p> 
+                    <p class="card-text">Escuela: {{ $alumno->salones->escuelas->escuela_nombre }}</p>
+                    <p class="card-text">Salón: {{ $alumno->salones->salon_grado . ' ' . $alumno->salones->salon_grupo }}
+                    </p>
+                    @if ($alumno->salones->maestros)
+                        <p class="card-text">Docente: {{ $alumno->salones->maestros->maestro_nombre }}</p>
                     @endif
                 </div>
             </div>
@@ -51,7 +52,7 @@
 
                 <h3 class="mt-4">Datos de los Responsables</h3>
                 @foreach ($tutor->responsables as $responsable)
-                    <div class="border rounded p-3 mb-3">
+                    <div class="p-3 mb-3 border rounded">
                         <p class="card-text">Nombre: {{ $responsable->responsable_nombre }}</p>
                         <p class="card-text">Correo electrónico: {{ $responsable->responsable_usuario }}</p>
                         <p class="card-text">Teléfono: {{ $responsable->responsable_telefono }}</p>

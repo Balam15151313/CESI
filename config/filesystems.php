@@ -42,6 +42,9 @@ return [
             'root' => storage_path('app/public'),
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
+            'options' => [
+            'Cache-Control' => 'public, max-age=31536000',
+            ],
             'throw' => false,
         ],
 
