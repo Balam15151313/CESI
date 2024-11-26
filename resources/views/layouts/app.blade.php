@@ -22,6 +22,102 @@
 
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
+    <style>
+        /* Estilos de layout app */
+        .dashboard {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .sidebar {
+            width: 250px;
+            color: white;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sidebar a {
+            color: white;
+            padding: 15px;
+            text-decoration: none;
+            display: block;
+            font-size: 18px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .sidebar a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Estilos para el logotipo */
+        .sidebar img {
+            width: 100px;
+            margin-bottom: 10px;
+            border-radius: 50%;
+        }
+
+        /* Estilos para el contenido principal */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            max-width: 100%;
+            margin-bottom: 1rem;
+            color: #212529;
+        }
+
+        .table th,
+        .table td {
+            padding: 0.75rem;
+            vertical-align: top;
+            border-top: 1px solid #dee2e6;
+        }
+
+        /* Fotos para show */
+        .foto-show {
+            max-width: 150px;
+            max-height: 150px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+        }
+
+        #suggestions {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 5px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            background: white;
+            display: none;
+            position: absolute;
+            z-index: 1000;
+        }
+
+        #suggestions li {
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        #suggestions li:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
 </head>
 
 <body>
