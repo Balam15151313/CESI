@@ -15,9 +15,16 @@ use App\Http\Controllers\Api\PaseApiController;
 use App\Http\Controllers\Api\RastreoApiController;
 use App\Http\Controllers\Api\RecogidaApiController;
 use App\Http\Controllers\Api\SesionApiController;
+use App\Http\Controllers\Api\TutorApiController;
 use Illuminate\Support\Facades\Route;
 
-
+/**
+ * Archivo: api.php
+ * Propósito: Genera las rutas de la api.
+ * Autor: José Balam González Rojas
+ * Fecha de Creación: 2024-11-19
+ * Última Modificación: 2024-11-27
+ */
 Route::post('/login', [LogInApiController::class, 'login']);
 Route::post('/logout', [LogInApiController::class, 'logout']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -34,17 +41,19 @@ Route::post('/maestros', [MaestrosApiController::class, 'store']);
 Route::get('/maestros/{maestro}', [MaestrosApiController::class, 'show']);
 Route::put('/maestros/{maestro}', [MaestrosApiController::class, 'update']);
 Route::delete('/maestros/{maestro}', [MaestrosApiController::class, 'destroy']);
-Route::get('/responsables', [ResponsableApiController::class, 'index']); // Listar responsables
-Route::post('/responsables', [ResponsableApiController::class, 'store']); // Crear responsable
-Route::get('/responsables/{responsable}', [ResponsableApiController::class, 'edit']); // Mostrar un responsable
+Route::get('maestros/{id}/colores', [MaestrosApiController::class, 'obtenerColoresDeEscuela']);
+Route::get('/responsables', [ResponsableApiController::class, 'index']);
+Route::post('/responsables', [ResponsableApiController::class, 'store']);
+Route::get('/responsables/{responsable}', [ResponsableApiController::class, 'edit']);
 Route::put('/responsables/{responsable}', [ResponsableApiController::class, 'update']);
-Route::get('/responsables/{responsable}', [ResponsableApiController::class, 'show']);  // Actualizar un responsable
-Route::delete('/responsables/{responsable}', [ResponsableApiController::class, 'destroy']); // Eliminar un responsable
-Route::get('/salones', [SalonApiController::class, 'index']);        // Listar salones
-Route::post('/salones', [SalonApiController::class, 'store']);       // Crear salón
-Route::get('/salones/{salon}', [SalonApiController::class, 'show']); // Mostrar salón
-Route::put('/salones/{salon}', [SalonApiController::class, 'update']); // Actualizar salón
-Route::delete('/salones/{salon}', [SalonApiController::class, 'destroy']); // Eliminar salón
+Route::get('/responsables/{responsable}', [ResponsableApiController::class, 'show']);
+Route::delete('/responsables/{responsable}', [ResponsableApiController::class, 'destroy']);
+Route::get('responsable/{id}/school-colors', [ResponsableApiController::class, 'getSchoolColorsByResponsable']);
+Route::get('/salones', [SalonApiController::class, 'index']);
+Route::post('/salones', [SalonApiController::class, 'store']);
+Route::get('/salones/{salon}', [SalonApiController::class, 'show']);
+Route::put('/salones/{salon}', [SalonApiController::class, 'update']);
+Route::delete('/salones/{salon}', [SalonApiController::class, 'destroy']);
 Route::get('/escuelas', [EscuelaApiController::class, 'index']);
 Route::post('/escuelas', [EscuelaApiController::class, 'create']);
 Route::get('/escuelas/{id}', [EscuelaApiController::class, 'show']);
@@ -70,17 +79,24 @@ Route::post('rastreos/{recogidaId}', [RastreoApiController::class, 'create']);
 Route::get('rastreos/{recogidaId}/{id}', [RastreoApiController::class, 'show']);
 Route::put('rastreos/{recogidaId}/{id}', [RastreoApiController::class, 'update']);
 Route::delete('rastreos/{recogidaId}/{id}', [RastreoApiController::class, 'destroy']);
-Route::get('recogidas', [RecogidaApiController::class, 'index']);
-Route::post('recogidas', [RecogidaApiController::class, 'create']);
-Route::get('recogidas/{id}', [RecogidaApiController::class, 'show']);
-Route::put('recogidas/{id}', [RecogidaApiController::class, 'update']);
-Route::delete('recogidas/{id}', [RecogidaApiController::class, 'destroy']);
-Route::get('recogidas/{id}/alumnos', [RecogidaApiController::class, 'alumnos']);
+Route::get('alumnos-sin-recogida/{idTutor}', [RecogidaApiController::class, 'alumnosSinRecogida']);
+Route::post('generar', [RecogidaApiController::class, 'generarRecogida']);
+Route::get('por-tutor/{idTutor}', [RecogidaApiController::class, 'recogidasPorTutor']);
+Route::post('por-estatus', [RecogidaApiController::class, 'recogidasPorEstatus']);
+Route::get('reporte-pdf/{idTutor}', [RecogidaApiController::class, 'generarReportePDF']);
+Route::get('reportes/{idTutor}', [RecogidaApiController::class, 'reportesPorTutor']);
 Route::get('sesiones', [SesionApiController::class, 'index']);
 Route::post('sesiones', [SesionApiController::class, 'create']);
 Route::get('sesiones/{id}', [SesionApiController::class, 'show']);
 Route::put('sesiones/{id}', [SesionApiController::class, 'update']);
 Route::delete('sesiones/{id}', [SesionApiController::class, 'destroy']);
 Route::get('sesiones/{id}/responsable', [SesionApiController::class, 'responsable']);
+Route::get('{id}', [TutorApiController::class, 'showTutor']);
+Route::get('{id}/alumnos', [TutorApiController::class, 'showAlumnosByTutor']);
+Route::get('alumnos/{id}', [TutorApiController::class, 'showAlumno']);
+Route::get('{id}/colores', [TutorApiController::class, 'showEscuelaColores']);
+Route::get('{id}/responsables', [TutorApiController::class, 'showResponsablesByTutor']);
+Route::get('responsables/{id}', [TutorApiController::class, 'showResponsable']);
+Route::put('{id}/foto', [TutorApiController::class, 'updateFoto']);
 
 

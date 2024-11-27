@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Hash;
  * Propósito: Controlador para gestionar datos relacionados con maestros.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-26
+ * Última Modificación: 2024-11-27
  */
 class MaestrosApiController extends Controller
 {
@@ -40,6 +40,25 @@ class MaestrosApiController extends Controller
             ->get();
 
         return response()->json(['maestros' => $maestros]);
+    }
+
+    public function obtenerColoresDeEscuela($maestroId)
+    {
+        $maestro = Maestro::find($maestroId);
+
+        if (!$maestro) {
+            return response()->json(['error' => 'Maestro no encontrado'], 404);
+        }
+
+        $escuela = $maestro->escuelas;
+
+        $colores = $escuela->uis()->select('ui_color1', 'ui_color2', 'ui_color3', 'ui_logo')->get();
+
+        if ($colores->isEmpty()) {
+            return response()->json(['error' => 'No se encontraron colores para la escuela'], 404);
+        }
+
+        return response()->json(['colores' => $colores]);
     }
 
     /**

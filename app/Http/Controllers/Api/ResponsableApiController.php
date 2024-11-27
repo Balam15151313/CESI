@@ -12,39 +12,11 @@ use Illuminate\Http\Request;
  * Propósito: Controlador para gestionar datos relacionados con responsables.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-26
+ * Última Modificación: 2024-11-27
  */
 
 class ResponsableApiController extends Controller
 {
-    /**
-     * Display a listing of responsables.
-     */
-    public function index(Request $request)
-    {
-        $nombre = $request->input('nombre');
-        $adminId = Auth::id();
-
-        // Filtrado de escuelas por administrador
-        $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
-            $query->where('cesi_administrador_id', $adminId);
-        })->pluck('id');
-
-        // Obtener responsables filtrados por escuela y nombre (si se proporciona)
-        $responsables = Responsable::with(['tutores' => function ($query) use ($escuelas) {
-                $query->whereIn('cesi_escuela_id', $escuelas);
-            }])
-            ->where('responsable_activacion', 1)
-            ->whereHas('tutores', function ($query) use ($escuelas) {
-                $query->whereIn('cesi_escuela_id', $escuelas);
-            })
-            ->when($nombre, function ($query, $nombre) {
-                return $query->where('responsable_nombre', 'like', '%' . $nombre . '%');
-            })
-            ->get();
-
-        return response()->json($responsables, 200);
-    }
 
     /**
      * Store a newly created responsable in storage.
@@ -58,6 +30,7 @@ class ResponsableApiController extends Controller
             $responsable->fill($request->only(['responsable_nombre', 'responsable_usuario', 'responsable_telefono', 'cesi_tutore_id']));
             $responsable->responsable_contraseña = bcrypt($request->responsable_contraseña);
             $responsable->responsable_activacion = 0;
+            $responsable->cesi_tutore_id = $request->cesi_tutore_id;
 
             // Crear el usuario asociado
             $user = new User();
@@ -160,6 +133,38 @@ class ResponsableApiController extends Controller
             return response()->json(['error' => 'Error al eliminar responsable', 'message' => $e->getMessage()], 500);
         }
     }
+
+    public function getSchoolColorsByResponsable($responsableId)
+    {
+        // Obtener el responsable
+        $responsable = Responsable::with(['tutores.escuela.ui'])
+            ->where('ID_RESPONSABLE', $responsableId)
+            ->first();
+
+        if (!$responsable) {
+            return response()->json(['error' => 'Responsable no encontrado'], 404);
+        }
+
+        // Verificar si el tutor asociado tiene escuela y colores de UI
+        $tutor = $responsable->tutores;
+        if (!$tutor || !$tutor->escuela || !$tutor->escuela->ui) {
+            return response()->json(['error' => 'Escuela o UI no encontrados'], 404);
+        }
+
+        // Obtener los colores y el logo de la UI
+        $ui = $tutor->escuela->ui;
+
+        // Responder con los colores y logo
+        return response()->json([
+            'data' => [
+                'color1' => $ui->ui_color1,
+                'color2' => $ui->ui_color2,
+                'color3' => $ui->ui_color3,
+                'logo' => $ui->ui_logo,  // Asumiendo que 'ui_logo' es un campo en la tabla 'ui'
+            ]
+        ], 200);
+    }
+
 
     /**
      * Delete the photo from storage.

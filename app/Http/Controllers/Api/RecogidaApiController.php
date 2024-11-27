@@ -1,125 +1,137 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Recogida;
+use App\Models\Alumno;
+use App\Models\Reporte;
+use PDF;
 /**
  * Archivo: RecogidaApiController.php
- * Propósito: Controlador para gestionar datos relacionados con la recogida de estudiantes.
+ * Propósito: Controlador para gestionar datos relacionados con recogidas.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-26
+ * Última Modificación: 2024-11-27
  */
-
 class RecogidaApiController extends Controller
 {
     /**
-     * Mostrar todas las recogidas.
+     * Seleccionar alumnos del tutor disponibles para recogida.
      */
-    public function index()
+    public function alumnosSinRecogida($idTutor)
     {
-        $recogidas = Recogida::all();
+        $alumnos = Alumno::where('id_tutor', $idTutor)
+            ->whereDoesntHave('recogidas', function ($query) {
+                $query->whereDate('recogida_fecha', now()->toDateString());
+            })
+            ->where('asistencia', true) // Suponiendo que hay una columna 'asistencia'
+            ->get();
+
+        if ($alumnos->isEmpty()) {
+            return response()->json(['message' => 'No hay alumnos disponibles para recogida'], 200);
+        }
+
+        return response()->json(['data' => $alumnos], 200);
+    }
+
+    /**
+     * Crear una nueva recogida con alumnos.
+     */
+    public function generarRecogida(Request $request)
+    {
+        $validated = $request->validate([
+            'recogida_fecha' => 'required|date',
+            'recogida_observaciones' => 'nullable|string',
+            'recogida_estatus' => 'required|in:pendiente,completa,cancelada',
+            'id_tutor' => 'required|exists:tutores,id',
+            'alumnos' => 'required|array',
+            'alumnos.*' => 'exists:alumnos,id',
+        ]);
+
+        $recogida = Recogida::create([
+            'recogida_fecha' => $validated['recogida_fecha'],
+            'recogida_observaciones' => $validated['recogida_observaciones'],
+            'recogida_estatus' => $validated['recogida_estatus'],
+            'id_tutor' => $validated['id_tutor'],
+        ]);
+
+        // Asignar alumnos a la recogida
+        $recogida->alumnos()->attach($validated['alumnos']);
+
+        return response()->json(['message' => 'Recogida creada correctamente', 'data' => $recogida], 201);
+    }
+
+    /**
+     * Obtener las recogidas por tutor.
+     */
+    public function recogidasPorTutor($idTutor)
+    {
+        $recogidas = Recogida::where('id_tutor', $idTutor)->with('alumnos')->get();
 
         if ($recogidas->isEmpty()) {
-            return response()->json(['message' => 'No hay recogidas disponibles'], 200);
+            return response()->json(['message' => 'No hay recogidas registradas para este tutor'], 200);
         }
 
         return response()->json(['data' => $recogidas], 200);
     }
 
     /**
-     * Crear una nueva recogida.
+     * Mostrar recogidas por estatus.
      */
-    public function create(Request $request)
+    public function recogidasPorEstatus(Request $request)
     {
-        // Validación de los datos de la recogida
         $validated = $request->validate([
-            'recogida_fecha' => 'required|date',
-            'recogida_observaciones' => 'nullable|string',
-            'recogida_estatus' => 'required|in:pendiente,completa,cancelada',  // Ejemplo de estatus
+            'estatus' => 'required|in:pendiente,completa,cancelada',
         ]);
 
-        // Crear la recogida
-        $recogida = Recogida::create($validated);
+        $recogidas = Recogida::where('recogida_estatus', $validated['estatus'])->with('alumnos')->get();
 
-        return response()->json(['message' => 'Recogida creada correctamente', 'data' => $recogida], 201);
+        if ($recogidas->isEmpty()) {
+            return response()->json(['message' => 'No hay recogidas con el estatus especificado'], 200);
+        }
+
+        return response()->json(['data' => $recogidas], 200);
     }
 
     /**
-     * Mostrar una recogida específica.
+     * Generar reporte en PDF de recogidas por tutor.
      */
-    public function show($id)
+    public function generarReportePDF($idTutor)
     {
-        // Buscar la recogida por ID
-        $recogida = Recogida::find($id);
+        $recogidas = Recogida::where('id_tutor', $idTutor)->with('alumnos')->get();
 
-        if (!$recogida) {
-            return response()->json(['error' => 'Recogida no encontrada'], 404);
+        if ($recogidas->isEmpty()) {
+            return response()->json(['message' => 'No hay datos de recogidas para generar el reporte'], 200);
         }
 
-        return response()->json(['data' => $recogida], 200);
-    }
+        $pdf = PDF::loadView('reportes.recogidas', ['recogidas' => $recogidas]);
+        $filePath = 'reportes/' . uniqid('reporte_') . '.pdf';
+        $pdf->save(storage_path('app/public/' . $filePath));
 
-    /**
-     * Actualizar una recogida existente.
-     */
-    public function update(Request $request, $id)
-    {
-        // Buscar la recogida por ID
-        $recogida = Recogida::find($id);
-
-        if (!$recogida) {
-            return response()->json(['error' => 'Recogida no encontrada'], 404);
-        }
-
-        // Validación de los datos a actualizar
-        $validated = $request->validate([
-            'recogida_fecha' => 'nullable|date',
-            'recogida_observaciones' => 'nullable|string',
-            'recogida_estatus' => 'nullable|in:pendiente,completa,cancelada',
+        // Guardar el reporte en la base de datos
+        $reporte = Reporte::create([
+            'reporte_pdf' => $filePath,
+            'cesi_tutore_id' => $idTutor,
         ]);
 
-        // Actualizar la recogida
-        $recogida->update($validated);
-
-        return response()->json(['message' => 'Recogida actualizada correctamente', 'data' => $recogida], 200);
+        return response()->json([
+            'message' => 'Reporte generado correctamente',
+            'data' => ['url' => asset('storage/' . $filePath)],
+        ], 201);
     }
 
     /**
-     * Eliminar una recogida.
+     * Mostrar reportes generados por tutor.
      */
-    public function destroy($id)
+    public function reportesPorTutor($idTutor)
     {
-        // Buscar la recogida por ID
-        $recogida = Recogida::find($id);
+        $reportes = Reporte::where('cesi_tutore_id', $idTutor)->get();
 
-        if (!$recogida) {
-            return response()->json(['error' => 'Recogida no encontrada'], 404);
+        if ($reportes->isEmpty()) {
+            return response()->json(['message' => 'No hay reportes registrados para este tutor'], 200);
         }
 
-        // Eliminar la recogida
-        $recogida->delete();
-
-        return response()->json(['message' => 'Recogida eliminada correctamente'], 200);
-    }
-
-    /**
-     * Obtener los alumnos asociados a una recogida.
-     */
-    public function alumnos($id)
-    {
-        // Buscar la recogida por ID
-        $recogida = Recogida::find($id);
-
-        if (!$recogida) {
-            return response()->json(['error' => 'Recogida no encontrada'], 404);
-        }
-
-        // Obtener los alumnos asociados a la recogida
-        $alumnos = $recogida->alumnos;
-
-        return response()->json(['data' => $alumnos], 200);
+        return response()->json(['data' => $reportes], 200);
     }
 }

@@ -9,7 +9,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\TutorController;
 use App\Http\Controllers\Admin\AlumnoController;
-
+/**
+ * Archivo: web.php
+ * Propósito: Genera las rutas de la página.
+ * Autor: José Balam González Rojas
+ * Fecha de Creación: 2024-11-06
+ * Última Modificación: 2024-11-27
+ */
 Route::get('/', function () {
     return view('auth/login');
 });
