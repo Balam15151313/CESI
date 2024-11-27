@@ -6,6 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Asistencia;
 use Illuminate\Http\Request;
 
+/**
+ * Archivo: AsistenciasApiController.php
+ * Propósito: Controlador para gestionar datos relacionados con asistencias.
+ * Autor: José Balam González Rojas
+ * Fecha de Creación: 2024-11-19
+ * Última Modificación: 2024-11-26 - Añadida validación para evitar duplicados.
+ */
+
 class AsistenciasApiController extends Controller
 {
 

@@ -10,6 +10,13 @@ use Illuminate\Validation\Rule;
 use App\Models\Maestro;
 use Illuminate\Http\Request;
 
+/**
+ * Archivo: SalonController.php
+ * Propósito: Controlador para gestionar salones.
+ * Autor: José Balam González Rojas
+ * Fecha de Creación: 2024-11-06
+ * Última Modificación: 2024-11-26 - Añadida validación para evitar duplicados.
+ */
 class SalonController extends Controller
 {
     public function index(Request $request)

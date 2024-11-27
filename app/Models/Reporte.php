@@ -4,7 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+/**
+ * Archivo: Reporte.php
+ * Propósito: Modelo para gestionar datos de los reportes generados.
+ * Autor: José Balam González Rojas
+ * Fecha de Creación: 2024-11-06
+ * Última Modificación: 2024-11-26 - Añadida validación para evitar duplicados.
+ */
 class Reporte extends Model
 {
     /** @use HasFactory<\Database\Factories\ReporteFactory> */

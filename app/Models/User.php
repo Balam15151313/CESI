@@ -7,7 +7,13 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
+/**
+ * Archivo: User.php
+ * Propósito: Modelo para gestionar datos de los usuarios.
+ * Autor: José Balam González Rojas
+ * Fecha de Creación: 2024-11-06
+ * Última Modificación: 2024-11-26 - Añadida validación para evitar duplicados.
+ */
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;

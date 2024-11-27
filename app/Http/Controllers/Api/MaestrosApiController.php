@@ -11,7 +11,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
-
+/**
+ * Archivo: MaestrosApiController.php
+ * Propósito: Controlador para gestionar datos relacionados con maestros.
+ * Autor: José Balam González Rojas
+ * Fecha de Creación: 2024-11-19
+ * Última Modificación: 2024-11-26 - Añadida validación para evitar duplicados.
+ */
 class MaestrosApiController extends Controller
 {
     /**

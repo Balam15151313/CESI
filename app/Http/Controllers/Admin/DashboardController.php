@@ -7,6 +7,13 @@ use App\Models\Responsable;
 use App\Models\Escuela;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Archivo: DashboardController.php
+ * Propósito: Controlador para gestionar datos de la pantalla de inicio.
+ * Autor: José Balam González Rojas
+ * Fecha de Creación: 2024-11-06
+ * Última Modificación: 2024-11-26 - Añadida validación para evitar duplicados.
+ */
 class DashboardController extends Controller
 {
     public function index()

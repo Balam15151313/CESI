@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Administrador;
 
+/**
+ * Archivo: Escuela.php
+ * Propósito: Modelo para gestionar datos de la escuela.
+ * Autor: José Balam González Rojas
+ * Fecha de Creación: 2024-11-06
+ * Última Modificación: 2024-11-26 - Añadida validación para evitar duplicados.
+ */
 class Escuela extends Model
 {
     /** @use HasFactory<\Database\Factories\EscuelaFactory> */

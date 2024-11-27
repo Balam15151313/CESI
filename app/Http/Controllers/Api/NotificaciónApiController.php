@@ -5,6 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Notificacion;
+/**
+ * Archivo: NotificacionesApiController.php
+ * Propósito: Controlador para gestionar datos relacionados con notificaciones.
+ * Autor: José Balam González Rojas
+ * Fecha de Creación: 2024-11-19
+ * Última Modificación: 2024-11-26 - Añadida validación para evitar duplicados.
+ */
 
 class NotificacionApiController extends Controller
 {

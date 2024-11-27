@@ -8,6 +8,13 @@ use App\Models\Escuela;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+/**
+ * Archivo: SalonApiController.php
+ * Propósito: Controlador para gestionar datos relacionados con salones.
+ * Autor: José Balam González Rojas
+ * Fecha de Creación: 2024-11-19
+ * Última Modificación: 2024-11-26 - Añadida validación para evitar duplicados.
+ */
 
 class SalonApiController extends Controller
 {

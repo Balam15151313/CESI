@@ -4,7 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+/**
+ * Archivo: UI.php
+ * Propósito: Modelo para gestionar colores de interfaz o ui.
+ * Autor: José Balam González Rojas
+ * Fecha de Creación: 2024-11-06
+ * Última Modificación: 2024-11-26 - Añadida validación para evitar duplicados.
+ */
 class UI extends Model
 {
     /** @use HasFactory<\Database\Factories\UIFactory> */
@@ -18,6 +24,6 @@ class UI extends Model
     public function escuela(){
         return $this->belongsTo(Escuela::class,'cesi_escuela_id');
     }
-    
+
 }
 

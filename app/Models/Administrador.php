@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Escuela;
 
+/**
+ * Archivo: Administrador.php
+ * Propósito: Modelo para gestionar datos de los administradores.
+ * Autor: José Balam González Rojas
+ * Fecha de Creación: 2024-11-06
+ * Última Modificación: 2024-11-26 - Añadida validación para evitar duplicados.
+ */
 class Administrador extends Model
 {
     /** @use HasFactory<\Database\Factories\AdministradorFactory> */
@@ -23,5 +30,5 @@ class Administrador extends Model
     {
         return $this->belongsToMany(Escuela::class, 'cesi_privilegios', 'cesi_administrador_id', 'cesi_escuela_id');
     }
-    
+
 }
