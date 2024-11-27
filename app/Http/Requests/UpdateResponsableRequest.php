@@ -3,7 +3,13 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-
+/**
+ * Archivo: UpdateResponsableRequest.php
+ * Propósito: Request para reglas al actualizar responsables.
+ * Autor: José Balam González Rojas
+ * Fecha de Creación: 2024-11-06
+ * Última Modificación: 2024-11-26
+ */
 class UpdateResponsableRequest extends FormRequest
 {
     /**

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * Propósito: Modelo para gestionar las asistencias que tendran los alumnos.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-11-26 - Añadida validación para evitar duplicados.
+ * Última Modificación: 2024-11-26
  */
 class Asistencia extends Model
 {

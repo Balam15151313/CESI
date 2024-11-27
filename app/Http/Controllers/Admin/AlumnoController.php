@@ -10,7 +10,13 @@ use App\Models\Tutor;
 use App\Models\Escuela;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-
+/**
+ * Archivo: AlumnoController.php
+ * Propósito: Controlador para gestionar alumnos.
+ * Autor: Alexis Daniel Uribe Oleriano
+ * Fecha de Creación: 2024-11-19
+ * Última Modificación: 2024-11-26 -
+ */
 class AlumnoController extends Controller
 {
     public function index(Request $request)
@@ -58,7 +64,7 @@ class AlumnoController extends Controller
         ], [
             'alumno_nombre.required' => 'El campo nombre es obligatorio.',
             'alumno_nombre.regex' => 'El nombre solo puede contener letras.',
-            'alumno_nombre.max' => 'El nombre no puede exceder los 255 caracteres.', 
+            'alumno_nombre.max' => 'El nombre no puede exceder los 255 caracteres.',
             'alumno_nacimiento.required' => 'El campo fecha de nacimiento es obligatorio.',
             'alumno_foto.required' => 'El campo foto es obligatorio.',
             'alumno_foto.image' => 'El archivo debe ser una imagen.',
@@ -81,9 +87,9 @@ class AlumnoController extends Controller
 
     public function show(Alumno $alumno)
     {
-        $tutor = $alumno->tutores; 
+        $tutor = $alumno->tutores;
 
-        return view('alumnos.show', compact('alumno', 'tutor')); 
+        return view('alumnos.show', compact('alumno', 'tutor'));
     }
 
     public function edit(Alumno $alumno)
@@ -104,13 +110,13 @@ class AlumnoController extends Controller
         $request->validate([
             'alumno_nombre' => 'required|regex:/^[\p{L}\s]+$/u|max:255',
             'alumno_nacimiento' => 'required|date',
-            'alumno_foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', 
+            'alumno_foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'cesi_salon_id' => 'required|exists:cesi_salons,id',
             'cesi_tutore_id' => 'required|exists:cesi_tutores,id',
         ], [
             'alumno_nombre.required' => 'El campo nombre es obligatorio.',
             'alumno_nombre.regex' => 'El nombre solo puede contener letras.',
-            'alumno_nombre.max' => 'El nombre no puede exceder los 255 caracteres.', 
+            'alumno_nombre.max' => 'El nombre no puede exceder los 255 caracteres.',
             'alumno_nacimiento.required' => 'El campo fecha de nacimiento es obligatorio.',
             'alumno_foto.image' => 'El archivo debe ser una imagen.',
             'alumno_foto.mimes' => 'La imagen debe ser de tipo jpeg, png, jpg o gif.',
@@ -128,7 +134,7 @@ class AlumnoController extends Controller
             }
             $data['alumno_foto'] = $request->file('alumno_foto')->store('alumnos', 'public');
         } else {
-            unset($data['alumno_foto']); 
+            unset($data['alumno_foto']);
         }
 
         $alumno->update($data);

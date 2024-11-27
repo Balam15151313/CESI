@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
  * Propósito: Modelo para gestionar las notificaciones que se tienen entre los maestros y los tutores.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-11-26 - Añadida validación para evitar duplicados.
+ * Última Modificación: 2024-11-26
  */
 class Notificacion extends Model
 {

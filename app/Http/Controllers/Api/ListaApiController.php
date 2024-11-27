@@ -12,7 +12,7 @@ use App\Models\Lista;
  * Propósito: Controlador para gestionar datos relacionados con listas.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-26 - Añadida validación para evitar duplicados.
+ * Última Modificación: 2024-11-26
  */
 
 class ListaApiController extends Controller

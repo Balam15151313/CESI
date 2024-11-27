@@ -3,7 +3,13 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-
+/**
+ * Archivo: AddMaestroRequest.php
+ * Propósito: Reques para reglas al crear maestros.
+ * Autor: José Balam González Rojas
+ * Fecha de Creación: 2024-11-06
+ * Última Modificación: 2024-11-26
+ */
 class AddMaestroRequest extends FormRequest
 {
     /**

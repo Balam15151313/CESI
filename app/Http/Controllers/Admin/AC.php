@@ -4,15 +4,21 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Alumno;
-use App\Models\Salon; 
-use App\Models\Tutor; 
+use App\Models\Salon;
+use App\Models\Tutor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
-
+/**
+ * Archivo: AC.php
+ * Propósito: Controlador para gestionar alumnos.
+ * Autor: Alexis Daniel Uribe Oleriano
+ * Fecha de Creación: 2024-11-19
+ * Última Modificación: 2024-11-26 - Añadida validación para evitar duplicados.
+ */
 class AlumnoController extends Controller
 {
-    
+
     const SUCCESS_CREATED = 'Alumno creado correctamente.';
     const SUCCESS_UPDATED = 'Alumno actualizado correctamente.';
     const SUCCESS_DELETED = 'Alumno eliminado correctamente.';
@@ -36,7 +42,7 @@ class AlumnoController extends Controller
         $request->validate([
             'alumno_nombre' => 'required|string|max:255',
             'alumno_nacimiento' => 'required|date',
-            'cesi_salon_id' => 'required|exists:cesi_salones,id', 
+            'cesi_salon_id' => 'required|exists:cesi_salones,id',
             'cesi_tutor_id' => 'required|exists:cesi_tutores,id',
             'alumno_foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
@@ -76,7 +82,7 @@ class AlumnoController extends Controller
 
     public function show(Alumno $alumno)
     {
-        $alumno->load('salones', 'tutores'); 
+        $alumno->load('salones', 'tutores');
         return view('alumnos.show', compact('alumno'));
     }
 

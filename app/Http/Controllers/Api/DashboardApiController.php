@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
  * Propósito: Controlador para gestionar datos de la pantalla de inicio.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-26 - Añadida validación para evitar duplicados.
+ * Última Modificación: 2024-11-26
  */
 
 class DashboardApiController extends Controller
