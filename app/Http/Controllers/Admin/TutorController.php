@@ -16,7 +16,7 @@ use Illuminate\Validation\Rule;
  * Propósito: Controlador para gestionar tutores.
  * Autor: Alexis Daniel Uribe Oleriano
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-26
+ * Última Modificación: 2024-11-28
  */
 class TutorController extends Controller
 {
