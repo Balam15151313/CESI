@@ -5,6 +5,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
 /**
  * Archivo: Privilegio.php
  * Propósito: Modelo para gestionar la conexión entre la escuela con el administrador.
@@ -19,4 +20,14 @@ class Privilegio extends Model
     protected $table = 'cesi_privilegios';
 
     protected $fillable = ['cesi_administrador_id', 'cesi_escuela_id'];
+
+    public function administrador()
+    {
+        return $this->belongsTo(Administrador::class, 'cesi_administrador_id');
+    }
+
+    public function escuela()
+    {
+        return $this->belongsTo(Escuela::class, 'cesi_escuela_id');
+    }
 }

@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use App\Models\Administrador;
 
 /**
  * Archivo: TutorController.php
@@ -26,7 +27,8 @@ class TutorController extends Controller
      */
     public function index(Request $request)
     {
-        $adminId = Auth::id();
+        $admin = User::find(Auth::id());
+        $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->pluck('id');
@@ -47,7 +49,8 @@ class TutorController extends Controller
      */
     public function create()
     {
-        $adminId = Auth::id();
+        $admin = User::find(Auth::id());
+        $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get();
@@ -131,7 +134,8 @@ class TutorController extends Controller
      */
     public function edit(Tutor $tutor)
     {
-        $adminId = Auth::id();
+        $admin = User::find(Auth::id());
+        $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get();

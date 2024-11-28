@@ -14,7 +14,7 @@ use Illuminate\Validation\Rule;
  * Propósito: Controlador para gestionar el registro y actualización de administradores.
  * Autor: Altair Ricardo Villamares Villegas
  * Fecha de Creación: 2024-11-26
- * Última Modificación: 2024-11-27
+ * Última Modificación: 2024-11-28
  */
 class AdminController extends Controller
 {
@@ -61,6 +61,7 @@ class AdminController extends Controller
             'administrador_usuario.unique' => 'El usuario ingresado ya está en uso. Por favor, elige otro.',
 
             'administrador_telefono.regex' => 'El número de teléfono debe contener entre 10 dígitos.',
+            'administrador_telefono.regex' => 'El número de teléfono debe ser numerico.',
             'administrador_telefono.max' => 'El teléfono no puede tener más de 20 caracteres.',
 
             'administrador_foto.image' => 'El archivo debe ser una imagen.',

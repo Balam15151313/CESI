@@ -12,13 +12,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use App\Models\Administrador;
 
 /**
  * Archivo: MaestroController.php
  * Propósito: Controlador para gestionar maestros.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-11-27
+ * Última Modificación: 2024-11-28
  */
 class MaestroController extends Controller
 {
@@ -28,7 +29,8 @@ class MaestroController extends Controller
      */
     public function index(Request $request)
     {
-        $adminId = Auth::id();
+        $admin = User::find(Auth::id());
+        $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
 
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
@@ -51,7 +53,8 @@ class MaestroController extends Controller
      */
     public function create()
     {
-        $adminId = Auth::id();
+        $admin = User::find(Auth::id());
+        $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get();
@@ -96,7 +99,8 @@ class MaestroController extends Controller
      */
     public function edit(Maestro $maestro)
     {
-        $adminId = Auth::id();
+        $admin = User::find(Auth::id());
+        $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get();

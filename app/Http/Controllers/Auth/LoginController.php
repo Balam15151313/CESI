@@ -3,17 +3,19 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Administrador;
 use App\Models\UI;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Escuela;
+use App\Models\User;
 
 /**
  * Archivo: LoginController.php
  * Propósito: Controlador para gestionar login.
  * Autor: Altair Ricardo Villamares Villegas
  * Fecha de Creación: 2024-11-07
- * Última Modificación: 2024-11-27
+ * Última Modificación: 2024-11-28
  */
 class LoginController extends Controller
 {
@@ -43,7 +45,8 @@ class LoginController extends Controller
                 return redirect('/login')->withErrors(['No tienes acceso a esta aplicación.']);
             }
 
-            $adminId = Auth::id();
+            $admin = User::find(Auth::id());
+            $adminId = Administrador::where('administrador_user', $admin->email)->first();
             $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
                 $query->where('cesi_administrador_id', $adminId);
             })->get();

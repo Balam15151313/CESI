@@ -9,13 +9,15 @@ use App\Models\Escuela;
 use Illuminate\Validation\Rule;
 use App\Models\Maestro;
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\Administrador;
 
 /**
  * Archivo: SalonController.php
  * Propósito: Controlador para gestionar salones.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-11-27
+ * Última Modificación: 2024-11-28
  */
 class SalonController extends Controller
 {
@@ -24,7 +26,8 @@ class SalonController extends Controller
      */
     public function index(Request $request)
     {
-        $adminId = Auth::id();
+        $admin = User::find(Auth::id());
+        $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
 
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
@@ -61,7 +64,8 @@ class SalonController extends Controller
      */
     public function create()
     {
-        $adminId = Auth::id();
+        $admin = User::find(Auth::id());
+        $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get();
@@ -88,7 +92,8 @@ class SalonController extends Controller
      */
     public function edit(Salon $salon)
     {
-        $adminId = Auth::id();
+        $admin = User::find(Auth::id());
+        $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get();

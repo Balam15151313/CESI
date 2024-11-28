@@ -10,13 +10,15 @@ use App\Models\Tutor;
 use App\Models\Escuela;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Models\User;
+use App\Models\Administrador;
 
 /**
  * Archivo: AlumnoController.php
  * Propósito: Controlador para gestionar alumnos.
  * Autor: Alexis Daniel Uribe Oleriano
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-27
+ * Última Modificación: 2024-11-28
  */
 class AlumnoController extends Controller
 {
@@ -26,7 +28,8 @@ class AlumnoController extends Controller
      */
     public function index(Request $request)
     {
-        $adminId = Auth::id();
+        $admin = User::find(Auth::id());
+        $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->pluck('id');
@@ -51,7 +54,8 @@ class AlumnoController extends Controller
      */
     public function create()
     {
-        $adminId = Auth::id();
+        $admin = User::find(Auth::id());
+        $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->pluck('id');
@@ -114,7 +118,8 @@ class AlumnoController extends Controller
      */
     public function edit(Alumno $alumno)
     {
-        $adminId = Auth::id();
+        $admin = User::find(Auth::id());
+        $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->pluck('id');

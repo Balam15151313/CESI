@@ -10,13 +10,14 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Models\Administrador;
 
 /**
  * Archivo: ResponsableController.php
  * Propósito: Controlador para gestionar responsables.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-11-27
+ * Última Modificación: 2024-11-28
  */
 class ResponsableController extends Controller
 {
@@ -26,8 +27,8 @@ class ResponsableController extends Controller
     public function index(Request $request)
     {
         $nombre = $request->input('nombre');
-        $adminId = Auth::id();
-
+        $admin = User::find(Auth::id());
+        $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->pluck('id');

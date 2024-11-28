@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
  * Propósito: Controlador para gestionar registro de usuarios administradores.
  * Autor: Altair Ricardo Villamares Villegas
  * Fecha de Creación: 2024-11-07
- * Última Modificación: 2024-11-27
+ * Última Modificación: 2024-11-28
  */
 class RegisterController extends Controller
 {
