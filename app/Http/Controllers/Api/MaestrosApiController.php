@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
+
 /**
  * Archivo: MaestrosApiController.php
  * Propósito: Controlador para gestionar datos relacionados con maestros.
@@ -21,7 +22,7 @@ use Illuminate\Support\Facades\Hash;
 class MaestrosApiController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Mostrar una lista de los recursos.
      */
     public function index(Request $request)
     {
@@ -42,6 +43,9 @@ class MaestrosApiController extends Controller
         return response()->json(['maestros' => $maestros]);
     }
 
+    /**
+     * Obtener los colores de la escuela asociada al maestro.
+     */
     public function obtenerColoresDeEscuela($maestroId)
     {
         $maestro = Maestro::find($maestroId);
@@ -62,7 +66,7 @@ class MaestrosApiController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Mostrar el recurso especificado.
      */
     public function show($id)
     {
@@ -76,7 +80,7 @@ class MaestrosApiController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Almacenar un nuevo recurso en el almacenamiento.
      */
     public function store(Request $request)
     {
@@ -106,7 +110,7 @@ class MaestrosApiController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Actualizar el recurso especificado en el almacenamiento.
      */
     public function update(UpdateMaestroRequest $request, Maestro $maestro)
     {
@@ -135,17 +139,13 @@ class MaestrosApiController extends Controller
         $user->password = Hash::make($request->maestro_contraseña);
         $user->role = 'maestro';
         $user->save();
-
-        // Guardar cambios
-        $maestro->save();
-
         $maestro->save();
 
         return response()->json(['message' => 'Maestro actualizado exitosamente', 'maestro' => $maestro]);
     }
 
     /**
-     * Centralized validation rules.
+     * Reglas de validación centralizadas.
      */
     private function validationRules($maestroId = null)
     {
@@ -159,7 +159,7 @@ class MaestrosApiController extends Controller
     }
 
     /**
-     * Centralized validation messages in Spanish.
+     * Mensajes de validación centralizados en español.
      */
     private function validationMessages()
     {
@@ -182,7 +182,7 @@ class MaestrosApiController extends Controller
     }
 
     /**
-     * Handle the upload of the maestro's photo.
+     * Manejar la carga de la foto del maestro.
      */
     private function uploadMaestroFoto($file)
     {

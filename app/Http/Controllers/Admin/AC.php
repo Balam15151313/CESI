@@ -9,37 +9,46 @@ use App\Models\Tutor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+
 /**
  * Archivo: AC.php
  * Propósito: Controlador para gestionar alumnos.
  * Autor: Alexis Daniel Uribe Oleriano
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-26 - Añadida validación para evitar duplicados.
+ * Última Modificación: 2024-11-27
  */
 class AlumnoController extends Controller
 {
-
+    // Constantes para mensajes de éxito
     const SUCCESS_CREATED = 'Alumno creado correctamente.';
     const SUCCESS_UPDATED = 'Alumno actualizado correctamente.';
     const SUCCESS_DELETED = 'Alumno eliminado correctamente.';
 
+    /**
+     * Muestra la lista de alumnos.
+     */
     public function index()
     {
         $alumnos = Alumno::with(['salones', 'tutores'])->get();
-        return view('alumnos.index', compact('alumnos'));
+        view('alumnos.index', compact('alumnos'));
     }
 
+    /**
+     * Muestra el formulario para crear un nuevo alumno.
+     */
     public function create()
     {
         $salones = Salon::all();
         $tutores = Tutor::all();
-        return view('alumnos.create', compact('salones', 'tutores'));
+        view('alumnos.create', compact('salones', 'tutores'));
     }
 
-    public function store(Request $request)
+    /**
+     * Almacena un nuevo alumno en la base de datos.
+     */
+    public function store()
     {
-
-        $request->validate([
+        request()->validate([
             'alumno_nombre' => 'required|string|max:255',
             'alumno_nacimiento' => 'required|date',
             'cesi_salon_id' => 'required|exists:cesi_salones,id',
@@ -60,42 +69,52 @@ class AlumnoController extends Controller
 
         try {
             $alumno = new Alumno();
-            $alumno->alumno_nombre = $request->alumno_nombre;
-            $alumno->alumno_nacimiento = $request->alumno_nacimiento;
-            $alumno->cesi_salon_id = $request->cesi_salon_id;
-            $alumno->cesi_tutor_id = $request->cesi_tutor_id;
+            $alumno->alumno_nombre = request('alumno_nombre');
+            $alumno->alumno_nacimiento = request('alumno_nacimiento');
+            $alumno->cesi_salon_id = request('cesi_salon_id');
+            $alumno->cesi_tutor_id = request('cesi_tutor_id');
 
-            if ($request->hasFile('alumno_foto')) {
-                $imagePath = Storage::disk('public')->putFile('alumnos', $request->file('alumno_foto'));
+            if (request()->hasFile('alumno_foto')) {
+                $imagePath = Storage::disk('public')->putFile('alumnos', request()->file('alumno_foto'));
                 $alumno->alumno_foto = basename($imagePath);
             }
 
             $alumno->save();
 
-            return redirect()->route('alumnos.index')
+            redirect()->route('alumnos.index')
                 ->with('success', self::SUCCESS_CREATED);
         } catch (\Illuminate\Database\QueryException $e) {
-            Log::error('Error al crear alumno: ' . $e->getMessage()); // Registrar el error
-            return back()->withErrors(['error' => 'Error al crear alumno: ' . $e->getMessage()]); // Mostrar un mensaje de error más específico
+            Log::error('Error al crear alumno: ' . $e->getMessage());
+            back()->withErrors(['error' => 'Error al crear alumno: ' . $e->getMessage()]);
+            back()->withErrors(['error' => 'Error al crear alumno: ' . $e->getMessage()]);
         }
     }
 
+    /**
+     * Muestra los detalles de un alumno.
+     */
     public function show(Alumno $alumno)
     {
         $alumno->load('salones', 'tutores');
-        return view('alumnos.show', compact('alumno'));
+        view('alumnos.show', compact('alumno'));
     }
 
+    /**
+     * Muestra el formulario para editar un alumno existente.
+     */
     public function edit(Alumno $alumno)
     {
         $salones = Salon::all();
         $tutores = Tutor::all();
-        return view('alumnos.edit', compact('alumno', 'salones', 'tutores'));
+        view('alumnos.edit', compact('alumno', 'salones', 'tutores'));
     }
 
-    public function update(Request $request, Alumno $alumno)
+    /**
+     * Actualiza los datos de un alumno en la base de datos.
+     */
+    public function update(Alumno $alumno)
     {
-        $request->validate([
+        request()->validate([
             'alumno_nombre' => 'required|string|max:255',
             'alumno_nacimiento' => 'required|date',
             'cesi_salon_id' => 'required|exists:cesi_salones,id',
@@ -114,28 +133,31 @@ class AlumnoController extends Controller
         ]);
 
         try {
-            $alumno->alumno_nombre = $request->alumno_nombre;
-            $alumno->alumno_nacimiento = $request->alumno_nacimiento;
-            $alumno->cesi_salon_id = $request->cesi_salon_id;
-            $alumno->cesi_tutor_id = $request->cesi_tutor_id;
+            $alumno->alumno_nombre = request('alumno_nombre');
+            $alumno->alumno_nacimiento = request('alumno_nacimiento');
+            $alumno->cesi_salon_id = request('cesi_salon_id');
+            $alumno->cesi_tutor_id = request('cesi_tutor_id');
 
-            if ($request->hasFile('alumno_foto')) {
+            if (request()->hasFile('alumno_foto')) {
                 if ($alumno->alumno_foto) {
                     Storage::delete('public/alumnos/' . basename($alumno->alumno_foto));
                 }
-                $imagePath = Storage::disk('public')->putFile('alumnos', $request->file('alumno_foto'));
+                $imagePath = Storage::disk('public')->putFile('alumnos', request()->file('alumno_foto'));
                 $alumno->alumno_foto = basename($imagePath);
             }
 
             $alumno->save();
 
-            return redirect()->route('alumnos.index')
+            redirect()->route('alumnos.index')
                 ->with('success', self::SUCCESS_UPDATED);
         } catch (\Illuminate\Database\QueryException $e) {
-            return back()->withErrors(['error' => 'Error al actualizar alumno']);
+            back()->withErrors(['error' => 'Error al actualizar alumno']);
         }
     }
 
+    /**
+     * Elimina un alumno de la base de datos.
+     */
     public function destroy(Alumno $alumno)
     {
         try {
@@ -145,10 +167,10 @@ class AlumnoController extends Controller
 
             $alumno->delete();
 
-            return redirect()->route('alumnos.index')
+            redirect()->route('alumnos.index')
                 ->with('success', self::SUCCESS_DELETED);
         } catch (\Illuminate\Database\QueryException $e) {
-            return back()->withErrors(['error' => 'Error al eliminar alumno']);
+            back()->withErrors(['error' => 'Error al eliminar alumno']);
         }
     }
 }

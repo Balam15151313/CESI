@@ -16,68 +16,64 @@ use Illuminate\Validation\Rule;
  * Propósito: Controlador para gestionar responsables.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-11-26
+ * Última Modificación: 2024-11-27
  */
 class ResponsableController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Muestra una lista de responsables activos e inactivos.
      */
     public function index(Request $request)
     {
         $nombre = $request->input('nombre');
         $adminId = Auth::id();
 
-        // Obtener los IDs de las escuelas asociadas al administrador
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->pluck('id');
 
-        // Responsables activos
         $responsablesActivos = Responsable::with(['tutores' => function ($query) use ($escuelas) {
-            $query->whereIn('cesi_escuela_id', $escuelas); // Usamos whereIn por si hay múltiples escuelas
-        }])
-        ->where('responsable_activacion', 1)  // Responsables activos
-        ->whereHas('tutores', function ($query) use ($escuelas) {
             $query->whereIn('cesi_escuela_id', $escuelas);
-        })
-        // Solo aplicar filtro de nombre si es diferente de null o vacío
-        ->when($nombre, function ($query, $nombre) {
-            if (!empty($nombre)) {
-                return $query->where('responsable_nombre', 'like', '%' . $nombre . '%');
-            }
-        })
-        ->get();
+        }])
+            ->where('responsable_activacion', 1)
+            ->whereHas('tutores', function ($query) use ($escuelas) {
+                $query->whereIn('cesi_escuela_id', $escuelas);
+            })
+            ->when($nombre, function ($query, $nombre) {
+                if (!empty($nombre)) {
+                    return $query->where('responsable_nombre', 'like', '%' . $nombre . '%');
+                }
+            })
+            ->get();
 
-        // Responsables inactivos
         $responsablesInactivos = Responsable::with(['tutores' => function ($query) use ($escuelas) {
             $query->whereIn('cesi_escuela_id', $escuelas);
         }])
-        ->where('responsable_activacion', 0)  // Responsables no activos
-        ->whereHas('tutores', function ($query) use ($escuelas) {
-            $query->whereIn('cesi_escuela_id', $escuelas);
-        })
-        // Solo aplicar filtro de nombre si es diferente de null o vacío
-        ->when($nombre, function ($query, $nombre) {
-            if (!empty($nombre)) {
-                return $query->where('responsable_nombre', 'like', '%' . $nombre . '%');
-            }
-        })
-        ->get();
+            ->where('responsable_activacion', 0)
+            ->whereHas('tutores', function ($query) use ($escuelas) {
+                $query->whereIn('cesi_escuela_id', $escuelas);
+            })
+            ->when($nombre, function ($query, $nombre) {
+                if (!empty($nombre)) {
+                    return $query->where('responsable_nombre', 'like', '%' . $nombre . '%');
+                }
+            })
+            ->get();
 
         return view('responsables.index', compact('responsablesActivos', 'responsablesInactivos'));
     }
 
-
+    /**
+     * Activa un responsable cambiando su estado de activación a 1.
+     */
     public function activate(Responsable $responsable)
     {
         $responsable->update(['responsable_activacion' => 1]);
         return redirect()->route('responsables.index')->with('success', 'Responsable activado correctamente.');
     }
 
-
     /**
-     * Show the form for creating a new resource.
+     * Muestra un formulario de creación de un nuevo responsable. Este método está deshabilitado.
      */
     public function create()
     {
@@ -85,7 +81,7 @@ class ResponsableController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Almacena un nuevo responsable en la base de datos. Este método está deshabilitado.
      */
     public function store(Request $request)
     {
@@ -93,19 +89,16 @@ class ResponsableController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Muestra los detalles de un responsable y sus tutores asociados.
      */
     public function show($id)
     {
-        // Buscar el responsable junto con su tutor
         $responsable = Responsable::with('tutores')->findOrFail($id);
-
-        // Retornar la vista con los datos
         return view('responsables.show', compact('responsable'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Muestra el formulario para editar un responsable específico.
      */
     public function edit(Responsable $responsable)
     {
@@ -113,35 +106,30 @@ class ResponsableController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Actualiza los datos de un responsable en la base de datos.
      */
     public function update(Request $request, Responsable $responsable)
     {
-        // Validación de los campos
         $request->validationRules();
 
-        // Actualizar los datos del responsable
         $responsable->responsable_nombre = $request->responsable_nombre;
         $responsable->responsable_usuario = $request->responsable_usuario;
-        $responsable->responsable_contraseña = bcrypt($request->responsable_contraseña); // Si la contraseña se recibe
+        $responsable->responsable_contraseña = bcrypt($request->responsable_contraseña);
         $responsable->responsable_telefono = $request->responsable_telefono;
 
-        // Manejo de actualización de imagen
         if ($request->hasFile('responsable_foto')) {
-            // Si ya existe una foto, eliminarla antes de almacenar la nueva
             if ($responsable->responsable_foto) {
                 $previousPhotoPath = public_path('storage/' . $responsable->responsable_foto);
                 if (file_exists($previousPhotoPath)) {
-                    unlink($previousPhotoPath); // Eliminar foto anterior
+                    unlink($previousPhotoPath);
                 }
             }
 
-            // Almacenar nueva foto
             $imagePath = $request->file('responsable_foto')->store('responsables', 'public');
             $responsable->responsable_foto = $imagePath;
         }
 
-        $user = User::find('email',$responsable->responsable_usuario);
+        $user = User::find('email', $responsable->responsable_usuario);
         $user->name = $request->responsable_nombre;
         $user->email = $request->responsable_usuario;
         if ($request->filled('responsable_contraseña')) {
@@ -150,33 +138,35 @@ class ResponsableController extends Controller
         $user->role = 'responsable';
         $user->save();
 
-        // Guardar los cambios
         $responsable->save();
 
         return redirect()->route('responsables.index')->with('success', 'Responsable actualizado exitosamente');
     }
 
+    /**
+     * Define las reglas de validación para la creación o edición de un responsable.
+     */
     public function validationRules($responsableId = null)
     {
         $relatedUserId = null;
 
-        // Busca el ID del usuario relacionado solo si se está editando
         if ($responsableId) {
             $responsable = Responsable::find($responsableId);
             $user = User::where('email', $responsable->responsable_usuario)->first();
             $relatedUserId = $user?->id;
         }
+
         return [
             'rules' => [
                 'responsable_nombre' => 'required|string|max:255',
                 'responsable_usuario' => [
                     'required',
                     'email',
-                    Rule::unique('cesi_responsables', 'responsable_usuario')->ignore($responsableId), // Ignora el registro actual
-                    Rule::unique('users', 'email')->ignore($relatedUserId), // Ignora el usuario relacionado
+                    Rule::unique('cesi_responsables', 'responsable_usuario')->ignore($responsableId),
+                    Rule::unique('users', 'email')->ignore($relatedUserId),
                 ],
-                'responsable_contraseña' => 'nullable|string|min:6',
-                'responsable_telefono' => 'nullable|regex:/^[0-9]{10,11}$/',
+                'responsable_contraseña' => 'nullable|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/|min:8',
+                'responsable_telefono' => 'nullable|regex:/^[0-9]{10}$/',
                 'responsable_foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ],
             'messages' => [
@@ -189,10 +179,10 @@ class ResponsableController extends Controller
                 'responsable_usuario.unique' => 'Este correo electrónico ya está registrado.',
 
                 'responsable_contraseña.nullable' => 'La contraseña es opcional.',
-                'responsable_contraseña.string' => 'La contraseña debe ser una cadena de texto.',
-                'responsable_contraseña.min' => 'La contraseña debe tener al menos 6 caracteres.',
+                'responsable_contraseña.regex' => 'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&).',
+                'responsable_contraseña.min' => 'La contraseña debe tener al menos 8 caracteres.',
 
-                'responsable_telefono.regex' => 'El número de teléfono debe contener entre 10 y 11 dígitos.',
+                'responsable_telefono.regex' => 'El número de teléfono debe contener entre 10  dígitos.',
 
                 'responsable_foto.image' => 'El archivo debe ser una imagen.',
                 'responsable_foto.mimes' => 'La imagen debe estar en formato jpeg, png, jpg o gif.',
@@ -200,14 +190,13 @@ class ResponsableController extends Controller
             ],
         ];
     }
+
     /**
-     * Remove the specified resource from storage.
+     * Elimina un responsable de la base de datos.
      */
     public function delete(Responsable $responsable)
     {
         $responsable->delete();
         return redirect()->route('responsables.index')->with('success', 'Responsable eliminado correctamente.');
     }
-
-
 }

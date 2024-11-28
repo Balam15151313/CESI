@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\TutorController;
 use App\Http\Controllers\Admin\AlumnoController;
+use App\Http\Controllers\Admin\AdminController;
 /**
  * Archivo: web.php
  * Propósito: Genera las rutas de la página.
@@ -66,7 +67,8 @@ Route::get('maestros/{maestro}', [MaestroController::class, 'show'])->name('maes
 Route::get('maestros/{maestro}/edit', [MaestroController::class, 'edit'])->name('maestros.edit');
 Route::put('/maestros/{maestro}', [MaestroController::class, 'update'])->name('maestros.update');
 Route::delete('maestros/{maestro}', [MaestroController::class, 'destroy'])->name('maestros.destroy');
-
+Route::get('/admin/edit/{id}', [AdminController::class, 'edit'])->name('admin.edit');
+Route::put('/admin/update/{id}', [AdminController::class, 'update'])->name('admin.update');
 Route::get('responsables', [ResponsableController::class, 'index'])->name('responsables.index');
 Route::get('responsables/{responsable}/edit', [ResponsableController::class, 'edit'])->name('responsables.edit');
 Route::put('responsables/{responsable}', [ResponsableController::class, 'update'])->name('responsables.update');

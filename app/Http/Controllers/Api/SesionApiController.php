@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Sesion;
+
 /**
  * Archivo: SesionApiController.php
  * Propósito: Controlador para gestionar datos relacionados con sesiones.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-26
+ * Última Modificación: 2024-11-27
  */
 
 class SesionApiController extends Controller
@@ -20,7 +21,6 @@ class SesionApiController extends Controller
      */
     public function index()
     {
-        // Obtener todas las sesiones
         $sesiones = Sesion::all();
 
         if ($sesiones->isEmpty()) {
@@ -35,16 +35,14 @@ class SesionApiController extends Controller
      */
     public function create(Request $request)
     {
-        // Validación de los datos de la sesión
         $validated = $request->validate([
             'sesion_estado' => 'required|string|max:255',
             'sesion_inicio' => 'required|date',
             'sesion_fin' => 'nullable|date',
             'sesion_usuario' => 'required|string|max:255',
-            'cesi_responsable_id' => 'required|exists:responsables,id', // Asegúrate de que el responsable exista
+            'cesi_responsable_id' => 'required|exists:responsables,id',
         ]);
 
-        // Crear la sesión
         $sesion = Sesion::create($validated);
 
         return response()->json(['message' => 'Sesión creada correctamente', 'data' => $sesion], 201);
@@ -55,7 +53,6 @@ class SesionApiController extends Controller
      */
     public function show($id)
     {
-        // Buscar la sesión por ID
         $sesion = Sesion::find($id);
 
         if (!$sesion) {
@@ -70,14 +67,12 @@ class SesionApiController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Buscar la sesión por ID
         $sesion = Sesion::find($id);
 
         if (!$sesion) {
             return response()->json(['error' => 'Sesión no encontrada'], 404);
         }
 
-        // Validación de los datos a actualizar
         $validated = $request->validate([
             'sesion_estado' => 'nullable|string|max:255',
             'sesion_inicio' => 'nullable|date',
@@ -86,7 +81,6 @@ class SesionApiController extends Controller
             'cesi_responsable_id' => 'nullable|exists:responsables,id',
         ]);
 
-        // Actualizar la sesión
         $sesion->update($validated);
 
         return response()->json(['message' => 'Sesión actualizada correctamente', 'data' => $sesion], 200);
@@ -97,14 +91,12 @@ class SesionApiController extends Controller
      */
     public function destroy($id)
     {
-        // Buscar la sesión por ID
         $sesion = Sesion::find($id);
 
         if (!$sesion) {
             return response()->json(['error' => 'Sesión no encontrada'], 404);
         }
 
-        // Eliminar la sesión
         $sesion->delete();
 
         return response()->json(['message' => 'Sesión eliminada correctamente'], 200);
@@ -115,14 +107,12 @@ class SesionApiController extends Controller
      */
     public function responsable($id)
     {
-        // Buscar la sesión por ID
         $sesion = Sesion::find($id);
 
         if (!$sesion) {
             return response()->json(['error' => 'Sesión no encontrada'], 404);
         }
 
-        // Obtener el responsable asociado a la sesión
         $responsable = $sesion->responsables;
 
         return response()->json(['data' => $responsable], 200);

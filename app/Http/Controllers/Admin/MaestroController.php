@@ -18,12 +18,13 @@ use Illuminate\Validation\Rule;
  * Propósito: Controlador para gestionar maestros.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-11-26
+ * Última Modificación: 2024-11-27
  */
 class MaestroController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Muestra una lista de los maestros.
+     * Obtiene las escuelas asociadas al administrador autenticado y filtra los maestros por nombre si se proporciona.
      */
     public function index(Request $request)
     {
@@ -45,7 +46,8 @@ class MaestroController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Muestra el formulario para crear un nuevo maestro.
+     * Obtiene las escuelas asociadas al administrador autenticado para la creación de un maestro.
      */
     public function create()
     {
@@ -57,13 +59,13 @@ class MaestroController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Almacena un nuevo maestro en la base de datos.
+     * Valida los datos, guarda al maestro y crea el usuario asociado.
      */
     public function store(Request $request)
     {
-        // Validación
+
         $request->validate($this->validationRules(), $this->validationMessages());
-        // Si la validación pasa, almacenar el maestro
         $maestro = new Maestro();
         $maestro->maestro_nombre = $request->maestro_nombre;
         $maestro->maestro_usuario = $request->maestro_usuario;
@@ -74,12 +76,11 @@ class MaestroController extends Controller
         if ($request->hasFile('maestro_foto')) {
             $maestro->maestro_foto = $this->uploadMaestroFoto($request->file('maestro_foto'));
         }
-        // Crear usuario asociado
         User::create([
             'name' => $request->maestro_nombre,
             'email' => $request->maestro_usuario,
             'password' => Hash::make($request->maestro_contraseña),
-            'role' => 'maestro', // Asignar rol de maestro automáticamente
+            'role' => 'maestro',
         ]);
 
         $maestro->save();
@@ -90,7 +91,8 @@ class MaestroController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Muestra el formulario para editar un maestro existente.
+     * Obtiene las escuelas asociadas al administrador autenticado para editar el maestro.
      */
     public function edit(Maestro $maestro)
     {
@@ -102,83 +104,80 @@ class MaestroController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Actualiza un maestro existente en la base de datos.
+     * Valida los campos editables, actualiza la información del maestro y su usuario asociado.
      */
     public function update(UpdateMaestroRequest $request, Maestro $maestro)
     {
-        // Validación para campos editables
         $request->validate($this->validationRules($maestro->id), $this->validationMessages());
-        // Actualizar datos del maestro
         $maestro->maestro_nombre = $request->maestro_nombre;
         $maestro->maestro_usuario = $request->maestro_usuario;
         $maestro->maestro_telefono = $request->maestro_telefono;
         $maestro->maestro_contraseña = Hash::make($request->maestro_contraseña);
         $maestro->cesi_escuela_id = $request->cesi_escuela_id;
-
-        // Si hay nueva foto, eliminar la anterior y guardar la nueva
         if ($request->hasFile('maestro_foto')) {
-            // Eliminar foto anterior si existe
             if ($maestro->maestro_foto) {
                 Storage::disk('public')->delete($maestro->maestro_foto);
             }
 
-            // Subir nueva foto
             $imagePath = $request->file('maestro_foto')->store('maestros', 'public');
             $maestro->maestro_foto = $imagePath;
         }
 
-        // Actualizar usuario asociado
         $user = User::where('email', $maestro->maestro_usuario)->first();
         $user->name = $request->maestro_nombre;
         $user->email = $request->maestro_usuario;
         $user->password = Hash::make($request->maestro_contraseña);
         $user->role = 'maestro';
         $user->save();
-
-        // Guardar cambios
         $maestro->save();
 
         return redirect()->route('maestros.index')->with('success', 'Maestro actualizado exitosamente');
     }
+
+    /**
+     * Muestra la información detallada de un maestro.
+     * Busca al maestro junto con su salón y muestra los detalles.
+     */
     public function show($id)
     {
-        // Buscar el maestro junto con su salón
         $maestro = Maestro::with('salones')->findOrFail($id);
 
-        // Retornar la vista con los datos del maestro
         return view('maestros.show', compact('maestro'));
     }
 
+    /**
+     * Sube la foto del maestro al almacenamiento.
+     * Almacena la imagen en el disco público.
+     */
     private function uploadMaestroFoto($file)
     {
         return $file->store('maestros', 'public');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Elimina un maestro de la base de datos.
+     * Elimina la foto asociada y el usuario relacionado antes de eliminar al maestro.
      */
     public function destroy(Maestro $maestro)
     {
-        // Eliminar foto si existe
         if ($maestro->maestro_foto) {
             Storage::disk('public')->delete($maestro->maestro_foto);
         }
 
-        // Eliminar usuario asociado
         $user = User::where('email', $maestro->maestro_usuario)->first();
         $user->delete();
-
-        // Eliminar maestro de la base de datos
         $maestro->delete();
 
         return redirect()->route('maestros.index')->with('success', 'El maestro se ha eliminado correctamente');
     }
 
+    /**
+     * Define las reglas de validación para crear o actualizar un maestro.
+     */
     private function validationRules($maestroId = null)
     {
         $relatedUserId = null;
-
-        // Busca el ID del usuario relacionado solo si se está editando
         if ($maestroId) {
             $maestro = Maestro::find($maestroId);
             $user = User::where('email', $maestro->maestro_usuario)->first();
@@ -190,15 +189,18 @@ class MaestroController extends Controller
             'maestro_usuario' => [
                 'required',
                 'email',
-                Rule::unique('cesi_maestros', 'maestro_usuario')->ignore($maestroId), // Ignora el registro actual
-                Rule::unique('users', 'email')->ignore($relatedUserId), // Ignora el usuario relacionado
+                Rule::unique('cesi_maestros', 'maestro_usuario')->ignore($maestroId),
+                Rule::unique('users', 'email')->ignore($relatedUserId),
             ],
-            'maestro_contraseña' => $maestroId ? 'nullable|string|min:8' : 'required|string|min:8', // Obligatoria solo en creación
-            'maestro_telefono' => 'required|string|max:15',
+            'maestro_contraseña' => $maestroId ? 'nullable|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/|min:8' : 'required|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/|min:8',
+            'maestro_telefono' => 'required|regex:/^[0-9]{10}$/',
             'cesi_escuela_id' => 'required|exists:cesi_escuelas,id',
         ];
     }
 
+    /**
+     * Devuelve los mensajes de error para la validación de los campos del maestro.
+     */
     private function validationMessages()
     {
         return [
@@ -211,13 +213,12 @@ class MaestroController extends Controller
             'maestro_usuario.unique' => 'El correo electrónico del maestro ya está registrado.',
 
             'maestro_contraseña.required' => 'La contraseña es obligatoria.',
-            'maestro_contraseña.string' => 'La contraseña debe ser una cadena de texto.',
+
             'maestro_contraseña.min' => 'La contraseña debe tener al menos 8 caracteres.',
-            'maestro_contraseña.regex' => 'La contraseña debe contener al menos una letra mayúscula, una minúscula y un número.',
+            'maestro_contraseña.regex' => 'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&).',
 
             'maestro_telefono.required' => 'El teléfono del maestro es obligatorio.',
-            'maestro_telefono.numeric' => 'El teléfono debe contener solo números.',
-            'maestro_telefono.digits' => 'El teléfono debe tener exactamente 10 dígitos.',
+            'maestro_telefono.regex' => 'El número de teléfono debe contener entre 10 dígitos.',
 
             'cesi_escuela_id.required' => 'La escuela es obligatoria.',
             'cesi_escuela_id.exists' => 'La escuela seleccionada no existe.',

@@ -8,6 +8,7 @@ use App\Models\Escuela;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+
 /**
  * Archivo: SalonApiController.php
  * Propósito: Controlador para gestionar datos relacionados con salones.
@@ -23,27 +24,22 @@ class SalonApiController extends Controller
      */
     public function index(Request $request)
     {
-        // Obtener el ID del administrador autenticado
         $adminId = Auth::id();
 
-        // Obtener las escuelas asociadas al administrador
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->pluck('id');
 
-        // Consulta base para obtener salones
         $query = Salon::with(['escuela', 'maestro'])
             ->whereIn('cesi_escuela_id', $escuelas);
 
-        // Aplicar filtros dinámicos
         $query->when($request->grado, function ($query, $grado) {
             $query->where('salon_grado', 'like', '%' . $grado . '%');
         })
-        ->when($request->grupo, function ($query, $grupo) {
-            $query->where('salon_grupo', 'like', '%' . $grupo . '%');
-        });
+            ->when($request->grupo, function ($query, $grupo) {
+                $query->where('salon_grupo', 'like', '%' . $grupo . '%');
+            });
 
-        // Obtener los resultados
         $salones = $query->get();
 
         return response()->json($salones, 200);
@@ -57,10 +53,9 @@ class SalonApiController extends Controller
         $validationResult = $this->validateRequest($request);
 
         if ($validationResult !== true) {
-            return $validationResult; // Retorna el error de validación
+            return $validationResult;
         }
 
-        // Crear el salón
         $salon = Salon::create($request->all());
 
         return response()->json([
@@ -87,10 +82,9 @@ class SalonApiController extends Controller
         $validationResult = $this->validateRequest($request);
 
         if ($validationResult !== true) {
-            return $validationResult; // Retorna el error de validación
+            return $validationResult;
         }
 
-        // Actualizar el salón
         $salon->update($request->all());
 
         return response()->json([
@@ -139,6 +133,6 @@ class SalonApiController extends Controller
             ], 422);
         }
 
-        return true; // Validación exitosa
+        return true;
     }
 }

@@ -9,39 +9,37 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Administrador;
+
 /**
  * Archivo: RegistroApiController.php
  * Propósito: Controlador para gestionar datos relacionados con registros.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-26
+ * Última Modificación: 2024-11-27
  */
-
 class RegistroApiController extends Controller
 {
     /**
      * Registrar un nuevo usuario.
+     * Este método valida los datos de la solicitud, crea un nuevo usuario,
+     * y luego lo autentica, generando un token de acceso.
      */
     public function register(Request $request)
     {
-        // Validación de los datos, incluyendo el código de acceso
         $validator = $this->validator($request->all());
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // Crear el usuario después de validar
         try {
             $user = $this->create($request->all());
         } catch (\Exception $e) {
             return response()->json(['error' => 'No se pudo registrar el usuario: ' . $e->getMessage()], 500);
         }
 
-        // Iniciar sesión automáticamente después del registro
         Auth::login($user);
 
-        // Generación de token para autenticación
         $token = $user->createToken('API Token')->plainTextToken;
 
         return response()->json([
@@ -53,6 +51,7 @@ class RegistroApiController extends Controller
 
     /**
      * Validar los datos del registro.
+     * Este método valida los datos de la solicitud, incluyendo la verificación del código de acceso.
      */
     protected function validator(array $data)
     {
@@ -60,35 +59,32 @@ class RegistroApiController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'access_code' => ['required', 'string', 'in:78945'], // Validación del código de acceso
+            'access_code' => ['required', 'string', 'in:78945'],
         ], [
-            'access_code.in' => 'Código de acceso inválido para el registro.', // Mensaje de error personalizado
+            'access_code.in' => 'Código de acceso inválido para el registro.',
         ]);
     }
 
     /**
      * Crear el usuario en la base de datos.
+     * Este método crea un nuevo registro de usuario en la tabla 'users' y lo vincula con un registro en la tabla 'administradores'.
      */
     protected function create(array $data)
     {
-        // Verifica si el código de acceso es válido
         if ($data['access_code'] !== '78945') {
             throw new \Exception("Código de acceso inválido.");
         }
 
-        // Crear el usuario en la tabla 'users'
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-            'role' => 'admin', // Asignar rol de administrador automáticamente
+            'role' => 'admin',
         ]);
 
-        // Crear un registro en la tabla 'administradores' enlazado al usuario
         Administrador::create([
-            'user_id' => $user->id, // Asume que tienes una columna user_id en 'administradores' para la relación
+            'user_id' => $user->id,
             'administrador_usuario' => $data['name'],
-            // Agrega otros campos necesarios en 'administradores', como administrador_nombre o administrador_telefono, si existen
         ]);
 
         return $user;

@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Tutor;
 use App\Models\Escuela;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+
 /**
  * Archivo: TutorController.php
  * Propósito: Controlador para gestionar tutores.
@@ -17,6 +20,10 @@ use Illuminate\Support\Facades\Storage;
  */
 class TutorController extends Controller
 {
+
+    /**
+     * Muestra la lista de tutores filtrados por nombre.
+     */
     public function index(Request $request)
     {
         $adminId = Auth::id();
@@ -33,9 +40,11 @@ class TutorController extends Controller
             ->get();
 
         return view('tutores.index', compact('tutores'));
-
     }
 
+    /**
+     * Muestra el formulario para crear un nuevo tutor.
+     */
     public function create()
     {
         $adminId = Auth::id();
@@ -46,14 +55,24 @@ class TutorController extends Controller
         return view('tutores.create', compact('escuelas'));
     }
 
+
+    /**
+     * Guarda un nuevo tutor en la base de datos.
+     */
     public function store(Request $request)
     {
         $request->validate([
-            'tutor_usuario' => 'required|regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/|unique:cesi_tutores',
+            'tutor_usuario' => [
+                'required',
+                'email',
+                'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
+                Rule::unique('cesi_tutores', 'tutor_usuario'),
+                Rule::unique('users', 'email'),
+            ],
             'tutor_contraseña' => [
                 'required',
                 'string',
-                'min:9',
+                'min:8',
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/'
             ],
             'tutor_nombre' => 'required|regex:/^[\p{L}\s]+$/u|max:255',
@@ -88,15 +107,28 @@ class TutorController extends Controller
         }
 
         Tutor::create($data);
+        $user = new User();
+        $user->name = $request->tutor_nombre;
+        $user->email = $request->tutor_usuario;
+        $user->password = bcrypt($request->tutor_contraseña);
+        $user->role = 'tutor';
+        $user->save();
 
         return redirect()->route('tutores.index')->with('success', 'Tutor creado exitosamente.');
     }
 
+
+    /**
+     * Muestra los detalles de un tutor específico.
+     */
     public function show(Tutor $tutor)
     {
         return view('tutores.show', compact('tutor'));
     }
 
+    /**
+     * Muestra el formulario para editar un tutor existente.
+     */
     public function edit(Tutor $tutor)
     {
         $adminId = Auth::id();
@@ -107,14 +139,26 @@ class TutorController extends Controller
         return view('tutores.edit', compact('tutor', 'escuelas'));
     }
 
+
+    /**
+     * Actualiza la información de un tutor existente en la base de datos.
+     */
     public function update(Request $request, Tutor $tutor)
     {
+        $user = User::where('email', $tutor->tutor_usuario)->first();
+        $relatedUserId = $user?->id;
         $request->validate([
-            'tutor_usuario' => 'required|regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/|unique:cesi_tutores,tutor_usuario,' . $tutor->id,
+            'tutor_usuario' => [
+                'required',
+                'email',
+                'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
+                Rule::unique('cesi_tutores', 'tutor_usuario')->ignore($tutor->id),
+                Rule::unique('users', 'email')->ignore($relatedUserId),
+            ],
             'tutor_contraseña' => [
                 'nullable',
                 'string',
-                'min:9',
+                'min:8',
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/'
             ],
             'tutor_nombre' => 'required|regex:/^[\p{L}\s]+$/u|max:255',
@@ -141,14 +185,12 @@ class TutorController extends Controller
 
         $data = $request->all();
 
-        // Lógica para la contraseña
         if ($request->has('tutor_contraseña') && trim($request->tutor_contraseña) !== '') {
             $data['tutor_contraseña'] = bcrypt($request->tutor_contraseña);
         } else {
             unset($data['tutor_contraseña']);
         }
 
-        // Lógica para la foto
         if ($request->hasFile('tutor_foto')) {
             if ($tutor->tutor_foto) {
                 Storage::delete('public/' . $tutor->tutor_foto);
@@ -156,11 +198,22 @@ class TutorController extends Controller
             $data['tutor_foto'] = $request->file('tutor_foto')->store('tutores', 'public');
         }
 
+        $user = User::find('email', $tutor->tutor_usuario);
+        $user->name = $request->tutor_nombre;
+        $user->email = $request->tutor_usuario;
+        $user->password = bcrypt($request->tutor_contraseña);
+        $user->role = 'tutor';
+        $user->save();
+
+
         $tutor->update($data);
 
         return redirect()->route('tutores.index')->with('success', 'Tutor actualizado exitosamente.');
     }
 
+    /**
+     * Elimina un tutor de la base de datos.
+     */
     public function destroy(Tutor $tutor)
     {
         if ($tutor->tutor_foto) {

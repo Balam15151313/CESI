@@ -5,8 +5,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Responsable;
 use App\Models\User;
 use App\Models\Escuela;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 /**
  * Archivo: ResponsableApiController.php
  * Propósito: Controlador para gestionar datos relacionados con responsables.
@@ -138,7 +138,7 @@ class ResponsableApiController extends Controller
     {
         // Obtener el responsable
         $responsable = Responsable::with(['tutores.escuela.ui'])
-            ->where('ID_RESPONSABLE', $responsableId)
+            ->where('id', $responsableId)
             ->first();
 
         if (!$responsable) {
@@ -179,10 +179,19 @@ class ResponsableApiController extends Controller
 
     public function validationRules($responsableId = null)
     {
+        $responsable = Responsable::find($responsableId);
+        $user = User::where('email', $responsable->responsable_usuario)->first();
+        $relatedUserId = $user?->id;
         return [
             'rules' => [
                 'responsable_nombre' => 'required|string|max:255',
-                'responsable_usuario' => 'required|email|unique:cesi_responsables,responsable_usuario,' . $responsableId,
+                'responsable_usuario' => [
+                    'required',
+                    'email',
+                    'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
+                    Rule::unique('cesi_responsables', 'responsable_usuario')->ignore($responsableId),
+                    Rule::unique('users', 'email')->ignore($relatedUserId),
+                ],
                 'responsable_contraseña' => 'nullable|string|min:6',
                 'responsable_telefono' => 'nullable|regex:/^[0-9]{10,11}$/',
                 'responsable_foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',

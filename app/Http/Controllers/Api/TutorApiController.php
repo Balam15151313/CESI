@@ -11,6 +11,7 @@ use App\Models\UI;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+
 /**
  * Archivo: TutorApiController.php
  * Propósito: Controlador para gestionar datos relacionados con tutor.
@@ -47,16 +48,31 @@ class TutorApiController extends Controller
     /**
      * Obtener los datos del alumno por su ID
      */
-    public function showAlumno($id)
+    public function showAlumno($id, $tutorId)
     {
-        $alumno = Alumno::find($id);
+        $alumno = Alumno::with([
+            'tutores',
+            'salones',
+            'salones.escuela',
+            'salones.maestro',
+        ])
+            ->where('id', $id)
+            ->where('cesi_tutore_id', $tutorId)
+            ->first();
 
         if (!$alumno) {
-            return response()->json(['error' => 'Alumno no encontrado'], 404);
+            return response()->json(['error' => 'Alumno no encontrado o no autorizado'], 404);
         }
 
-        return response()->json($alumno);
+        return response()->json([
+            'alumno' => $alumno,
+            'tutor' => $alumno->tutores,
+            'salon' => $alumno->salones,
+            'escuela' => $alumno->salones->escuela,
+            'maestro' => $alumno->salones->maestro,
+        ]);
     }
+
 
     /**
      * Obtener los colores de la escuela relacionados al tutor
@@ -96,15 +112,23 @@ class TutorApiController extends Controller
     /**
      * Obtener un responsable por su ID
      */
-    public function showResponsable($id)
+    public function showResponsable($id, $tutorId)
     {
-        $responsable = Responsable::find($id);
+        $responsable = Responsable::with([
+            'tutor'
+        ])
+            ->where('id', $id)
+            ->where('cesi_tutore_id', $tutorId)
+            ->first();
 
         if (!$responsable) {
-            return response()->json(['error' => 'Responsable no encontrado'], 404);
+            return response()->json(['error' => 'Responsable no encontrado o no autorizado'], 404);
         }
 
-        return response()->json($responsable);
+        return response()->json([
+            'responsable' => $responsable,
+            'tutor' => $responsable->tutor,
+        ]);
     }
 
     /**

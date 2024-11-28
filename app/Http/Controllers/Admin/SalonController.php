@@ -15,37 +15,34 @@ use Illuminate\Http\Request;
  * Propósito: Controlador para gestionar salones.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-11-26
+ * Última Modificación: 2024-11-27
  */
 class SalonController extends Controller
 {
+    /**
+     * Muestra una lista de salones filtrados por grado, grupo y escuela.
+     */
     public function index(Request $request)
     {
         $adminId = Auth::id();
 
-        // Obtener las escuelas asociadas al administrador
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get();
 
-        // Obtener los IDs de las escuelas
         $escuelaId = $escuelas->pluck('id');
 
-        // Construir la consulta base
         $query = Salon::with(['escuelas', 'maestros'])
-            ->whereIn('cesi_escuela_id', $escuelaId); // Usar whereIn para comparar varios IDs
+            ->whereIn('cesi_escuela_id', $escuelaId);
 
-        // Filtrar por 'grado' si es proporcionado y no es nulo
         if ($request->filled('grado')) {
             $query->where('salon_grado', 'like', '%' . $request->input('grado') . '%');
         }
 
-        // Filtrar por 'grupo' si es proporcionado y no es nulo
         if ($request->filled('grupo')) {
             $query->where('salon_grupo', 'like', '%' . $request->input('grupo') . '%');
         }
 
-        // Solo mostrar los salones que tengan valores no nulos en 'salon_grado' y 'salon_grupo'
         if ($request->has('grado') && $request->input('grado') !== null) {
             $query->whereNotNull('salon_grado');
         }
@@ -54,14 +51,14 @@ class SalonController extends Controller
             $query->whereNotNull('salon_grupo');
         }
 
-        // Ejecutar la consulta
         $salones = $query->get();
 
-        // Devolver la vista con los resultados
         return view('salones.index', compact('salones'));
     }
 
-
+    /**
+     * Muestra el formulario para crear un nuevo salón.
+     */
     public function create()
     {
         $adminId = Auth::id();
@@ -74,9 +71,11 @@ class SalonController extends Controller
         return view('salones.create', compact('escuelas', 'maestros'));
     }
 
+    /**
+     * Almacena un nuevo salón en la base de datos.
+     */
     public function store(Request $request)
     {
-        // Validar con la función de validaciones
         $this->validateRequest($request);
 
         Salon::create($request->all());
@@ -84,6 +83,9 @@ class SalonController extends Controller
         return redirect()->route('salones.index')->with('success', 'Salón creado exitosamente');
     }
 
+    /**
+     * Muestra el formulario para editar un salón existente.
+     */
     public function edit(Salon $salon)
     {
         $adminId = Auth::id();
@@ -97,25 +99,31 @@ class SalonController extends Controller
         return view('salones.edit', compact('salon', 'escuelas', 'maestros'));
     }
 
+    /**
+     * Actualiza los datos de un salón existente.
+     */
     public function update(Request $request, Salon $salon)
     {
-        // Validar con la función de validaciones
-        $this->validateRequest($request,$salon->id);
+        $this->validateRequest($request, $salon->id);
 
         $salon->update($request->all());
 
         return redirect()->route('salones.index')->with('success', 'Salón actualizado exitosamente');
     }
 
+    /**
+     * Muestra los detalles de un salón específico.
+     */
     public function show($id)
     {
-        // Buscar el salón junto con el maestro relacionado
         $salon = Salon::with('maestros')->findOrFail($id);
 
-        // Retornar la vista con los datos del salón
         return view('salones.show', compact('salon'));
     }
 
+    /**
+     * Elimina un salón de la base de datos.
+     */
     public function destroy(Salon $salon)
     {
         $salon->delete();
@@ -124,11 +132,10 @@ class SalonController extends Controller
     }
 
     /**
-     * Validar los datos de la solicitud.
+     * Valida los datos de la solicitud para la creación o actualización de un salón.
      */
     private function validateRequest(Request $request, $id = null)
     {
-        // Reglas básicas de validación
         $rules = [
             'salon_grado' => [
                 'nullable',
@@ -137,7 +144,7 @@ class SalonController extends Controller
                 Rule::unique('cesi_salons', 'salon_grado')
                     ->where(function ($query) use ($request) {
                         return $query->where('salon_grupo', $request->input('salon_grupo'))
-                                    ->where('cesi_escuela_id', $request->input('cesi_escuela_id'));
+                            ->where('cesi_escuela_id', $request->input('cesi_escuela_id'));
                     })
                     ->ignore($id),
             ],
@@ -157,8 +164,6 @@ class SalonController extends Controller
             'cesi_maestro_id.exists' => 'El maestro seleccionado no existe.',
         ];
 
-        // Ejecutar la validación
         $request->validate($rules, $messages);
     }
-
 }

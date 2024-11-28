@@ -8,23 +8,30 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+
 /**
  * Archivo: RegisterController.php
  * Propósito: Controlador para gestionar registro de usuarios administradores.
  * Autor: Altair Ricardo Villamares Villegas
  * Fecha de Creación: 2024-11-07
- * Última Modificación: 2024-11-26
+ * Última Modificación: 2024-11-27
  */
 class RegisterController extends Controller
 {
+
+    /**
+     * Muestra el formulario de registro.
+     */
     public function showRegistrationForm()
     {
         return view('auth.register');
     }
 
+    /**
+     * Registra al usuario y lo redirige al dashboard.
+     */
     public function register(Request $request)
     {
-        // Validación de los datos, incluyendo el código de acceso
         $validator = $this->validator($request->all());
 
         if ($validator->fails()) {
@@ -43,6 +50,9 @@ class RegisterController extends Controller
         return redirect('/dashboard');
     }
 
+    /**
+     * Valida los datos del registro.
+     */
     protected function validator(array $data)
     {
         return Validator::make($data, [
@@ -55,17 +65,17 @@ class RegisterController extends Controller
         ]);
     }
 
+    /**
+     * Crea un nuevo usuario en la base de datos.
+     */
     protected function create(array $data)
     {
-        // Crear el usuario en la tabla 'users'
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'role' => 'admin',
         ]);
-
-        // Crear un registro en la tabla 'administradores' enlazado al usuario
         \App\Models\Administrador::create([
             'user_id' => $user->id,
             'administrador_usuario' => $data['email'],

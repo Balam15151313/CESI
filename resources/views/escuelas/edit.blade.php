@@ -6,16 +6,11 @@
     <div class="container">
         <h2>Editar Escuela</h2>
 
-        <!-- Mensaje de éxito -->
-        @if (session('success'))
-            <p class="alert alert-success">{{ session('success') }}</p>
-        @endif
-
         <form action="{{ route('escuelas.update', $escuela->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT') <!-- Método PUT para actualización -->
 
-            <div class="row mb-3">
+            <div class="mb-3 row">
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="escuela_nombre">Nombre de la Escuela</label>
@@ -27,18 +22,23 @@
                     <div class="form-group">
                         <label for="escuela_escolaridad">Escolaridad</label>
                         <select id="escuela_escolaridad" name="escuela_escolaridad" class="form-control" required>
-                            <option value="" disabled {{ !$escuela->escuela_escolaridad ? 'selected' : '' }}>Seleccione una opción</option>
-                            <option value="Kinder" {{ $escuela->escuela_escolaridad === 'Kinder' ? 'selected' : '' }}>Kinder</option>
-                            <option value="Primaria" {{ $escuela->escuela_escolaridad === 'Primaria' ? 'selected' : '' }}>Primaria</option>
-                            <option value="Secundaria" {{ $escuela->escuela_escolaridad === 'Secundaria' ? 'selected' : '' }}>Secundaria</option>
+                            <option value="" disabled {{ !$escuela->escuela_escolaridad ? 'selected' : '' }}>
+                                Seleccione una opción</option>
+                            <option value="Kinder" {{ $escuela->escuela_escolaridad === 'Kinder' ? 'selected' : '' }}>Kinder
+                            </option>
+                            <option value="Primaria" {{ $escuela->escuela_escolaridad === 'Primaria' ? 'selected' : '' }}>
+                                Primaria</option>
+                            <option value="Secundaria"
+                                {{ $escuela->escuela_escolaridad === 'Secundaria' ? 'selected' : '' }}>Secundaria</option>
                         </select>
                     </div>
                 </div>
             </div>
 
-            <div class="form-group mb-3">
+            <div class="mb-3 form-group">
                 <label for="map_search">Buscar en el mapa</label>
-                <input type="text" id="map_search" class="form-control" placeholder="Buscar ubicación" oninput="mostrarSugerencias(this.value)">
+                <input type="text" id="map_search" class="form-control" placeholder="Buscar ubicación"
+                    oninput="mostrarSugerencias(this.value)">
                 <ul id="suggestions" style="list-style-type: none; padding: 0; margin-top: 10px;"></ul>
             </div>
 
@@ -57,14 +57,14 @@
                             value="{{ $escuela->escuela_latitud }}" readonly required>
                     </div>
                     <!-- Longitud -->
-                    <div class="form-group mt-3">
+                    <div class="mt-3 form-group">
                         <label for="escuela_longitud">Longitud</label>
                         <input type="text" id="escuela_longitud" name="escuela_longitud" class="form-control"
                             value="{{ $escuela->escuela_longitud }}" readonly required>
                     </div>
 
                     <!-- Colores personalizados -->
-                    <div class="row mt-3">
+                    <div class="mt-3 row">
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="ui_color1">Color 1</label>
@@ -88,7 +88,7 @@
                         </div>
                     </div>
 
-                    <button type="button" class="btn btn-primary mt-3" onclick="guardarColores()">Guardar Colores</button>
+                    <button type="button" class="mt-3 btn btn-primary" onclick="guardarColores()">Guardar Colores</button>
 
                     <!-- Vista previa del gradiente -->
                     <div class="color-preview" id="colorPreview" style="height: 50px; margin-top: 20px;"></div>
@@ -96,29 +96,34 @@
             </div>
 
             <!-- Logotipo -->
-            <div class="form-group mt-3">
+            <div class="mt-3 form-group">
                 <label for="escuela_logo">Logotipo</label>
                 <input type="file" id="escuela_logo" name="escuela_logo" class="form-control" accept="image/*">
             </div>
 
-            <button type="submit" class="btn btn-primary mt-3">Guardar Escuela</button>
+            <button type="submit" class="mt-3 btn btn-primary">Guardar Escuela</button>
         </form>
     </div>
 
     <script>
         var map = L.map('map').setView([{{ $escuela->escuela_latitud }}, {{ $escuela->escuela_longitud }}], 13);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
-        var marker = L.marker([{{ $escuela->escuela_latitud }}, {{ $escuela->escuela_longitud }}], {draggable: true}).addTo(map);
+        var marker = L.marker([{{ $escuela->escuela_latitud }}, {{ $escuela->escuela_longitud }}], {
+            draggable: true
+        }).addTo(map);
 
-        marker.on('dragend', function () {
+        marker.on('dragend', function() {
             var latLng = marker.getLatLng();
             document.getElementById('escuela_latitud').value = latLng.lat;
             document.getElementById('escuela_longitud').value = latLng.lng;
         });
 
         let timeout;
+
         function mostrarSugerencias(query) {
             if (timeout) clearTimeout(timeout);
 
@@ -127,8 +132,9 @@
                 return;
             }
 
-            timeout = setTimeout(function () {
-                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&addressdetails=1&limit=5&accept-language=es`)
+            timeout = setTimeout(function() {
+                fetch(
+                        `https://nominatim.openstreetmap.org/search?format=json&q=${query}&addressdetails=1&limit=5&accept-language=es`)
                     .then(response => response.json())
                     .then(data => {
                         const suggestionsList = document.getElementById('suggestions');
@@ -147,7 +153,8 @@
 
                                     document.getElementById('escuela_latitud').value = lat;
                                     document.getElementById('escuela_longitud').value = lon;
-                                    document.getElementById('map_search').value = location.display_name;
+                                    document.getElementById('map_search').value = location
+                                        .display_name;
 
                                     suggestionsList.style.display = 'none';
                                 };

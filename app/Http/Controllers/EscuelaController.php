@@ -1,10 +1,10 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Escuela;
-use App\Models\Administrador;
 use App\Models\Privilegio;
 use Illuminate\Support\Facades\Storage;
 
@@ -130,9 +130,9 @@ class EscuelaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-/**
- * Update the specified resource in storage.
- */
+    /**
+     * Update the specified resource in storage.
+     */
     public function update(Request $request, $id)
     {
         // Validación de los datos

@@ -9,12 +9,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Escuela;
 use App\Models\Privilegio;
+
 /**
  * Archivo: EscuelaApiController.php
  * Propósito: Controlador para gestionar datos relacionados con escuelas.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-26
+ * Última Modificación: 2024-11-27
  */
 
 class EscuelaApiController extends Controller

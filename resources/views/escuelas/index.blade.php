@@ -4,20 +4,6 @@
 
 @section('content')
     <h2>Lista de Escuelas</h2>
-
-    <!-- Mensajes de éxito o error -->
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
-    @endif
-
     <!-- Tabla de escuelas -->
     <div class="table-container">
         <table class="table">
@@ -39,7 +25,8 @@
                         <td>
                             @if ($escuela->escuela_logo)
                                 <img src="{{ asset('storage/' . $escuela->escuela_logo) }}"
-                                    alt="Logo de {{ $escuela->escuela_nombre }}" class="logo-thumbnail" height="50px" width="50px">
+                                    alt="Logo de {{ $escuela->escuela_nombre }}" class="logo-thumbnail" height="50px"
+                                    width="50px">
                             @else
                                 No disponible
                             @endif
@@ -58,7 +45,8 @@
 
                     <!-- Script para obtener dirección -->
                     <script>
-                        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat={{ $escuela->escuela_latitud }}&lon={{ $escuela->escuela_longitud }}&addressdetails=1`)
+                        fetch(
+                                `https://nominatim.openstreetmap.org/reverse?format=json&lat={{ $escuela->escuela_latitud }}&lon={{ $escuela->escuela_longitud }}&addressdetails=1`)
                             .then(response => response.json())
                             .then(data => {
                                 const direccion = data.display_name || 'Dirección no disponible';

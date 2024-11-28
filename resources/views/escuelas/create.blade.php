@@ -4,17 +4,11 @@
 
 @section('content')
     <h2>Agregar Nueva Escuela</h2>
-
-    <!-- Mensaje de éxito -->
-    @if (session('success'))
-        <p style="color: green;">{{ session('success') }}</p>
-    @endif
-
     <form action="{{ route('escuelas.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <!-- Información de la escuela -->
-        <div class="row mb-3">
+        <div class="mb-3 row">
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="escuela_nombre">Nombre de la Escuela</label>
@@ -35,9 +29,10 @@
         </div>
 
         <!-- Buscar ubicación en el mapa -->
-        <div class="form-group mb-3">
+        <div class="mb-3 form-group">
             <label for="map_search">Buscar en el mapa</label>
-            <input type="text" id="map_search" class="form-control" placeholder="Buscar ubicación" oninput="mostrarSugerencias(this.value)">
+            <input type="text" id="map_search" class="form-control" placeholder="Buscar ubicación"
+                oninput="mostrarSugerencias(this.value)">
             <ul id="suggestions" style="list-style-type: none; padding: 0; margin-top: 10px;"></ul>
         </div>
 
@@ -53,16 +48,18 @@
                 <!-- Latitud -->
                 <div class="form-group">
                     <label for="escuela_latitud">Latitud</label>
-                    <input type="text" id="escuela_latitud" name="escuela_latitud" class="form-control" readonly required>
+                    <input type="text" id="escuela_latitud" name="escuela_latitud" class="form-control" readonly
+                        required>
                 </div>
                 <!-- Longitud -->
-                <div class="form-group mt-3">
+                <div class="mt-3 form-group">
                     <label for="escuela_longitud">Longitud</label>
-                    <input type="text" id="escuela_longitud" name="escuela_longitud" class="form-control" readonly required>
+                    <input type="text" id="escuela_longitud" name="escuela_longitud" class="form-control" readonly
+                        required>
                 </div>
 
                 <!-- Colores personalizados -->
-                <div class="row mt-3">
+                <div class="mt-3 row">
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="ui_color1">Color 1</label>
@@ -84,7 +81,7 @@
                 </div>
 
                 <!-- Botón para guardar colores -->
-                <button type="button" class="btn btn-primary mt-3" onclick="guardarColores()">Guardar Colores</button>
+                <button type="button" class="mt-3 btn btn-primary" onclick="guardarColores()">Guardar Colores</button>
 
                 <!-- Vista previa del gradiente -->
                 <div class="color-preview" id="colorPreview" style="height: 50px; margin-top: 20px;"></div>
@@ -92,12 +89,12 @@
         </div>
 
         <!-- Logotipo -->
-        <div class="form-group mt-3">
+        <div class="mt-3 form-group">
             <label for="escuela_logo">Logotipo</label>
             <input type="file" id="escuela_logo" name="escuela_logo" class="form-control" accept="image/*">
         </div>
 
-        <button type="submit" class="btn btn-primary mt-3">Guardar Escuela</button>
+        <button type="submit" class="mt-3 btn btn-primary">Guardar Escuela</button>
     </form>
 
     <script>
@@ -107,15 +104,18 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        var marker = L.marker([19.432608, -99.133209], { draggable: true }).addTo(map);
+        var marker = L.marker([19.432608, -99.133209], {
+            draggable: true
+        }).addTo(map);
 
-        marker.on('dragend', function () {
+        marker.on('dragend', function() {
             var latLng = marker.getLatLng();
             document.getElementById('escuela_latitud').value = latLng.lat;
             document.getElementById('escuela_longitud').value = latLng.lng;
         });
 
         let timeout;
+
         function mostrarSugerencias(query) {
             if (timeout) clearTimeout(timeout);
 
@@ -124,8 +124,9 @@
                 return;
             }
 
-            timeout = setTimeout(function () {
-                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&addressdetails=1&limit=5&accept-language=es`)
+            timeout = setTimeout(function() {
+                fetch(
+                        `https://nominatim.openstreetmap.org/search?format=json&q=${query}&addressdetails=1&limit=5&accept-language=es`)
                     .then(response => response.json())
                     .then(data => {
                         const suggestionsList = document.getElementById('suggestions');
@@ -144,7 +145,8 @@
 
                                     document.getElementById('escuela_latitud').value = lat;
                                     document.getElementById('escuela_longitud').value = lon;
-                                    document.getElementById('map_search').value = location.display_name;
+                                    document.getElementById('map_search').value = location
+                                        .display_name;
 
                                     suggestionsList.style.display = 'none';
                                 };
