@@ -219,6 +219,8 @@ class TutorController extends Controller
         if ($tutor->tutor_foto) {
             Storage::delete('public/' . $tutor->tutor_foto);
         }
+        $user = User::find('email', $tutor->tutor_usuario);
+        $user->delete();
 
         $tutor->delete();
 
