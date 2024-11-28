@@ -6,13 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Notificacion;
 use App\Models\Tutor;
+use App\Models\User;
 
 /**
  * Archivo: NotificacionesApiController.php
  * Propósito: Controlador para gestionar datos relacionados con notificaciones.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-27
+ * Última Modificación: 2024-11-28
  */
 
 class NotificacionApiController extends Controller
@@ -54,7 +55,8 @@ class NotificacionApiController extends Controller
      */
     public function show($tutorId)
     {
-        $tutor = Tutor::find($tutorId);
+        $user = User::find($tutorId);
+        $tutor = Tutor::where('tutor_usuario', $user->email)->first();
         if (!$tutor) {
             return response()->json(['error' => 'Tutor no encontrado'], 404);
         }

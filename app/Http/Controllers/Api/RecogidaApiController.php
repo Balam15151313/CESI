@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Recogida;
 use App\Models\Alumno;
 use App\Models\Reporte;
+use App\Models\Tutor;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\PDF;
 
 /**
@@ -14,7 +16,7 @@ use Barryvdh\DomPDF\Facade\PDF;
  * Propósito: Controlador para gestionar datos relacionados con recogidas.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-27
+ * Última Modificación: 2024-11-28
  */
 class RecogidaApiController extends Controller
 {
@@ -25,7 +27,9 @@ class RecogidaApiController extends Controller
      */
     public function alumnosSinRecogida($idTutor)
     {
-        $alumnos = Alumno::where('cesi_tutore_id', $idTutor)
+        $user = User::find($idTutor);
+        $tutor = Tutor::where('tutor_usuario', $user->email)->first();
+        $alumnos = Alumno::where('cesi_tutore_id', $tutor->id)
             ->whereDoesntHave('recogidas', function ($query) {
                 $query->whereDate('recogida_fecha', now()->toDateString());
             })
@@ -87,7 +91,9 @@ class RecogidaApiController extends Controller
      */
     public function recogidasPorTutor($idTutor)
     {
-        $alumnos = Alumno::where('cesi_tutore_id', $idTutor)->get();
+        $user = User::find($idTutor);
+        $tutor = Tutor::where('tutor_usuario', $user->email)->first();
+        $alumnos = Alumno::where('cesi_tutore_id', $tutor->id)->get();
 
         if ($alumnos->isEmpty()) {
             return response()->json(['message' => 'Este tutor no tiene alumnos'], 200);
@@ -131,7 +137,9 @@ class RecogidaApiController extends Controller
      */
     public function generarReportePDF($idTutor)
     {
-        $alumnos = Alumno::where('cesi_tutore_id', $idTutor)->pluck('id');
+        $user = User::find($idTutor);
+        $tutor = Tutor::where('tutor_usuario', $user->email)->first();
+        $alumnos = Alumno::where('cesi_tutore_id', $tutor->id)->pluck('id');
 
         $recogidas = Recogida::whereHas('alumnos', function ($query) use ($alumnos) {
             $query->whereIn('cesi_alumnos.id', $alumnos);  // Filtrar las recogidas por los alumnos del tutor
@@ -162,7 +170,9 @@ class RecogidaApiController extends Controller
      */
     public function reportesPorTutor($idTutor)
     {
-        $reportes = Reporte::where('cesi_tutore_id', $idTutor)->get();
+        $user = User::find($idTutor);
+        $tutor = Tutor::where('tutor_usuario', $user->email)->first();
+        $reportes = Reporte::where('cesi_tutore_id', $tutor->id)->get();
         if ($reportes->isEmpty()) {
             return response()->json(['message' => 'No hay reportes registrados para este tutor'], 200);
         }
