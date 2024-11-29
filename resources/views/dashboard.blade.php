@@ -274,7 +274,7 @@
             <a href="{{ route('tutores.index') }}">Tutores</a>
             <a href="{{ route('responsables.index') }}">Responsables</a>
             <a href="#">Reportes</a>
-            //<a href="{{ route('admin.edit', $admin->id) }}">Configuraciones</a>
+            <a href="{{ route('admin.edit', $admin->id) }}">Configuraciones</a>
             <a href="{{ route('logout') }}"
                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Cerrar Sesión</a>
 

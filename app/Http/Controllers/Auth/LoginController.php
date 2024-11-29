@@ -15,7 +15,7 @@ use App\Models\User;
  * Propósito: Controlador para gestionar login.
  * Autor: Altair Ricardo Villamares Villegas
  * Fecha de Creación: 2024-11-07
- * Última Modificación: 2024-11-28
+ * Última Modificación: 2024-11-2
  */
 class LoginController extends Controller
 {
@@ -46,7 +46,7 @@ class LoginController extends Controller
             }
 
             $admin = User::find(Auth::id());
-            $adminId = Administrador::where('administrador_user', $admin->email)->first();
+            $adminId = Administrador::where('administrador_usuario', $admin->email)->first();
             $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
                 $query->where('cesi_administrador_id', $adminId);
             })->get();
