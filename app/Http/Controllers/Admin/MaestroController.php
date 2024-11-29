@@ -19,7 +19,7 @@ use App\Models\Administrador;
  * Propósito: Controlador para gestionar maestros.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-11-28
+ * Última Modificación: 2024-11-29
  */
 class MaestroController extends Controller
 {
@@ -43,12 +43,12 @@ class MaestroController extends Controller
                 return $query->where('maestro_nombre', 'like', '%' . $nombre . '%');
             })
             ->get();
-        $escuela = Escuela::whereHas('administrador', function ($query) use ($admin) {
-            $query->where('cesi_administrador_id', $admin->id);
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
         })->get()->first();
+        $ui = $escuela ? $escuela->uis->first() : null;
 
-
-        return view('maestros.index', compact('maestros', 'escuela'));
+        return view('maestros.index', compact('maestros', 'ui', 'escuela'));
     }
 
     /**
@@ -62,7 +62,11 @@ class MaestroController extends Controller
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get();
-        return view('maestros.create', compact('escuelas'));
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
+        })->get()->first();
+        $ui = $escuela ? $escuela->uis->first() : null;
+        return view('maestros.create', compact('escuelas', 'ui'));
     }
 
     /**
@@ -108,7 +112,11 @@ class MaestroController extends Controller
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get();
-        return view('maestros.edit', compact('maestro', 'escuelas'));
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
+        })->get()->first();
+        $ui = $escuela ? $escuela->uis->first() : null;
+        return view('maestros.edit', compact('maestro', 'escuelas', 'ui'));
     }
 
     /**
@@ -154,8 +162,9 @@ class MaestroController extends Controller
         $escuela = Escuela::whereHas('administrador', function ($query) use ($admin) {
             $query->where('cesi_administrador_id', $admin->id);
         })->get()->first();
+        $ui = $escuela ? $escuela->uis->first() : null;
 
-        return view('maestros.show', compact('maestro', 'escuela'));
+        return view('maestros.show', compact('maestro', 'ui', 'escuela'));
     }
 
     /**

@@ -15,7 +15,7 @@ use Illuminate\Validation\Rule;
  * Propósito: Controlador para gestionar el registro y actualización de administradores.
  * Autor: Altair Ricardo Villamares Villegas
  * Fecha de Creación: 2024-11-26
- * Última Modificación: 2024-11-28
+ * Última Modificación: 2024-11-29
  */
 class AdminController extends Controller
 {
@@ -28,8 +28,9 @@ class AdminController extends Controller
         $escuela = Escuela::whereHas('administrador', function ($query) use ($admin) {
             $query->where('cesi_administrador_id', $admin->id);
         })->get()->first();
+        $ui = $escuela ? $escuela->uis->first() :  null;
 
-        return view('admin.configuraciones', compact('admin', 'escuela'));
+        return view('admin.configuraciones', compact('admin', 'ui', 'escuela'));
     }
 
     /**
@@ -93,6 +94,7 @@ class AdminController extends Controller
         $user->save();
 
         $admin->update();
+
 
         return redirect()->route('admin.edit', $admin->id)->with('success', 'Datos actualizados correctamente.');
     }

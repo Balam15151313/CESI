@@ -28,7 +28,7 @@
 
         /* Barra de navegación superior */
         .topbar {
-            background: linear-gradient(180deg, {{ $escuela->uis->first()?->ui_color1 ?? '#333' }}, {{ $escuela->uis->first()?->ui_color2 ?? '#555' }});
+            background: linear-gradient(180deg, {{ $ui->ui_color1 ?? '#333' }}, {{ $ui->ui_color2 ?? '#555' }});
             color: white;
             padding: 10px 20px;
             display: flex;
@@ -61,7 +61,7 @@
             position: relative;
             cursor: pointer;
             padding: 5px 10px;
-            background: linear-gradient(180deg, {{ $escuela->uis->first()?->ui_color1 ?? '#333' }}, {{ $escuela->uis->first()?->ui_color2 ?? '#555' }});
+            background: linear-gradient(180deg, {{ $ui->ui_color1 ?? '#333' }}, {{ $ui->ui_color2 ?? '#555' }});
             border: none;
             color: white;
             border-radius: 5px;
@@ -117,9 +117,7 @@
         .sidebar {
             width: 250px;
             background: linear-gradient(180deg,
-                    {{ $escuela->uis->first()?->ui_color1 ?? '#333' }},
-                    {{ $escuela->uis->first()?->ui_color2 ?? '#555' }},
-                    {{ $escuela->uis->first()?->ui_color3 ?? '#777' }});
+                    {{ $ui->ui_color1 ?? '#333' }}, {{ $ui->ui_color2 ?? '#555' }}, {{ $ui->ui_color3 ?? '#777' }});
             color: white;
             display: flex;
             flex-direction: column;
@@ -176,7 +174,7 @@
             text-align: center;
             margin: 15px;
             padding: 15px;
-            border: 1px solid {{ $escuela->uis->first()?->ui_color3 ?? '#777' }};
+            border: 1px solid {{ $ui->ui_color3 ?? '#777' }};
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             transition: transform 0.3s;

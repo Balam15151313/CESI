@@ -17,7 +17,7 @@ use App\Models\Administrador;
  * Propósito: Controlador para gestionar salones.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-11-28
+ * Última Modificación: 2024-11-29
  */
 class SalonController extends Controller
 {
@@ -58,8 +58,9 @@ class SalonController extends Controller
         $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get()->first();
+        $ui = $escuela ? $escuela->uis->first() : null;
 
-        return view('salones.index', compact('salones', 'escuela'));
+        return view('salones.index', compact('salones', 'ui', 'escuela'));
     }
 
     /**
@@ -74,8 +75,12 @@ class SalonController extends Controller
         })->get();
         $escuelaIds = $escuelas->pluck('id');
         $maestros = Maestro::whereIn('cesi_escuela_id', $escuelaIds)->get();
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
+        })->get()->first();
+        $ui = $escuela ? $escuela->uis->first() : null;
 
-        return view('salones.create', compact('escuelas', 'maestros'));
+        return view('salones.create', compact('escuelas', 'maestros', 'ui'));
     }
 
     /**
@@ -103,8 +108,11 @@ class SalonController extends Controller
 
         $escuelaIds = $escuelas->pluck('id');
         $maestros = Maestro::whereIn('cesi_escuela_id', $escuelaIds)->get();
-
-        return view('salones.edit', compact('salon', 'escuelas', 'maestros'));
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
+        })->get()->first();
+        $ui = $escuela ? $escuela->uis->first() : null;
+        return view('salones.edit', compact('salon', 'escuelas', 'maestros', 'ui'));
     }
 
     /**
@@ -129,10 +137,10 @@ class SalonController extends Controller
         $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get()->first();
-
+        $ui = $escuela ? $escuela->uis->first() : null;
         $salon = Salon::with('maestros')->findOrFail($id);
 
-        return view('salones.show', compact('salon', 'escuela'));
+        return view('salones.show', compact('salon', 'ui', 'escuela'));
     }
 
     /**

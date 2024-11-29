@@ -124,7 +124,7 @@
     <div class="dashboard">
         <!-- Menú lateral con el logo y los colores personalizados -->
         <div class="sidebar"
-            style="background: linear-gradient(to bottom, {{ $escuela->uis->first()?->ui_color1 ?? '#333' }},{{ $escuela->uis->first()?->ui_color2 ?? '#555' }},{{ $escuela->uis->first()?->ui_color3 ?? '#777' }});">
+            style="background: linear-gradient(to bottom, {{ $ui->ui_color1 ?? '#333' }}, {{ $ui->ui_color2 ?? '#555' }}, {{ $ui->ui_color3 ?? '#777' }});">
             <h2>Menú</h2>
             <!-- Vista previa del logo personalizado de la escuela -->
             <img src="{{ asset('storage/' . ($escuela->escuela_logo ?? 'imagenes/default_logo.png')) }}"

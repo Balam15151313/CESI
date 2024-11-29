@@ -17,7 +17,7 @@ use App\Models\Administrador;
  * Propósito: Controlador para gestionar responsables.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-11-28
+ * Última Modificación: 2024-11-29
  */
 class ResponsableController extends Controller
 {
@@ -63,8 +63,8 @@ class ResponsableController extends Controller
         $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get()->first();
-
-        return view('responsables.index', compact('responsablesActivos', 'responsablesInactivos', 'escuela'));
+        $ui = $escuela ? $escuela->uis->first() : null;
+        return view('responsables.index', compact('responsablesActivos', 'responsablesInactivos', 'escuela', 'ui'));
     }
 
     /**
@@ -97,8 +97,14 @@ class ResponsableController extends Controller
      */
     public function show($id)
     {
+        $admin = User::find(Auth::id());
+        $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
+        })->get()->first();
+        $ui = $escuela ? $escuela->uis->first() : null;
         $responsable = Responsable::with('tutores')->findOrFail($id);
-        return view('responsables.show', compact('responsable'));
+        return view('responsables.show', compact('responsable', 'ui', 'escuela'));
     }
 
     /**
@@ -111,7 +117,8 @@ class ResponsableController extends Controller
         $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get()->first();
-        return view('responsables.edit', compact('responsable', 'escuela'));
+        $ui = $escuela ? $escuela->uis->first() : null;
+        return view('responsables.edit', compact('responsable', 'ui', 'escuela'));
     }
 
     /**

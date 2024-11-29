@@ -18,7 +18,7 @@ use App\Models\Administrador;
  * Propósito: Controlador para gestionar alumnos.
  * Autor: Alexis Daniel Uribe Oleriano
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-28
+ * Última Modificación: 2024-11-29
  */
 class AlumnoController extends Controller
 {
@@ -46,12 +46,12 @@ class AlumnoController extends Controller
             ->get();
 
 
-        $escuela = Escuela::whereHas('administrador', function ($query) use ($admin) {
-            $query->where('cesi_administrador_id', $admin->id);
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
         })->get()->first();
+        $ui = $escuela ? $escuela->uis->first() : null;
 
-
-        return view('alumnos.index', compact('alumnos', 'escuela'));
+        return view('alumnos.index', compact('alumnos', 'ui', 'escuela'));
     }
 
     /**
@@ -71,8 +71,8 @@ class AlumnoController extends Controller
 
         $salones = Salon::whereIn('cesi_escuela_id', $escuelas)->get();
         $tutores = Tutor::whereIn('cesi_escuela_id', $escuelas)->get();
-
-        return view('alumnos.create', compact('salones', 'tutores', 'escuela'));
+        $ui = $escuela ? $escuela->uis->first() : null;
+        return view('alumnos.create', compact('salones', 'tutores', 'escuela', 'ui'));
     }
 
     /**
@@ -122,7 +122,8 @@ class AlumnoController extends Controller
         $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get()->first();
-        return view('alumnos.show', compact('alumno', 'tutor', 'escuela'));
+        $ui = $escuela ? $escuela->uis->first() : null;
+        return view('alumnos.show', compact('alumno', 'tutor', 'escuela', 'ui'));
     }
 
     /**
@@ -142,7 +143,8 @@ class AlumnoController extends Controller
         $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get()->first();
-        return view('alumnos.edit', compact('alumno', 'salones', 'tutores', 'escuela'));
+        $ui = $escuela ? $escuela->uis->first() : null;
+        return view('alumnos.edit', compact('alumno', 'salones', 'tutores', 'escuela', 'ui'));
     }
 
     /**

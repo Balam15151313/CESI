@@ -15,7 +15,7 @@ use App\Models\Administrador;
  * Propósito: Controlador para gestionar registro de escuelas y sus colores.
  * Autor: Altair Ricardo Villamares Villegas
  * Fecha de Creación: 2024-11-07
- * Última Modificación: 2024-11-28
+ * Última Modificación: 2024-11-29
  */
 class EscuelaController extends Controller
 {
@@ -27,11 +27,16 @@ class EscuelaController extends Controller
 
         $admin = User::find(Auth::id());
         $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
+
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get();
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
+        })->get()->first();
+        $ui = $escuela ? $escuela->uis->first() :  null;
 
-        return view('escuelas.index', compact('escuelas'));
+        return view('escuelas.index', compact('escuelas', 'ui'));
     }
 
     /**
@@ -46,8 +51,12 @@ class EscuelaController extends Controller
         if ($yaTieneEscuela) {
             return redirect()->route('escuelas.index')->with('error', 'Ya has creado una escuela.');
         }
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($admin) {
+            $query->where('cesi_administrador_id', $admin->id);
+        })->get()->first();
+        $ui = $escuela ? $escuela->uis->first() :  null;
 
-        return view('escuelas.create');
+        return view('escuelas.create', compact('ui', 'escuela'));
     }
 
     /**
@@ -118,7 +127,8 @@ class EscuelaController extends Controller
     public function edit($id)
     {
         $escuela = Escuela::findOrFail($id);
-        return view('escuelas.edit', compact('escuela'));
+        $ui = $escuela ? $escuela->uis->first() :  null;
+        return view('escuelas.edit', compact('escuela', 'ui'));
     }
 
 

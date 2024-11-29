@@ -17,7 +17,7 @@ use App\Models\Administrador;
  * Propósito: Controlador para gestionar tutores.
  * Autor: Alexis Daniel Uribe Oleriano
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-28
+ * Última Modificación: 2024-11-29
  */
 class TutorController extends Controller
 {
@@ -43,7 +43,8 @@ class TutorController extends Controller
         $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get()->first();
-        return view('tutores.index', compact('tutores', 'escuela'));
+        $ui = $escuela ? $escuela->uis->first() : null;
+        return view('tutores.index', compact('tutores', 'ui', 'escuela'));
     }
 
     /**
@@ -56,8 +57,12 @@ class TutorController extends Controller
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get();
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
+        })->get()->first();
+        $ui = $escuela ? $escuela->uis->first() : null;
 
-        return view('tutores.create', compact('escuelas'));
+        return view('tutores.create', compact('escuelas', 'ui'));
     }
 
 
@@ -134,7 +139,8 @@ class TutorController extends Controller
         $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get()->first();
-        return view('tutores.show', compact('tutor', 'escuela'));
+        $ui = $escuela ? $escuela->uis->first() : null;
+        return view('tutores.show', compact('tutor', 'ui', 'escuela'));
     }
 
     /**
@@ -149,8 +155,12 @@ class TutorController extends Controller
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get();
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
+        })->get()->first();
+        $ui = $escuela ? $escuela->uis->first() : null;
 
-        return view('tutores.edit', compact('tutor', 'escuelas'));
+        return view('tutores.edit', compact('tutor', 'escuelas', 'ui'));
     }
 
 
