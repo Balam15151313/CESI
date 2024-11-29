@@ -45,7 +45,13 @@ class AlumnoController extends Controller
             })
             ->get();
 
-        return view('alumnos.index', compact('alumnos'));
+
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($admin) {
+            $query->where('cesi_administrador_id', $admin->id);
+        })->get()->first();
+
+
+        return view('alumnos.index', compact('alumnos', 'escuela'));
     }
 
     /**
@@ -56,6 +62,9 @@ class AlumnoController extends Controller
     {
         $admin = User::find(Auth::id());
         $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
+        })->get()->first();
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->pluck('id');
@@ -63,7 +72,7 @@ class AlumnoController extends Controller
         $salones = Salon::whereIn('cesi_escuela_id', $escuelas)->get();
         $tutores = Tutor::whereIn('cesi_escuela_id', $escuelas)->get();
 
-        return view('alumnos.create', compact('salones', 'tutores'));
+        return view('alumnos.create', compact('salones', 'tutores', 'escuela'));
     }
 
     /**
@@ -108,8 +117,12 @@ class AlumnoController extends Controller
     public function show(Alumno $alumno)
     {
         $tutor = $alumno->tutores;
-
-        return view('alumnos.show', compact('alumno', 'tutor'));
+        $admin = User::find(Auth::id());
+        $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
+        })->get()->first();
+        return view('alumnos.show', compact('alumno', 'tutor', 'escuela'));
     }
 
     /**
@@ -126,8 +139,10 @@ class AlumnoController extends Controller
 
         $salones = Salon::whereIn('cesi_escuela_id', $escuelas)->get();
         $tutores = Tutor::whereIn('cesi_escuela_id', $escuelas)->get();
-
-        return view('alumnos.edit', compact('alumno', 'salones', 'tutores'));
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
+        })->get()->first();
+        return view('alumnos.edit', compact('alumno', 'salones', 'tutores', 'escuela'));
     }
 
     /**

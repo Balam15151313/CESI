@@ -43,8 +43,12 @@ class MaestroController extends Controller
                 return $query->where('maestro_nombre', 'like', '%' . $nombre . '%');
             })
             ->get();
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($admin) {
+            $query->where('cesi_administrador_id', $admin->id);
+        })->get()->first();
 
-        return view('maestros.index', compact('maestros'));
+
+        return view('maestros.index', compact('maestros', 'escuela'));
     }
 
     /**
@@ -146,8 +150,12 @@ class MaestroController extends Controller
     public function show($id)
     {
         $maestro = Maestro::with('salones')->findOrFail($id);
+        $admin = User::find(Auth::id());
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($admin) {
+            $query->where('cesi_administrador_id', $admin->id);
+        })->get()->first();
 
-        return view('maestros.show', compact('maestro'));
+        return view('maestros.show', compact('maestro', 'escuela'));
     }
 
     /**

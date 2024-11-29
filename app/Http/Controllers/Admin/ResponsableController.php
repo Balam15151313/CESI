@@ -60,8 +60,11 @@ class ResponsableController extends Controller
                 }
             })
             ->get();
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
+        })->get()->first();
 
-        return view('responsables.index', compact('responsablesActivos', 'responsablesInactivos'));
+        return view('responsables.index', compact('responsablesActivos', 'responsablesInactivos', 'escuela'));
     }
 
     /**
@@ -103,7 +106,12 @@ class ResponsableController extends Controller
      */
     public function edit(Responsable $responsable)
     {
-        return view('responsables.edit', compact('responsable'));
+        $admin = User::find(Auth::id());
+        $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
+        })->get()->first();
+        return view('responsables.edit', compact('responsable', 'escuela'));
     }
 
     /**

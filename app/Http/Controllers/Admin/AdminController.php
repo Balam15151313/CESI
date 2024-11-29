@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Administrador;
 use App\Models\User;
+use App\Models\Escuela;
 use Illuminate\Validation\Rule;
 
 /**
@@ -24,7 +25,11 @@ class AdminController extends Controller
     public function edit($id)
     {
         $admin = Administrador::find($id);
-        return view('admin.configuraciones', compact('admin'));
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($admin) {
+            $query->where('cesi_administrador_id', $admin->id);
+        })->get()->first();
+
+        return view('admin.configuraciones', compact('admin', 'escuela'));
     }
 
     /**

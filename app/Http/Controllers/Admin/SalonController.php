@@ -55,8 +55,11 @@ class SalonController extends Controller
         }
 
         $salones = $query->get();
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
+        })->get()->first();
 
-        return view('salones.index', compact('salones'));
+        return view('salones.index', compact('salones', 'escuela'));
     }
 
     /**
@@ -121,9 +124,15 @@ class SalonController extends Controller
      */
     public function show($id)
     {
+        $admin = User::find(Auth::id());
+        $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
+        })->get()->first();
+
         $salon = Salon::with('maestros')->findOrFail($id);
 
-        return view('salones.show', compact('salon'));
+        return view('salones.show', compact('salon', 'escuela'));
     }
 
     /**

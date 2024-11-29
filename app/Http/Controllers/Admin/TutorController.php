@@ -40,8 +40,10 @@ class TutorController extends Controller
                 return $query->where('tutor_nombre', 'like', '%' . $nombre . '%');
             })
             ->get();
-
-        return view('tutores.index', compact('tutores'));
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
+        })->get()->first();
+        return view('tutores.index', compact('tutores', 'escuela'));
     }
 
     /**
@@ -126,7 +128,12 @@ class TutorController extends Controller
      */
     public function show(Tutor $tutor)
     {
-        return view('tutores.show', compact('tutor'));
+        $admin = User::find(Auth::id());
+        $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
+        })->get()->first();
+        return view('tutores.show', compact('tutor', 'escuela'));
     }
 
     /**
@@ -134,6 +141,8 @@ class TutorController extends Controller
      */
     public function edit(Tutor $tutor)
     {
+        $admin = User::find(Auth::id());
+        $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
         $admin = User::find(Auth::id());
         $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {

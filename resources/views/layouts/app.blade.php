@@ -127,7 +127,7 @@
             style="background: linear-gradient(to bottom, {{ session('ui_color1', '#333') }}, {{ session('ui_color2', '#555') }}, {{ session('ui_color3', '#777') }});">
             <h2>Menú</h2>
             <!-- Vista previa del logo personalizado de la escuela -->
-            <img src="{{ asset('storage/' . session('escuela_logo', 'imagenes/default_logo.png')) }}"
+            <img src="{{ asset('storage/' . ($escuela->escuela_logo ?? 'imagenes/default_logo.png')) }}"
                 alt="Logo de la Escuela">
             <a href="{{ route('dashboard') }}">Menú Principal</a>
             @yield('crear_nuevo')

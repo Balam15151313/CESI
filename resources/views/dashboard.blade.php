@@ -263,7 +263,7 @@
     <div class="container">
         <!-- Menú lateral -->
         <div class="sidebar">
-            <img src="{{ asset('storage/' . session('escuela_logo', 'imagenes/default_logo.png')) }}"
+            <img src="{{ asset('storage/' . ($escuela->escuela_logo ?? 'imagenes/default_logo.png')) }}"
                 alt="Logo de la Escuela">
             <h2>Menú</h2>
             <a href="{{ route('dashboard') }}">Inicio</a>

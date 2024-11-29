@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
  * Propósito: Controlador para gestionar datos de la pantalla de inicio.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-11-27
+ * Última Modificación: 2024-11-28
  */
 class DashboardController extends Controller
 {
@@ -33,7 +33,6 @@ class DashboardController extends Controller
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->pluck('id');
-
         if ($escuelas->isEmpty()) {
             $responsablesInactivos = collect();
         } else {
@@ -51,7 +50,10 @@ class DashboardController extends Controller
         } else {
             $mensaje = null;
         }
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
+        })->get()->first();
 
-        return view('dashboard', compact('responsablesInactivos', 'mensaje', 'admin'));
+        return view('dashboard', compact('responsablesInactivos', 'mensaje', 'admin', 'escuela'));
     }
 }
