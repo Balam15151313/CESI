@@ -81,7 +81,7 @@ class TutorController extends Controller
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/'
             ],
             'tutor_nombre' => 'required|regex:/^[\p{L}\s]+$/u|max:255',
-            'tutor_telefono' => 'required|regex:/^[0-9]$/|digits:10',
+            'tutor_telefono' => 'required|regex:/^[0-9]+$/|digits:10',
             'tutor_foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'cesi_escuela_id' => 'required|exists:cesi_escuelas,id',
         ], [
@@ -176,7 +176,7 @@ class TutorController extends Controller
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/'
             ],
             'tutor_nombre' => 'required|regex:/^[\p{L}\s]+$/u|max:255',
-            'tutor_telefono' => 'required|regex:/^[0-9]$/|digits:10',
+            'tutor_telefono' => 'required|regex:/^[0-9]+$/|digits:10',
             'tutor_foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'cesi_escuela_id' => 'required|exists:cesi_escuelas,id',
         ], [

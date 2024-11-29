@@ -53,7 +53,7 @@ class AdminController extends Controller
                 Rule::unique('cesi_administradors', 'administrador_usuario')->ignore($adminId),
                 Rule::unique('users', 'email')->ignore($relatedUserId),
             ],
-            'administrador_telefono' => 'required|regex:/^[0-9]$/|digits:10',
+            'administrador_telefono' => 'required|regex:/^[0-9]+$/|digits:10',
             'administrador_foto' => 'nullable|image|max:2048',
         ], [
             'administrador_nombre.required' => 'El nombre del administrador es obligatorio.',

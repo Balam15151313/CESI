@@ -205,7 +205,7 @@ class MaestroController extends Controller
                 Rule::unique('users', 'email')->ignore($relatedUserId),
             ],
             'maestro_contraseña' => $maestroId ? 'nullable|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/|min:8' : 'required|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/|min:8',
-            'maestro_telefono' => 'required|regex:/^[0-9]$/|digits:10',
+            'maestro_telefono' => 'required|regex:/^[0-9]+$/|digits:10',
             'cesi_escuela_id' => 'required|exists:cesi_escuelas,id',
         ];
     }

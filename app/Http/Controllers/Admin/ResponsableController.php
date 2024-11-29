@@ -175,7 +175,7 @@ class ResponsableController extends Controller
                     Rule::unique('users', 'email')->ignore($relatedUserId),
                 ],
                 'responsable_contraseña' => 'nullable|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/|min:8',
-                'responsable_telefono' => 'required|regex:/^[0-9]$/|digits:10',
+                'responsable_telefono' => 'required|regex:/^[0-9]+$/|digits:10',
                 'responsable_foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ],
             'messages' => [
