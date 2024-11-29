@@ -205,7 +205,7 @@ class MaestroController extends Controller
                 Rule::unique('users', 'email')->ignore($relatedUserId),
             ],
             'maestro_contraseña' => $maestroId ? 'nullable|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/|min:8' : 'required|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/|min:8',
-            'maestro_telefono' => 'required|regex:/^[0-9]{10}$/',
+            'maestro_telefono' => 'required|regex:/^[0-9]$/|digits:10',
             'cesi_escuela_id' => 'required|exists:cesi_escuelas,id',
         ];
     }
@@ -230,7 +230,8 @@ class MaestroController extends Controller
             'maestro_contraseña.regex' => 'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&).',
 
             'maestro_telefono.required' => 'El teléfono del maestro es obligatorio.',
-            'maestro_telefono.regex' => 'El número de teléfono debe contener entre 10 dígitos.',
+            'maestro_telefono.digits' => 'El número de teléfono debe contener exactamente 10 dígitos.',
+            'maestro_telefono.regex' => 'El número de teléfono debe ser numerico.',
 
             'cesi_escuela_id.required' => 'La escuela es obligatoria.',
             'cesi_escuela_id.exists' => 'La escuela seleccionada no existe.',

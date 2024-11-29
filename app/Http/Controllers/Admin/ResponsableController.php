@@ -175,7 +175,7 @@ class ResponsableController extends Controller
                     Rule::unique('users', 'email')->ignore($relatedUserId),
                 ],
                 'responsable_contraseña' => 'nullable|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/|min:8',
-                'responsable_telefono' => 'nullable|regex:/^[0-9]{10}$/',
+                'responsable_telefono' => 'required|regex:/^[0-9]$/|digits:10',
                 'responsable_foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ],
             'messages' => [
@@ -191,7 +191,9 @@ class ResponsableController extends Controller
                 'responsable_contraseña.regex' => 'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&).',
                 'responsable_contraseña.min' => 'La contraseña debe tener al menos 8 caracteres.',
 
-                'responsable_telefono.regex' => 'El número de teléfono debe contener entre 10  dígitos.',
+                'responsable_telefono.required' => 'El teléfono del responsable es obligatorio.',
+                'responsable_telefono.digits' => 'El número de teléfono debe contener exactamente 10 dígitos.',
+                'responsable_telefono.regex' => 'El número de teléfono debe ser numerico.',
 
                 'responsable_foto.image' => 'El archivo debe ser una imagen.',
                 'responsable_foto.mimes' => 'La imagen debe estar en formato jpeg, png, jpg o gif.',

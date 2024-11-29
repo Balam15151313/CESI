@@ -53,7 +53,7 @@ class AdminController extends Controller
                 Rule::unique('cesi_administradors', 'administrador_usuario')->ignore($adminId),
                 Rule::unique('users', 'email')->ignore($relatedUserId),
             ],
-            'administrador_telefono' => 'nullable|regex:/^[0-9]{10}$/',
+            'administrador_telefono' => 'required|regex:/^[0-9]$/|digits:10',
             'administrador_foto' => 'nullable|image|max:2048',
         ], [
             'administrador_nombre.required' => 'El nombre del administrador es obligatorio.',
@@ -65,7 +65,8 @@ class AdminController extends Controller
             'administrador_usuario.max' => 'El usuario del administrador no puede tener más de 255 caracteres.',
             'administrador_usuario.unique' => 'El usuario ingresado ya está en uso. Por favor, elige otro.',
 
-            'administrador_telefono.regex' => 'El número de teléfono debe contener entre 10 dígitos.',
+            'administrador_telefono.digits' => 'El número de teléfono debe contener exactamente 10 dígitos.',
+            'administrador_telefono.required' => 'El teléfono del maestro es obligatorio.',
             'administrador_telefono.regex' => 'El número de teléfono debe ser numerico.',
             'administrador_telefono.max' => 'El teléfono no puede tener más de 20 caracteres.',
 

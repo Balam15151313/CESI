@@ -81,7 +81,7 @@ class TutorController extends Controller
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/'
             ],
             'tutor_nombre' => 'required|regex:/^[\p{L}\s]+$/u|max:255',
-            'tutor_telefono' => 'required|regex:/^[0-9]{10}$/',
+            'tutor_telefono' => 'required|regex:/^[0-9]$/|digits:10',
             'tutor_foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'cesi_escuela_id' => 'required|exists:cesi_escuelas,id',
         ], [
@@ -95,7 +95,8 @@ class TutorController extends Controller
             'tutor_nombre.regex' => 'El nombre solo puede contener letras.',
             'tutor_nombre.max' => 'El nombre no puede exceder los 255 caracteres.',
             'tutor_telefono.required' => 'El campo teléfono es obligatorio.',
-            'tutor_telefono.regex' => 'El teléfono debe tener 10 dígitos.',
+            'tutor_telefono.digits' => 'El número de teléfono debe contener exactamente 10 dígitos.',
+            'tutor_telefono.regex' => 'El número de teléfono debe ser numerico.',
             'tutor_foto.required' => 'El campo foto es obligatorio.',
             'tutor_foto.image' => 'El archivo debe ser una imagen.',
             'tutor_foto.mimes' => 'La imagen debe ser de tipo jpeg, png, jpg o gif.',
@@ -175,7 +176,7 @@ class TutorController extends Controller
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/'
             ],
             'tutor_nombre' => 'required|regex:/^[\p{L}\s]+$/u|max:255',
-            'tutor_telefono' => 'required|regex:/^[0-9]{10}$/',
+            'tutor_telefono' => 'required|regex:/^[0-9]$/|digits:10',
             'tutor_foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'cesi_escuela_id' => 'required|exists:cesi_escuelas,id',
         ], [
@@ -188,7 +189,8 @@ class TutorController extends Controller
             'tutor_nombre.regex' => 'El nombre solo puede contener letras.',
             'tutor_nombre.max' => 'El nombre no puede exceder los 255 caracteres.',
             'tutor_telefono.required' => 'El campo teléfono es obligatorio.',
-            'tutor_telefono.regex' => 'El teléfono debe tener 10 dígitos.',
+            'tutor_telefono.digits' => 'El número de teléfono debe contener exactamente 10 dígitos.',
+            'tutor_telefono.regex' => 'El número de teléfono debe ser numerico.',
             'tutor_foto.image' => 'El archivo debe ser una imagen.',
             'tutor_foto.mimes' => 'La imagen debe ser de tipo jpeg, png, jpg o gif.',
             'tutor_foto.max' => 'La imagen no debe exceder los 2 MB.',
