@@ -47,10 +47,11 @@ class AdminController extends Controller
         }
 
         $request->validate([
-            'administrador_nombre' => 'required|string|max:255',
+            'administrador_nombre' => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
             'administrador_usuario' => [
                 'required',
                 'email',
+                'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
                 Rule::unique('cesi_administradors', 'administrador_usuario')->ignore($adminId),
                 Rule::unique('users', 'email')->ignore($relatedUserId),
             ],
@@ -60,20 +61,23 @@ class AdminController extends Controller
             'administrador_nombre.required' => 'El nombre del administrador es obligatorio.',
             'administrador_nombre.string' => 'El nombre del administrador debe ser una cadena de texto.',
             'administrador_nombre.max' => 'El nombre del administrador no puede tener más de 255 caracteres.',
+            'administrador_nombre.regex' => 'El nombre del administrador solo puede contener letras (incluyendo tildes y la letra ñ) y espacios.',
 
             'administrador_usuario.required' => 'El usuario del administrador es obligatorio.',
-            'administrador_usuario.string' => 'El usuario del administrador debe ser una cadena de texto.',
-            'administrador_usuario.max' => 'El usuario del administrador no puede tener más de 255 caracteres.',
-            'administrador_usuario.unique' => 'El usuario ingresado ya está en uso. Por favor, elige otro.',
+            'administrador_usuario.email' => 'El correo electrónico ingresado debe ser válido.',
+            'administrador_usuario.regex' => 'El correo electrónico ingresado no es válido. Por ejemplo, usa un formato como "usuario@dominio.com".',
+            'administrador_usuario.unique' => 'El correo electrónico ingresado ya está registrado. Por favor, elige otro.',
 
+            'administrador_telefono.required' => 'El teléfono del administrador es obligatorio.',
+            'administrador_telefono.regex' => 'El número de teléfono debe ser numérico.',
             'administrador_telefono.digits' => 'El número de teléfono debe contener exactamente 10 dígitos.',
-            'administrador_telefono.required' => 'El teléfono del maestro es obligatorio.',
-            'administrador_telefono.regex' => 'El número de teléfono debe ser numerico.',
-            'administrador_telefono.max' => 'El teléfono no puede tener más de 20 caracteres.',
+            'administrador_telefono.max' => 'El número de teléfono no puede tener más de 20 caracteres.',
 
             'administrador_foto.image' => 'El archivo debe ser una imagen.',
-            'administrador_foto.max' => 'La imagen no puede exceder 2MB.',
+            'administrador_foto.max' => 'La imagen no puede exceder los 2MB.',
         ]);
+
+
 
         $admin->administrador_nombre = $request->administrador_nombre;
         $admin->administrador_usuario = $request->administrador_usuario;

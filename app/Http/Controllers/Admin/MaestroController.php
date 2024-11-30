@@ -159,8 +159,9 @@ class MaestroController extends Controller
     {
         $maestro = Maestro::with('salones')->findOrFail($id);
         $admin = User::find(Auth::id());
-        $escuela = Escuela::whereHas('administrador', function ($query) use ($admin) {
-            $query->where('cesi_administrador_id', $admin->id);
+        $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
         })->get()->first();
         $ui = $escuela ? $escuela->uis->first() : null;
 
@@ -206,10 +207,16 @@ class MaestroController extends Controller
         }
 
         return [
-            'maestro_nombre' => 'required|string|max:255',
+            'maestro_nombre' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
+            ],
             'maestro_usuario' => [
                 'required',
                 'email',
+                'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
                 Rule::unique('cesi_maestros', 'maestro_usuario')->ignore($maestroId),
                 Rule::unique('users', 'email')->ignore($relatedUserId),
             ],
@@ -228,19 +235,19 @@ class MaestroController extends Controller
             'maestro_nombre.required' => 'El nombre del maestro es obligatorio.',
             'maestro_nombre.string' => 'El nombre del maestro debe ser una cadena de texto.',
             'maestro_nombre.max' => 'El nombre del maestro no puede exceder los 255 caracteres.',
+            'maestro_nombre.regex' => 'El nombre del maestro solo puede contener letras y espacios.',
 
             'maestro_usuario.required' => 'El correo electrónico del maestro es obligatorio.',
-            'maestro_usuario.email' => 'El correo electrónico debe tener un formato válido.',
             'maestro_usuario.unique' => 'El correo electrónico del maestro ya está registrado.',
+            'maestro_usuario.regex' => 'El correo electrónico ingresado no es válido. Por ejemplo, usa un formato como "usuario@dominio.com".',
 
             'maestro_contraseña.required' => 'La contraseña es obligatoria.',
-
             'maestro_contraseña.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'maestro_contraseña.regex' => 'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&).',
 
             'maestro_telefono.required' => 'El teléfono del maestro es obligatorio.',
             'maestro_telefono.digits' => 'El número de teléfono debe contener exactamente 10 dígitos.',
-            'maestro_telefono.regex' => 'El número de teléfono debe ser numerico.',
+            'maestro_telefono.regex' => 'El número de teléfono debe ser numérico.',
 
             'cesi_escuela_id.required' => 'La escuela es obligatoria.',
             'cesi_escuela_id.exists' => 'La escuela seleccionada no existe.',

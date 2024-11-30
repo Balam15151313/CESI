@@ -18,14 +18,13 @@
                 <label for="InputNombre" class="form-label">* Nombre de responsable</label>
                 <input type="text" name="responsable_nombre" id="InputNombre" class="form-control"
                     placeholder="Nombre del responsable"
-                    value="{{ old('responsable_nombre', $responsable->responsable_nombre) }}"
-                    pattern="[A-Za-záéíóúÁÉÍÓÚñÑ ]+" title="Solo se permiten letras y espacios">
+                    value="{{ old('responsable_nombre', $responsable->responsable_nombre) }}">
             </div>
 
             <!-- Usuario -->
             <div class="col-md-4">
                 <label for="InputUsuario" class="form-label">Usuario</label>
-                <input type="email" name="responsable_usuario" id="InputUsuario" class="form-control"
+                <input type="text" name="responsable_usuario" id="InputUsuario" class="form-control"
                     placeholder="usuario@ejemplo.com"
                     value="{{ old('responsable_usuario', $responsable->responsable_usuario) }}">
             </div>
@@ -42,8 +41,7 @@
                 <label for="InputTelefono" class="form-label">Teléfono</label>
                 <input type="tel" name="responsable_telefono" id="InputTelefono" class="form-control"
                     placeholder="Telefono del responsable"
-                    value="{{ old('responsable_telefono', $responsable->responsable_telefono) }}" pattern="[0-9]{10}"
-                    title="Debe ingresar un número de teléfono de 10 dígitos" required>
+                    value="{{ old('responsable_telefono', $responsable->responsable_telefono) }}"required>
             </div>
 
             <!-- Foto del responsable -->

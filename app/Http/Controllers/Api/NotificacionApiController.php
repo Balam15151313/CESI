@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Alumno;
+use App\Models\Maestro;
 use Illuminate\Http\Request;
 use App\Models\Notificacion;
 use App\Models\Tutor;
@@ -35,15 +37,20 @@ class NotificacionApiController extends Controller
     /**
      * Crear una nueva notificación para un alumno.
      */
-    public function create(Request $request, $alumnoId)
+    public function create(Request $request, $maestroId, $alumnoId)
     {
+        $user = User::find($maestroId);
+        $maestro =  Maestro::where('maestro_usuario', $user->email)->first();
+        $alumno = Alumno::where('id', $alumnoId)
+            ->where('cesi_salon_id', $maestro->salones->id)
+            ->first();
         $validated = $request->validate([
             'notificaciones_mensaje' => 'required|string|max:255',
             'notificaciones_prioridad' => 'required|integer|min:1|max:5',
             'notificaciones_tipo' => 'required|string|max:50',
         ]);
 
-        $validated['cesi_alumno_id'] = $alumnoId;
+        $validated['cesi_alumno_id'] = $alumno->id;
 
         $notificacion = Notificacion::create($validated);
 
@@ -56,23 +63,25 @@ class NotificacionApiController extends Controller
     public function show($tutorId)
     {
         $user = User::find($tutorId);
+
         $tutor = Tutor::where('tutor_usuario', $user->email)->first();
         if (!$tutor) {
             return response()->json(['error' => 'Tutor no encontrado'], 404);
         }
 
-        $alumnos = $tutor->alumnos;
-        if ($alumnos->isEmpty()) {
+        $alumnosConNotificaciones = $tutor->alumnos()->with('notificaciones')->get();
+        if ($alumnosConNotificaciones->isEmpty()) {
             return response()->json(['error' => 'El tutor no tiene alumnos asignados'], 404);
         }
 
-        $notificaciones = Notificacion::whereIn('cesi_alumno_id', $alumnos->pluck('id'))->get();
+        $data = $alumnosConNotificaciones->map(function ($alumnosConNotificaciones) {
+            return [
+                'alumno_nombre' => $alumnosConNotificaciones->alumno_nombre,
+                'notificaciones' => $alumnosConNotificaciones->notificaciones
+            ];
+        });
 
-        if ($notificaciones->isEmpty()) {
-            return response()->json(['error' => 'No se encontraron notificaciones'], 404);
-        }
-
-        return response()->json(['data' => $notificaciones], 200);
+        return response()->json(['data' => $data], 200);
     }
 
     /**

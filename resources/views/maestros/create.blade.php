@@ -45,7 +45,7 @@
                     <label for="maestro_usuario" class="form-label">Correo electrónico</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                        <input type="email" class="form-control @error('maestro_usuario') is-invalid @enderror"
+                        <input type="text" class="form-control @error('maestro_usuario') is-invalid @enderror"
                             id="maestro_usuario" name="maestro_usuario" value="{{ old('maestro_usuario') }}" required
                             placeholder="Ingresa el correo electrónico">
                         @error('maestro_usuario')

@@ -128,7 +128,7 @@ Route::prefix('listas')->group(function () {
 // Rutas para el controlador NotificacionApiController
 Route::prefix('notificaciones')->group(function () {
     Route::get('alumno/{alumnoId}', [NotificacionApiController::class, 'index']); // Obtener todas las notificaciones de un alumno específico
-    Route::post('alumno/{alumnoId}', [NotificacionApiController::class, 'create']); // Crear una nueva notificación para un alumno específico
+    Route::post('alumno/{maestroId}/{alumnoId}', [NotificacionApiController::class, 'create']); // Crear una nueva notificación para un alumno específico
     Route::get('tutor/{tutorId}', [NotificacionApiController::class, 'show']); // Obtener las notificaciones de un tutor específico
     Route::put('alumno/{alumnoId}/notificacion/{id}', [NotificacionApiController::class, 'update']); // Actualizar una notificación de un alumno específico
     Route::delete('alumno/{alumnoId}/notificacion/{id}', [NotificacionApiController::class, 'destroy']); // Eliminar una notificación de un alumno específico

@@ -85,30 +85,40 @@ class TutorController extends Controller
                 'min:8',
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/'
             ],
-            'tutor_nombre' => 'required|regex:/^[\p{L}\s]+$/u|max:255',
+            'tutor_nombre' => [
+                'required',
+                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/', // Permitir letras, acentos, ñ y espacios
+                'max:255'
+            ],
             'tutor_telefono' => 'required|regex:/^[0-9]+$/|digits:10',
             'tutor_foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'cesi_escuela_id' => 'required|exists:cesi_escuelas,id',
         ], [
             'tutor_usuario.required' => 'El campo correo electrónico es obligatorio.',
-            'tutor_usuario.regex' => 'El correo electrónico no tiene un formato válido.',
+            'tutor_usuario.regex' => 'El correo electrónico ingresado no es válido. Por ejemplo, usa un formato como "usuario@dominio.com".',
             'tutor_usuario.unique' => 'El correo electrónico ya está registrado.',
+
             'tutor_contraseña.required' => 'El campo contraseña es obligatorio.',
-            'tutor_contraseña.min' => 'La contraseña debe tener al menos 9 caracteres.',
+            'tutor_contraseña.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'tutor_contraseña.regex' => 'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&).',
+
             'tutor_nombre.required' => 'El campo nombre es obligatorio.',
-            'tutor_nombre.regex' => 'El nombre solo puede contener letras.',
+            'tutor_nombre.regex' => 'El nombre solo puede contener letras, acentos, la ñ y espacios.',
             'tutor_nombre.max' => 'El nombre no puede exceder los 255 caracteres.',
+
             'tutor_telefono.required' => 'El campo teléfono es obligatorio.',
             'tutor_telefono.digits' => 'El número de teléfono debe contener exactamente 10 dígitos.',
-            'tutor_telefono.regex' => 'El número de teléfono debe ser numerico.',
+            'tutor_telefono.regex' => 'El número de teléfono debe ser numérico.',
+
             'tutor_foto.required' => 'El campo foto es obligatorio.',
             'tutor_foto.image' => 'El archivo debe ser una imagen.',
             'tutor_foto.mimes' => 'La imagen debe ser de tipo jpeg, png, jpg o gif.',
             'tutor_foto.max' => 'La imagen no debe exceder los 2 MB.',
+
             'cesi_escuela_id.required' => 'El campo escuela es obligatorio.',
             'cesi_escuela_id.exists' => 'La escuela seleccionada no es válida.',
         ]);
+
 
         $data = $request->all();
         $data['tutor_contraseña'] = bcrypt($request->tutor_contraseña);
@@ -185,28 +195,38 @@ class TutorController extends Controller
                 'min:8',
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/'
             ],
-            'tutor_nombre' => 'required|regex:/^[\p{L}\s]+$/u|max:255',
+            'tutor_nombre' => [
+                'required',
+                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
+                'max:255'
+            ],
             'tutor_telefono' => 'required|regex:/^[0-9]+$/|digits:10',
             'tutor_foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'cesi_escuela_id' => 'required|exists:cesi_escuelas,id',
         ], [
             'tutor_usuario.required' => 'El campo correo electrónico es obligatorio.',
-            'tutor_usuario.regex' => 'El correo electrónico no tiene un formato válido.',
+            'tutor_usuario.regex' => 'El correo electrónico ingresado no es válido. Por ejemplo, usa un formato como "usuario@dominio.com".',
             'tutor_usuario.unique' => 'El correo electrónico ya está registrado.',
-            'tutor_contraseña.min' => 'La contraseña debe tener al menos 9 caracteres.',
+
+            'tutor_contraseña.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'tutor_contraseña.regex' => 'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&).',
+
             'tutor_nombre.required' => 'El campo nombre es obligatorio.',
-            'tutor_nombre.regex' => 'El nombre solo puede contener letras.',
+            'tutor_nombre.regex' => 'El nombre solo puede contener letras, acentos, la ñ y espacios.',
             'tutor_nombre.max' => 'El nombre no puede exceder los 255 caracteres.',
+
             'tutor_telefono.required' => 'El campo teléfono es obligatorio.',
             'tutor_telefono.digits' => 'El número de teléfono debe contener exactamente 10 dígitos.',
-            'tutor_telefono.regex' => 'El número de teléfono debe ser numerico.',
+            'tutor_telefono.regex' => 'El número de teléfono debe ser numérico.',
+
             'tutor_foto.image' => 'El archivo debe ser una imagen.',
             'tutor_foto.mimes' => 'La imagen debe ser de tipo jpeg, png, jpg o gif.',
             'tutor_foto.max' => 'La imagen no debe exceder los 2 MB.',
+
             'cesi_escuela_id.required' => 'El campo escuela es obligatorio.',
             'cesi_escuela_id.exists' => 'La escuela seleccionada no es válida.',
         ]);
+
 
         $data = $request->all();
 

@@ -82,7 +82,12 @@ class AlumnoController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'alumno_nombre' => 'required|regex:/^[\p{L}\s]+$/u|max:255',
+            'alumno_nombre' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
+            ],
             'alumno_nacimiento' => 'required|date',
             'alumno_foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'cesi_salon_id' => 'required|exists:cesi_salons,id',

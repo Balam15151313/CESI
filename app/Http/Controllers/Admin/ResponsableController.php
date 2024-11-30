@@ -174,10 +174,16 @@ class ResponsableController extends Controller
 
         return [
             'rules' => [
-                'responsable_nombre' => 'required|string|max:255',
+                'responsable_nombre' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
+                ],
                 'responsable_usuario' => [
                     'required',
                     'email',
+                    'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
                     Rule::unique('cesi_responsables', 'responsable_usuario')->ignore($responsableId),
                     Rule::unique('users', 'email')->ignore($relatedUserId),
                 ],
@@ -189,10 +195,12 @@ class ResponsableController extends Controller
                 'responsable_nombre.required' => 'El nombre del responsable es obligatorio.',
                 'responsable_nombre.string' => 'El nombre del responsable debe ser una cadena de texto.',
                 'responsable_nombre.max' => 'El nombre del responsable no puede exceder los 255 caracteres.',
+                'responsable_nombre.regex' => 'El nombre del responsable solo puede contener letras y espacios.',
 
                 'responsable_usuario.required' => 'El correo electrónico del responsable es obligatorio.',
                 'responsable_usuario.email' => 'El correo electrónico debe tener un formato válido.',
                 'responsable_usuario.unique' => 'Este correo electrónico ya está registrado.',
+                'responsable_usuario.regex' => 'El correo electrónico ingresado no es válido. Por ejemplo, usa un formato como "usuario@dominio.com".',
 
                 'responsable_contraseña.nullable' => 'La contraseña es opcional.',
                 'responsable_contraseña.regex' => 'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&).',
@@ -200,7 +208,7 @@ class ResponsableController extends Controller
 
                 'responsable_telefono.required' => 'El teléfono del responsable es obligatorio.',
                 'responsable_telefono.digits' => 'El número de teléfono debe contener exactamente 10 dígitos.',
-                'responsable_telefono.regex' => 'El número de teléfono debe ser numerico.',
+                'responsable_telefono.regex' => 'El número de teléfono debe ser numérico.',
 
                 'responsable_foto.image' => 'El archivo debe ser una imagen.',
                 'responsable_foto.mimes' => 'La imagen debe estar en formato jpeg, png, jpg o gif.',

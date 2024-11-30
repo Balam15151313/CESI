@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Tutor;
 use App\Models\Alumno;
+use App\Models\Escuela;
 use App\Models\Responsable;
 use App\Models\UI;
 use App\Models\User;
@@ -73,8 +74,8 @@ class TutorApiController extends Controller
             'alumno' => $alumno,
             'tutor' => $alumno->tutores,
             'salon' => $alumno->salones,
-            'escuela' => $alumno->salones->escuelas,
-            'maestro' => $alumno->salones->maestros,
+            'escuela' => $alumno->salones->escuelas->escuela_nombre,
+            'maestro' => $alumno->salones->maestros->maestro_nombre,
         ]);
     }
 
@@ -86,13 +87,19 @@ class TutorApiController extends Controller
     {
         $user = User::find($id);
         $tutor = Tutor::where('tutor_usuario', $user->email)->first();
-        $ui = UI::where('cesi_escuela_id', $tutor->cesi_escuela_id)->first();
 
+        $ui = UI::where('cesi_escuela_id', $tutor->cesi_escuela_id)->first();
+        $escuela = Escuela::find($tutor->cesi_escuela_id)->get()->first();
+        $escuelaLogo = $escuela->escuela_logo;
         if (!$ui) {
             return response()->json(['error' => 'Colores de la escuela no encontrados'], 404);
         }
 
-        return response()->json($ui);
+        return response()->json(
+            ['ui_color1' => $ui->ui_color1, 'ui_color2' => $ui->ui_color2, 'ui_color3' => $ui->ui_color3, 'escuela_logo' => $escuelaLogo]
+
+
+        );
     }
 
     /**
@@ -139,7 +146,7 @@ class TutorApiController extends Controller
     public function updateFoto(Request $request, $id)
     {
         $request->validate([
-            'tutor_foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'tutor_foto' => 'required|image|mimes:jpeg,png,jpg,gif',
         ]);
         $user = User::find($id);
         $tutor = Tutor::where('tutor_usuario', $user->email)->first();

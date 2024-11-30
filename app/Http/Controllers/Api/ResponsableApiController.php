@@ -1,18 +1,21 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Responsable;
 use App\Models\User;
 use App\Models\Escuela;
+use App\Models\Tutor;
+use App\Models\UI;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+
 /**
  * Archivo: ResponsableApiController.php
  * Propósito: Controlador para gestionar datos relacionados con responsables.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-27
+ * Última Modificación: 2024-11-29
  */
 
 class ResponsableApiController extends Controller
@@ -21,25 +24,21 @@ class ResponsableApiController extends Controller
     /**
      * Store a newly created responsable in storage.
      */
-    public function store(Request $request) // Cambiado para usar FormRequest
+    public function store(Request $request)
     {
         try {
-            // Validación ya se maneja en el FormRequest
-            $request->validationRules($request);
             $responsable = new Responsable();
             $responsable->fill($request->only(['responsable_nombre', 'responsable_usuario', 'responsable_telefono', 'cesi_tutore_id']));
             $responsable->responsable_contraseña = bcrypt($request->responsable_contraseña);
             $responsable->responsable_activacion = 0;
             $responsable->cesi_tutore_id = $request->cesi_tutore_id;
 
-            // Crear el usuario asociado
             $user = new User();
             $user->name = $request->responsable_nombre;
             $user->email = $request->responsable_usuario;
             $user->password = bcrypt($request->responsable_contraseña);
             $user->role = 'responsable';
 
-            // Manejo de la foto del responsable
             if ($request->hasFile('responsable_foto')) {
                 $imagePath = $request->file('responsable_foto')->store('responsables', 'public');
                 $responsable->responsable_foto = $imagePath;
@@ -54,9 +53,11 @@ class ResponsableApiController extends Controller
         }
     }
 
+
     public function show($id)
     {
-        $responsable = Responsable::find($id);
+        $user = User::find($id);
+        $responsable = Responsable::where('responsable_usuario', $user->email)->first();
 
         if (!$responsable) {
             return response()->json(['error' => 'Responsable no encontrado'], 404);
@@ -68,33 +69,28 @@ class ResponsableApiController extends Controller
     /**
      * Update the specified responsable in storage.
      */
-    public function update(Request $request, Responsable $responsable) // Cambiado para usar FormRequest
+    public function update(Request $request, Responsable $responsable)
     {
         try {
-            $request->validationRules($request);
             $responsable->fill($request->only(['responsable_nombre', 'responsable_usuario', 'responsable_telefono', 'cesi_tutore_id']));
 
-            // Actualizar la contraseña solo si se ha proporcionado
             if ($request->filled('responsable_contraseña')) {
                 $responsable->responsable_contraseña = bcrypt($request->responsable_contraseña);
             }
 
-            // Manejo de la actualización de la foto
             if ($request->hasFile('responsable_foto')) {
-                // Eliminar foto anterior si existe
                 if ($responsable->responsable_foto) {
                     $this->deletePhoto($responsable->responsable_foto);
                 }
 
-                // Guardar nueva foto
                 $imagePath = $request->file('responsable_foto')->store('responsables', 'public');
                 $responsable->responsable_foto = $imagePath;
             }
 
             $responsable->responsable_activacion = $request->responsable_activacion;
 
-            // Actualizar el usuario asociado
-            $user = User::find('email',$responsable->responsable_usuario);
+
+            $user = User::find('email', $responsable->responsable_usuario);
             $user->name = $request->responsable_nombre;
             $user->email = $request->responsable_usuario;
             if ($request->filled('responsable_contraseña')) {
@@ -117,12 +113,12 @@ class ResponsableApiController extends Controller
     public function destroy(Responsable $responsable)
     {
         try {
-            // Eliminar la foto del responsable
+
             if ($responsable->responsable_foto) {
                 $this->deletePhoto($responsable->responsable_foto);
             }
 
-            // Eliminar el usuario
+
             $user = User::find($responsable->cesi_responsable_id);
             $user->delete();
 
@@ -136,33 +132,21 @@ class ResponsableApiController extends Controller
 
     public function getSchoolColorsByResponsable($responsableId)
     {
-        // Obtener el responsable
-        $responsable = Responsable::with(['tutores.escuela.ui'])
-            ->where('id', $responsableId)
-            ->first();
+        $user = User::find($responsableId);
+        $responsable = Responsable::where('responsable_usuario', $user->email)->first();
+        $tutor = Tutor::where('id', $responsable->cesi_tutore_id)->first();
 
-        if (!$responsable) {
-            return response()->json(['error' => 'Responsable no encontrado'], 404);
+        $ui = UI::where('cesi_escuela_id', $tutor->cesi_escuela_id)->first();
+        $escuela = Escuela::find($tutor->cesi_escuela_id)->get()->first();
+        $escuelaLogo = $escuela->escuela_logo;
+        if (!$ui) {
+            return response()->json(['error' => 'Colores de la escuela no encontrados'], 404);
         }
 
-        // Verificar si el tutor asociado tiene escuela y colores de UI
-        $tutor = $responsable->tutores;
-        if (!$tutor || !$tutor->escuela || !$tutor->escuela->ui) {
-            return response()->json(['error' => 'Escuela o UI no encontrados'], 404);
-        }
+        return response()->json(
+            ['ui_color1' => $ui->ui_color1, 'ui_color2' => $ui->ui_color2, 'ui_color3' => $ui->ui_color3, 'escuela_logo' => $escuelaLogo]
 
-        // Obtener los colores y el logo de la UI
-        $ui = $tutor->escuela->ui;
-
-        // Responder con los colores y logo
-        return response()->json([
-            'data' => [
-                'color1' => $ui->ui_color1,
-                'color2' => $ui->ui_color2,
-                'color3' => $ui->ui_color3,
-                'logo' => $ui->ui_logo,  // Asumiendo que 'ui_logo' es un campo en la tabla 'ui'
-            ]
-        ], 200);
+        );
     }
 
 
@@ -173,49 +157,7 @@ class ResponsableApiController extends Controller
     {
         $fullPath = public_path('storage/' . $photoPath);
         if (file_exists($fullPath)) {
-            unlink($fullPath); // Eliminar la foto del almacenamiento
+            unlink($fullPath);
         }
     }
-
-    public function validationRules($responsableId = null)
-    {
-        $responsable = Responsable::find($responsableId);
-        $user = User::where('email', $responsable->responsable_usuario)->first();
-        $relatedUserId = $user?->id;
-        return [
-            'rules' => [
-                'responsable_nombre' => 'required|string|max:255',
-                'responsable_usuario' => [
-                    'required',
-                    'email',
-                    'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
-                    Rule::unique('cesi_responsables', 'responsable_usuario')->ignore($responsableId),
-                    Rule::unique('users', 'email')->ignore($relatedUserId),
-                ],
-                'responsable_contraseña' => 'nullable|string|min:6',
-                'responsable_telefono' => 'nullable|regex:/^[0-9]{10,11}$/',
-                'responsable_foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            ],
-            'messages' => [
-                'responsable_nombre.required' => 'El nombre del responsable es obligatorio.',
-                'responsable_nombre.string' => 'El nombre del responsable debe ser una cadena de texto.',
-                'responsable_nombre.max' => 'El nombre del responsable no puede exceder los 255 caracteres.',
-
-                'responsable_usuario.required' => 'El correo electrónico del responsable es obligatorio.',
-                'responsable_usuario.email' => 'El correo electrónico debe tener un formato válido.',
-                'responsable_usuario.unique' => 'Este correo electrónico ya está registrado.',
-
-                'responsable_contraseña.nullable' => 'La contraseña es opcional.',
-                'responsable_contraseña.string' => 'La contraseña debe ser una cadena de texto.',
-                'responsable_contraseña.min' => 'La contraseña debe tener al menos 6 caracteres.',
-
-                'responsable_telefono.regex' => 'El número de teléfono debe contener entre 10 y 11 dígitos.',
-
-                'responsable_foto.image' => 'El archivo debe ser una imagen.',
-                'responsable_foto.mimes' => 'La imagen debe estar en formato jpeg, png, jpg o gif.',
-                'responsable_foto.max' => 'La imagen no puede superar los 2 MB.',
-            ],
-        ];
-    }
-
 }
