@@ -13,10 +13,6 @@ return new class extends Migration
     {
         Schema::create('cesi_recogidas', function (Blueprint $table) {
             $table->id();
-            $table->timestamp('recogida_fecha')->nullable();
-            $table->longText('recogida_observaciones');
-            $table->string('recogida_estatus')->nullable();
-            $table->string('recogida_qr')->nullable();
             $table->timestamps();
         });
     }

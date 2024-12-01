@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
  * Propósito: Controlador para gestionar datos relacionados con responsables.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-29
+ * Última Modificación: 2024-12-01
  */
 
 class ResponsableApiController extends Controller
@@ -24,14 +24,16 @@ class ResponsableApiController extends Controller
     /**
      * Store a newly created responsable in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, $id)
     {
         try {
+            $user = User::find($id);
+            $tutor = Tutor::where('tutor_usuario', $user->email)->first();
             $responsable = new Responsable();
-            $responsable->fill($request->only(['responsable_nombre', 'responsable_usuario', 'responsable_telefono', 'cesi_tutore_id']));
+            $responsable->fill($request->only(['responsable_nombre', 'responsable_usuario', 'responsable_telefono']));
             $responsable->responsable_contraseña = bcrypt($request->responsable_contraseña);
             $responsable->responsable_activacion = 0;
-            $responsable->cesi_tutore_id = $request->cesi_tutore_id;
+            $responsable->cesi_tutore_id = $tutor->id;
 
             $user = new User();
             $user->name = $request->responsable_nombre;

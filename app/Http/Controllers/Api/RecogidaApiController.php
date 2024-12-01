@@ -10,13 +10,14 @@ use App\Models\Reporte;
 use App\Models\Tutor;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\PDF;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Archivo: RecogidaApiController.php
  * Propósito: Controlador para gestionar datos relacionados con recogidas.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-28
+ * Última Modificación: 2024-12-01
  */
 class RecogidaApiController extends Controller
 {
@@ -52,38 +53,59 @@ class RecogidaApiController extends Controller
      * Este método valida los datos de la solicitud, filtra los alumnos que no han sido
      * recogidos en la fecha indicada y genera una nueva recogida con los alumnos seleccionados.
      */
-    public function generarRecogida(Request $request)
+
+    public function generarRecogida(Request $request, $id)
     {
-        $validated = $request->validate([
-            'recogida_fecha' => 'required|date',
-            'recogida_observaciones' => 'nullable|string',
-            'recogida_estatus' => 'required|in:pendiente,completa,cancelada',
-            'cesi_tutore_id' => 'required|exists:tutores,id',
-            'alumnos' => 'required|array',
-            'alumnos.*' => 'exists:cesi_alumnos,id',
-        ]);
+        try {
+            $user = User::findOrFail($id);
+            $tutor = Tutor::where('tutor_usuario', $user->email)->firstOrFail();
 
-        $alumnosSinRecogida = Alumno::where('cesi_tutore_id', $validated['cesi_tutore_id'])
-            ->whereDoesntHave('recogidas', function ($query) use ($validated) {
-                $query->whereDate('recogida_fecha', $validated['recogida_fecha']);
-            })
-            ->whereIn('id', $validated['alumnos'])
-            ->get();
+            $alumnosSinRecogida = DB::table('cesi_alumnos')
+                ->where('cesi_tutore_id', $tutor->id)
+                ->whereNotExists(function ($query) use ($request) {
+                    $query->select(DB::raw(1))
+                        ->from('cesi_recogidas')
+                        ->join('cesi_escogidos', 'cesi_recogidas.id', '=', 'cesi_escogidos.cesi_recogida_id')
+                        ->whereColumn('cesi_alumnos.id', 'cesi_escogidos.cesi_alumno_id')
+                        ->whereDate('cesi_recogidas.recogida_fecha', $request->recogida_fecha);
+                })
+                ->whereIn('id', $request->alumnos)
+                ->get();
 
-        if ($alumnosSinRecogida->isEmpty()) {
-            return response()->json(['message' => 'No hay alumnos disponibles para recogida en esta fecha.'], 400);
+            if ($alumnosSinRecogida->isEmpty()) {
+                return response()->json(['message' => 'No hay alumnos disponibles para recogida en esta fecha.'], 400);
+            }
+
+            if ($request->hasFile('recogida_qr') && $request->file('recogida_qr')->isValid()) {
+                $qrPath = $request->file('recogida_qr')->store('recogidas_qr', 'public');
+            } else {
+                $qrPath = null;
+            }
+            $recogida = Recogida::create([
+                'recogida_fecha' => $request->recogida_fecha,
+                'recogida_observaciones' => $request->recogida_observaciones,
+                'recogida_estatus' => 'pendiente',
+                'cesi_tutore_id' => $tutor->id,
+                'recogida_qr' => $qrPath,
+            ]);
+            $recogida->alumnos()->attach($alumnosSinRecogida->pluck('id'));
+
+            return response()->json([
+                'message' => 'Recogida creada correctamente',
+                'data' => [
+                    'recogida' => $recogida,
+                    'alumnos_asociados' => $alumnosSinRecogida,
+                ],
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error al generar recogida',
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        $recogida = Recogida::create([
-            'recogida_fecha' => $validated['recogida_fecha'],
-            'recogida_observaciones' => $validated['recogida_observaciones'],
-            'recogida_estatus' => $validated['recogida_estatus'],
-            'cesi_tutore_id' => $validated['cesi_tutore_id'],
-        ]);
-        $recogida->alumnos()->attach($alumnosSinRecogida->pluck('id'));
-
-        return response()->json(['message' => 'Recogida creada correctamente', 'data' => $recogida], 201);
     }
+
+
 
     /**
      * Obtener las recogidas asociadas a los alumnos de un tutor.

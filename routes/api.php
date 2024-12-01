@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Route;
  * Propósito: Genera las rutas de la API.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-27
+ * Última Modificación: 2024-12-01
  */
 
 // Rutas para el controlador LogInApiController (autenticación)
@@ -43,7 +43,7 @@ Route::prefix('dashboard')->group(function () {
 
 // Rutas para el controlador ResponsableApiController (gestión de responsables)
 Route::prefix('responsables')->group(function () {
-    Route::post('/', [ResponsableApiController::class, 'store']); // Crear un nuevo responsable
+    Route::post('{id}', [ResponsableApiController::class, 'store']); // Crear un nuevo responsable
     Route::get('{id}', [ResponsableApiController::class, 'show']); // Mostrar un responsable por ID
     Route::put('{responsable}', [ResponsableApiController::class, 'update']); // Actualizar responsable
     Route::delete('{responsable}', [ResponsableApiController::class, 'destroy']); // Eliminar responsable
@@ -53,7 +53,7 @@ Route::prefix('responsables')->group(function () {
 // Rutas para el controlador RecogidaApiController (gestión de recogidas de alumnos)
 Route::prefix('recogida')->group(function () {
     Route::get('alumnos/{idTutor}', [RecogidaApiController::class, 'alumnosSinRecogida']); // Obtener alumnos sin recogida
-    Route::post('generar', [RecogidaApiController::class, 'generarRecogida']); // Crear una nueva recogida
+    Route::post('generar/{idTutor}', [RecogidaApiController::class, 'generarRecogida']); // Crear una nueva recogida
     Route::get('tutor/{idTutor}', [RecogidaApiController::class, 'recogidasPorTutor']); // Obtener todas las recogidas de un tutor
     Route::get('estatus', [RecogidaApiController::class, 'recogidasPorEstatus']); // Obtener recogidas por estatus (pendiente, completa, cancelada)
     Route::get('reporte/{idTutor}', [RecogidaApiController::class, 'generarReportePDF']); // Generar reporte en PDF de recogidas
