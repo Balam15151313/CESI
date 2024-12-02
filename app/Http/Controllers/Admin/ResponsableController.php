@@ -17,7 +17,7 @@ use App\Models\Administrador;
  * Propósito: Controlador para gestionar responsables.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-11-29
+ * Última Modificación: 2024-12-01
  */
 class ResponsableController extends Controller
 {
@@ -126,7 +126,7 @@ class ResponsableController extends Controller
      */
     public function update(Request $request, Responsable $responsable)
     {
-        $request->validationRules();
+        $request->validate($this->validationRules($responsable->id), $this->validationMessages());
 
         $responsable->responsable_nombre = $request->responsable_nombre;
         $responsable->responsable_usuario = $request->responsable_usuario;
@@ -145,7 +145,7 @@ class ResponsableController extends Controller
             $responsable->responsable_foto = $imagePath;
         }
 
-        $user = User::find('email', $responsable->responsable_usuario);
+        $user = User::where('email', $responsable->responsable_usuario)->first();;
         $user->name = $request->responsable_nombre;
         $user->email = $request->responsable_usuario;
         if ($request->filled('responsable_contraseña')) {
@@ -162,7 +162,7 @@ class ResponsableController extends Controller
     /**
      * Define las reglas de validación para la creación o edición de un responsable.
      */
-    public function validationRules($responsableId = null)
+    private function validationRules($responsableId = null)
     {
         $relatedUserId = null;
 
@@ -173,47 +173,50 @@ class ResponsableController extends Controller
         }
 
         return [
-            'rules' => [
-                'responsable_nombre' => [
-                    'required',
-                    'string',
-                    'max:255',
-                    'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
-                ],
-                'responsable_usuario' => [
-                    'required',
-                    'email',
-                    'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
-                    Rule::unique('cesi_responsables', 'responsable_usuario')->ignore($responsableId),
-                    Rule::unique('users', 'email')->ignore($relatedUserId),
-                ],
-                'responsable_contraseña' => 'nullable|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/|min:8',
-                'responsable_telefono' => 'required|regex:/^[0-9]+$/|digits:10',
-                'responsable_foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'responsable_nombre' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
             ],
-            'messages' => [
-                'responsable_nombre.required' => 'El nombre del responsable es obligatorio.',
-                'responsable_nombre.string' => 'El nombre del responsable debe ser una cadena de texto.',
-                'responsable_nombre.max' => 'El nombre del responsable no puede exceder los 255 caracteres.',
-                'responsable_nombre.regex' => 'El nombre del responsable solo puede contener letras y espacios.',
-
-                'responsable_usuario.required' => 'El correo electrónico del responsable es obligatorio.',
-                'responsable_usuario.email' => 'El correo electrónico debe tener un formato válido.',
-                'responsable_usuario.unique' => 'Este correo electrónico ya está registrado.',
-                'responsable_usuario.regex' => 'El correo electrónico ingresado no es válido. Por ejemplo, usa un formato como "usuario@dominio.com".',
-
-                'responsable_contraseña.nullable' => 'La contraseña es opcional.',
-                'responsable_contraseña.regex' => 'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&).',
-                'responsable_contraseña.min' => 'La contraseña debe tener al menos 8 caracteres.',
-
-                'responsable_telefono.required' => 'El teléfono del responsable es obligatorio.',
-                'responsable_telefono.digits' => 'El número de teléfono debe contener exactamente 10 dígitos.',
-                'responsable_telefono.regex' => 'El número de teléfono debe ser numérico.',
-
-                'responsable_foto.image' => 'El archivo debe ser una imagen.',
-                'responsable_foto.mimes' => 'La imagen debe estar en formato jpeg, png, jpg o gif.',
-                'responsable_foto.max' => 'La imagen no puede superar los 2 MB.',
+            'responsable_usuario' => [
+                'required',
+                'email',
+                'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
+                Rule::unique('cesi_responsables', 'responsable_usuario')->ignore($responsableId),
+                Rule::unique('users', 'email')->ignore($relatedUserId),
             ],
+            'responsable_contraseña' => $responsableId
+                ? 'nullable|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/|min:8'
+                : 'required|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/|min:8',
+            'responsable_telefono' => 'required|regex:/^[0-9]+$/|digits:10',
+            'responsable_foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ];
+    }
+
+    private function validationMessages()
+    {
+        return [
+            'responsable_nombre.required' => 'El nombre del responsable es obligatorio.',
+            'responsable_nombre.string' => 'El nombre del responsable debe ser una cadena de texto.',
+            'responsable_nombre.max' => 'El nombre del responsable no puede exceder los 255 caracteres.',
+            'responsable_nombre.regex' => 'El nombre del responsable solo puede contener letras y espacios.',
+
+            'responsable_usuario.required' => 'El correo electrónico del responsable es obligatorio.',
+            'responsable_usuario.unique' => 'Este correo electrónico ya está registrado.',
+            'responsable_usuario.regex' => 'El correo electrónico ingresado no es válido. Por ejemplo, usa un formato como "usuario@dominio.com".',
+
+            'responsable_contraseña.nullable' => 'La contraseña es opcional.',
+            'responsable_contraseña.regex' => 'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&).',
+            'responsable_contraseña.min' => 'La contraseña debe tener al menos 8 caracteres.',
+
+            'responsable_telefono.required' => 'El teléfono del responsable es obligatorio.',
+            'responsable_telefono.digits' => 'El número de teléfono debe contener exactamente 10 dígitos.',
+            'responsable_telefono.regex' => 'El número de teléfono debe ser numérico.',
+
+            'responsable_foto.image' => 'El archivo debe ser una imagen.',
+            'responsable_foto.mimes' => 'La imagen debe estar en formato jpeg, png, jpg o gif.',
+            'responsable_foto.max' => 'La imagen no puede superar los 2 MB.',
         ];
     }
 

@@ -15,7 +15,7 @@ use App\Models\Administrador;
  * Propósito: Controlador para gestionar registro de escuelas y sus colores.
  * Autor: Altair Ricardo Villamares Villegas
  * Fecha de Creación: 2024-11-07
- * Última Modificación: 2024-11-29
+ * Última Modificación: 2024-12-01
  */
 class EscuelaController extends Controller
 {
@@ -86,6 +86,25 @@ class EscuelaController extends Controller
             'ui_color1' => 'required|string',
             'ui_color2' => 'required|string',
             'ui_color3' => 'required|string'
+        ], [
+            'escuela_nombre.required' => 'El nombre de la escuela es obligatorio.',
+            'escuela_nombre.string' => 'El nombre de la escuela debe ser una cadena de texto.',
+            'escuela_nombre.max' => 'El nombre de la escuela no debe exceder los 255 caracteres.',
+            'escuela_escolaridad.required' => 'La escolaridad de la escuela es obligatoria.',
+            'escuela_escolaridad.string' => 'La escolaridad debe ser una cadena de texto.',
+            'escuela_escolaridad.max' => 'La escolaridad no debe exceder los 255 caracteres.',
+            'escuela_latitud.required' => 'La latitud de la escuela es obligatoria.',
+            'escuela_latitud.string' => 'La latitud debe ser una cadena de texto.',
+            'escuela_latitud.max' => 'La latitud no debe exceder los 255 caracteres.',
+            'escuela_longitud.required' => 'La longitud de la escuela es obligatoria.',
+            'escuela_longitud.string' => 'La longitud debe ser una cadena de texto.',
+            'escuela_longitud.max' => 'La longitud no debe exceder los 255 caracteres.',
+            'escuela_logo.image' => 'El logo debe ser una imagen.',
+            'escuela_logo.mimes' => 'El logo debe ser un archivo de tipo: jpeg, png, jpg.',
+            'escuela_logo.max' => 'El tamaño máximo del logo es de 2MB.',
+            'ui_color1.required' => 'El color 1 es obligatorio.',
+            'ui_color2.required' => 'El color 2 es obligatorio.',
+            'ui_color3.required' => 'El color 3 es obligatorio.',
         ]);
 
         if ($request->hasFile('escuela_logo')) {
@@ -111,6 +130,7 @@ class EscuelaController extends Controller
 
         return redirect()->route('escuelas.index')->with('success', 'Escuela creada correctamente');
     }
+
 
 
     /**
@@ -146,6 +166,28 @@ class EscuelaController extends Controller
             'ui_color1' => 'required|string',
             'ui_color2' => 'required|string',
             'ui_color3' => 'required|string'
+        ], [
+            'escuela_nombre.required' => 'El nombre de la escuela es obligatorio.',
+            'escuela_nombre.string' => 'El nombre de la escuela debe ser una cadena de caracteres.',
+            'escuela_nombre.max' => 'El nombre de la escuela no puede exceder los 255 caracteres.',
+            'escuela_escolaridad.required' => 'La escolaridad de la escuela es obligatoria.',
+            'escuela_escolaridad.string' => 'La escolaridad debe ser una cadena de caracteres.',
+            'escuela_escolaridad.max' => 'La escolaridad no puede exceder los 255 caracteres.',
+            'escuela_latitud.required' => 'La latitud de la escuela es obligatoria.',
+            'escuela_latitud.string' => 'La latitud debe ser una cadena de caracteres.',
+            'escuela_latitud.max' => 'La latitud no puede exceder los 255 caracteres.',
+            'escuela_longitud.required' => 'La longitud de la escuela es obligatoria.',
+            'escuela_longitud.string' => 'La longitud debe ser una cadena de caracteres.',
+            'escuela_longitud.max' => 'La longitud no puede exceder los 255 caracteres.',
+            'escuela_logo.image' => 'El logo debe ser una imagen.',
+            'escuela_logo.mimes' => 'El logo debe ser un archivo de tipo jpeg, png o jpg.',
+            'escuela_logo.max' => 'El tamaño máximo del logo es de 2 MB.',
+            'ui_color1.required' => 'El color UI primario es obligatorio.',
+            'ui_color1.string' => 'El color UI primario debe ser una cadena de caracteres.',
+            'ui_color2.required' => 'El color UI secundario es obligatorio.',
+            'ui_color2.string' => 'El color UI secundario debe ser una cadena de caracteres.',
+            'ui_color3.required' => 'El color UI terciario es obligatorio.',
+            'ui_color3.string' => 'El color UI terciario debe ser una cadena de caracteres.'
         ]);
 
         $escuela = Escuela::findOrFail($id);
@@ -172,6 +214,7 @@ class EscuelaController extends Controller
                 'cesi_escuela_id' => $escuela->id
             ]);
         }
+
         session([
             'escuela_logo' => $data['escuela_logo'] ?? session('escuela_logo', 'logos/default_logo.png'),
             'ui_color1' => $data['ui_color1'],
@@ -181,6 +224,7 @@ class EscuelaController extends Controller
 
         return redirect()->route('escuelas.index')->with('success', 'Escuela actualizada exitosamente');
     }
+
 
 
     /**

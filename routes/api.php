@@ -7,8 +7,6 @@ use App\Http\Controllers\Api\RegistroApiController;
 use App\Http\Controllers\Api\LogInApiController;
 use App\Http\Controllers\Api\SalonApiController;
 use App\Http\Controllers\Api\EscuelaApiController;
-use App\Http\Controllers\Api\AsistenciasApiController;
-use App\Http\Controllers\Api\ListaApiController;
 use App\Http\Controllers\Api\NotificacionApiController;
 use App\Http\Controllers\Api\PaseApiController;
 use App\Http\Controllers\Api\RastreoApiController;
@@ -22,7 +20,7 @@ use Illuminate\Support\Facades\Route;
  * Propósito: Genera las rutas de la API.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-12-01
+ * Última Modificación: 2024-12-02
  */
 
 // Rutas para el controlador LogInApiController (autenticación)
@@ -99,14 +97,6 @@ Route::prefix('tutores')->group(function () {
     Route::post('/{id}/foto', [TutorApiController::class, 'updateFoto']); // Actualizar la foto de un tutor
 });
 
-// Rutas para el controlador AsistenciasApiController (gestión de asistencias)
-Route::prefix('asistencias')->group(function () {
-    Route::post('/', [AsistenciasApiController::class, 'store']); // Crear nueva asistencia
-    Route::get('/{id}', [AsistenciasApiController::class, 'show']); // Mostrar asistencia específica
-    Route::put('/{asistencia}', [AsistenciasApiController::class, 'update']); // Actualizar asistencia
-    Route::delete('/{asistencia}', [AsistenciasApiController::class, 'destroy']); // Eliminar asistencia
-});
-
 // Rutas para el controlador EscuelaApiController (gestión de escuelas)
 Route::prefix('escuelas')->group(function () {
     Route::get('/', [EscuelaApiController::class, 'index']); // Mostrar todas las escuelas
@@ -114,15 +104,6 @@ Route::prefix('escuelas')->group(function () {
     Route::get('/{id}', [EscuelaApiController::class, 'show']); // Mostrar escuela específica
     Route::put('/{id}', [EscuelaApiController::class, 'update']); // Actualizar escuela existente
     Route::delete('/{id}', [EscuelaApiController::class, 'destroy']); // Eliminar escuela
-});
-
-// Rutas para el controlador ListaApiController (gestión de listas)
-Route::prefix('listas')->group(function () {
-    Route::get('/', [ListaApiController::class, 'index']); // Mostrar todas las listas asociadas al maestro
-    Route::post('/crear', [ListaApiController::class, 'create']); // Crear una nueva lista
-    Route::get('/{id}', [ListaApiController::class, 'show']); // Mostrar una lista específica
-    Route::put('/{id}', [ListaApiController::class, 'update']); // Actualizar una lista
-    Route::delete('/{id}', [ListaApiController::class, 'destroy']); // Eliminar lista
 });
 
 // Rutas para el controlador NotificacionApiController
@@ -145,9 +126,7 @@ Route::prefix('maestros')->group(function () {
 
 // Rutas para el controlador PaseApiController
 Route::prefix('pase')->group(function () {
-    Route::get('alumno/{alumnoId}', [PaseApiController::class, 'index']); // Obtener todos los pases de un alumno específico
-    Route::post('alumno/{alumnoId}', [PaseApiController::class, 'create']); // Crear un nuevo pase para un alumno específico
-    Route::get('alumno/{alumnoId}/{id}', [PaseApiController::class, 'show']); // Obtener un pase específico de un alumno
-    Route::put('alumno/{alumnoId}/{id}', [PaseApiController::class, 'update']); // Actualizar un pase específico de un alumno
-    Route::delete('alumno/{alumnoId}/{id}', [PaseApiController::class, 'destroy']); // Eliminar un pase específico de un alumno
+    Route::get('asistencia/{asistenciaId}/generar', [PaseApiController::class, 'generarListaDeAsistencia']); // Ruta para generar la lista de asistencia en formato PDF
+    Route::get('{asistenciaId}/mostrar', [PaseApiController::class, 'mostrarPaseDeAsistencia']); // Ruta para mostrar el pase de asistencia
+    Route::post('asistencia/registrar', [PaseApiController::class, 'registrarPaseDeAsistencia']); // Ruta para registrar el pase de asistencia
 });

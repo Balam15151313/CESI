@@ -11,13 +11,14 @@ use App\Models\Tutor;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\PDF;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Archivo: RecogidaApiController.php
  * Propósito: Controlador para gestionar datos relacionados con recogidas.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-12-01
+ * Última Modificación: 2024-12-02
  */
 class RecogidaApiController extends Controller
 {
@@ -44,7 +45,6 @@ class RecogidaApiController extends Controller
         if ($alumnos->isEmpty()) {
             return response()->json(['message' => 'No hay alumnos disponibles para recogida'], 200);
         }
-
         return response()->json(['data' => $alumnos], 200);
     }
 
@@ -62,14 +62,16 @@ class RecogidaApiController extends Controller
 
             $alumnosSinRecogida = DB::table('cesi_alumnos')
                 ->where('cesi_tutore_id', $tutor->id)
-                ->whereNotExists(function ($query) use ($request) {
+                ->whereNotExists(function ($query) {
                     $query->select(DB::raw(1))
                         ->from('cesi_recogidas')
                         ->join('cesi_escogidos', 'cesi_recogidas.id', '=', 'cesi_escogidos.cesi_recogida_id')
                         ->whereColumn('cesi_alumnos.id', 'cesi_escogidos.cesi_alumno_id')
-                        ->whereDate('cesi_recogidas.recogida_fecha', $request->recogida_fecha);
+                        ->whereDate('cesi_recogidas.recogida_fecha', now());
                 })
-                ->whereIn('id', $request->alumnos)
+                ->join('cesi_pases', 'cesi_alumnos.id', '=', 'cesi_pases.cesi_alumno_id')
+                ->where('cesi_pases.pase_estatus', 'presente')
+                ->whereIn('cesi_alumnos.id', request()->alumnos)
                 ->get();
 
             if ($alumnosSinRecogida->isEmpty()) {
@@ -77,16 +79,22 @@ class RecogidaApiController extends Controller
             }
 
             if ($request->hasFile('recogida_qr') && $request->file('recogida_qr')->isValid()) {
-                $qrPath = $request->file('recogida_qr')->store('recogidas_qr', 'public');
+                $imageData = $request->input('recogida_qr');
+                $imageParts = explode(',', $imageData);
+                $decodedImage = base64_decode(end($imageParts));
+                $imagePath = 'recogidas_imagenes/' . uniqid() . '.png';
+                Storage::disk('public')->put($imagePath, $decodedImage);
             } else {
-                $qrPath = null;
+                $imagePath = null;
             }
+
+
             $recogida = Recogida::create([
                 'recogida_fecha' => $request->recogida_fecha,
                 'recogida_observaciones' => $request->recogida_observaciones,
                 'recogida_estatus' => 'pendiente',
                 'cesi_tutore_id' => $tutor->id,
-                'recogida_qr' => $qrPath,
+                'recogida_qr' => $imagePath,
             ]);
             $recogida->alumnos()->attach($alumnosSinRecogida->pluck('id'));
 

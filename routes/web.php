@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\EscuelaController;
@@ -10,12 +11,13 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\TutorController;
 use App\Http\Controllers\Admin\AlumnoController;
 use App\Http\Controllers\Admin\AdminController;
+
 /**
  * Archivo: web.php
  * Propósito: Genera las rutas de la página.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-11-27
+ * Última Modificación: 2024-12-01
  */
 Route::get('/', function () {
     return view('auth/login');
