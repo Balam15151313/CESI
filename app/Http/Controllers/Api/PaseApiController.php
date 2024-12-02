@@ -32,18 +32,18 @@ class PaseApiController extends Controller
         $admin = User::find(Auth::id());
         $maestro = Maestro::where('maestro_usuario', $admin->email)->first();
         $pases = Pase::where('cesi_asistencia_id', $asistenciaId)
-            ->where('pase_estatus', 'presente')
+            ->where('pase_status', 'presente')
             ->get();
         $html = '<h1>Lista de Asistencia - ' . $asistencia->asistencia_fecha . '</h1>';
         $html .= '<p>Hora: ' . $asistencia->asistencia_hora . '</p>';
         $html .= '<p>Maestro: ' . $maestro->maestro_nombre . '</p>';
         $html .= '<table border="1" cellpadding="5" cellspacing="0" style="width:100%; margin-top: 20px;">';
-        $html .= '<thead><tr><th>#</th><th>Nombre del Alumno</th><th>Estatus</th></tr></thead>';
+        $html .= '<thead><tr><th>#</th><th>Nombre del Alumno</th><th></th></tr></thead>';
         $html .= '<tbody>';
 
         foreach ($pases as $index => $pase) {
             $alumno = $pase->alumno;
-            $html .= '<tr><td>' . ($index + 1) . '</td><td>' . $alumno->nombre . '</td><td>' . $pase->pase_estatus . '</td></tr>';
+            $html .= '<tr><td>' . ($index + 1) . '</td><td>' . $alumno->nombre . '</td><td>' . $pase->pase_status . '</td></tr>';
         }
 
         $html .= '</tbody></table>';
@@ -102,7 +102,7 @@ class PaseApiController extends Controller
         $request->validate([
             'alumnos' => 'required|array',
             'alumnos.*.id' => 'exists:alumnos,id',
-            'alumnos.*.estatus' => 'required|string|in:presente,ausente',
+            'alumnos.*.' => 'required|string|in:presente,ausente',
         ]);
 
         $admin = User::find(Auth::id());
@@ -119,7 +119,7 @@ class PaseApiController extends Controller
                 'cesi_alumno_id' => $alumno['id'],
                 'cesi_asistencia_id' => $asistencia->id,
                 'cesi_maestro_id' => $maestro->id,
-                'pase_estatus' => $alumno['estatus'],
+                'pase_status' => $alumno[''],
             ]);
         }
 

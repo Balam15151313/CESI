@@ -42,6 +42,10 @@ class Alumno extends Model
             ->withTimestamps();
     }
 
+    public function pases()
+    {
+        return $this->hasMany(Pase::class, 'cesi_alumno_id');
+    }
     public function notificaciones()
     {
         return $this->hasMany(Notificacion::class, 'cesi_alumno_id');

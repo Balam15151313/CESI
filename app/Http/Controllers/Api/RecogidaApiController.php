@@ -31,20 +31,34 @@ class RecogidaApiController extends Controller
     {
         $user = User::find($idTutor);
         $tutor = Tutor::where('tutor_usuario', $user->email)->first();
-        $alumnos = Alumno::where('cesi_tutore_id', $tutor->id)
-            ->whereDoesntHave('recogidas', function ($query) {
-                $query->whereDate('recogida_fecha', now()->toDateString());
+
+        // Validar si se encuentra al tutor
+        if (!$tutor) {
+            return response()->json(['message' => 'Tutor no encontrado'], 404);
+        }
+
+        $hoy = now()->toDateString();
+
+        $alumnos = DB::table('cesi_alumnos')
+            ->where('cesi_alumnos.cesi_tutore_id', $tutor->id)
+            ->whereNotExists(function ($query) use ($hoy) {
+                $query->select(DB::raw(1))
+                    ->from('cesi_recogidas')
+                    ->join('cesi_escogidos', 'cesi_recogidas.id', '=', 'cesi_escogidos.cesi_recogida_id')
+                    ->whereColumn('cesi_alumnos.id', 'cesi_escogidos.cesi_alumno_id')
+                    ->whereDate('cesi_recogidas.recogida_fecha', $hoy);
             })
-            ->whereHas('asistencias', function ($query) {
-                $query->whereHas('pases', function ($paseQuery) {
-                    $paseQuery->where('pase_status', 'presente');
-                });
-            })
+            ->join('cesi_pases', 'cesi_alumnos.id', '=', 'cesi_pases.cesi_alumno_id')
+            ->join('cesi_asistencias', 'cesi_pases.cesi_asistencia_id', '=', 'cesi_asistencias.id')
+            ->whereDate('cesi_asistencias.asistencia_fecha', $hoy)
+            ->where('cesi_pases.pase_status', 'presente')
+            ->select('cesi_alumnos.*')
             ->get();
 
         if ($alumnos->isEmpty()) {
             return response()->json(['message' => 'No hay alumnos disponibles para recogida'], 200);
         }
+
         return response()->json(['data' => $alumnos], 200);
     }
 
@@ -60,18 +74,22 @@ class RecogidaApiController extends Controller
             $user = User::findOrFail($id);
             $tutor = Tutor::where('tutor_usuario', $user->email)->firstOrFail();
 
+            $hoy = now()->toDateString();
+
             $alumnosSinRecogida = DB::table('cesi_alumnos')
-                ->where('cesi_tutore_id', $tutor->id)
-                ->whereNotExists(function ($query) {
+                ->where('cesi_alumnos.cesi_tutore_id', $tutor->id)
+                ->whereNotExists(function ($query) use ($hoy) {
                     $query->select(DB::raw(1))
                         ->from('cesi_recogidas')
                         ->join('cesi_escogidos', 'cesi_recogidas.id', '=', 'cesi_escogidos.cesi_recogida_id')
                         ->whereColumn('cesi_alumnos.id', 'cesi_escogidos.cesi_alumno_id')
-                        ->whereDate('cesi_recogidas.recogida_fecha', now());
+                        ->whereDate('cesi_recogidas.recogida_fecha', $hoy);
                 })
                 ->join('cesi_pases', 'cesi_alumnos.id', '=', 'cesi_pases.cesi_alumno_id')
-                ->where('cesi_pases.pase_estatus', 'presente')
-                ->whereIn('cesi_alumnos.id', request()->alumnos)
+                ->join('cesi_asistencias', 'cesi_pases.cesi_asistencia_id', '=', 'cesi_asistencias.id')
+                ->whereDate('cesi_asistencias.asistencia_fecha', $hoy)
+                ->where('cesi_pases.pase_status', 'presente')
+                ->select('cesi_alumnos.*')
                 ->get();
 
             if ($alumnosSinRecogida->isEmpty()) {
