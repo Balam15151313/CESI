@@ -11,13 +11,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use App\Models\Administrador;
+use App\Models\Responsable;
 
 /**
  * Archivo: TutorController.php
  * Propósito: Controlador para gestionar tutores.
  * Autor: Alexis Daniel Uribe Oleriano
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-29
+ * Última Modificación: 2024-12-02
  */
 class TutorController extends Controller
 {
@@ -127,13 +128,22 @@ class TutorController extends Controller
             $data['tutor_foto'] = $request->file('tutor_foto')->store('tutores', 'public');
         }
 
-        Tutor::create($data);
+        $tutor = Tutor::create($data);
         $user = new User();
         $user->name = $request->tutor_nombre;
         $user->email = $request->tutor_usuario;
         $user->password = bcrypt($request->tutor_contraseña);
         $user->role = 'tutor';
         $user->save();
+        $responsable = new Responsable();
+        $responsable->responsable_nombre = $request->tutor_nombre;
+        $responsable->responsable_usuario = $request->tutor_usuario;
+        $responsable->responsable_telefono = $request->tutor_telefono;
+        $responsable->responsable_contraseña = bcrypt($request->tutor_contraseña);
+        $responsable->responsable_activacion = 0;
+        $responsable->responsable_foto = $tutor->tutor_foto;
+        $responsable->cesi_tutore_id = $tutor->id;
+        $responsable->save();
 
         return redirect()->route('tutores.index')->with('success', 'Tutor creado exitosamente.');
     }
@@ -252,7 +262,15 @@ class TutorController extends Controller
 
 
         $tutor->update($data);
-
+        $responsable = Responsable::where('cesi_tutore_id', $tutor->id)->first();
+        $responsable->responsable_nombre = $request->tutor_nombre;
+        $responsable->responsable_usuario = $request->tutor_usuario;
+        $responsable->responsable_telefono = $request->tutor_telefono;
+        $responsable->responsable_contraseña = bcrypt($request->tutor_contraseña);
+        $responsable->responsable_activacion = 0;
+        $responsable->responsable_foto = $data['tutor_foto'];
+        $responsable->cesi_tutore_id = $tutor->id;
+        $responsable->save();
         return redirect()->route('tutores.index')->with('success', 'Tutor actualizado exitosamente.');
     }
 
@@ -265,8 +283,9 @@ class TutorController extends Controller
             Storage::delete('public/' . $tutor->tutor_foto);
         }
         $user = User::where('email', $tutor->tutor_usuario)->first();
+        $responsable = Responsable::where('cesi_tutore_id', $tutor->id)->first();
         $user->delete();
-
+        $responsable->delete();
         $tutor->delete();
 
         return redirect()->route('tutores.index')->with('success', 'Tutor eliminado exitosamente.');

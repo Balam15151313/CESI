@@ -56,7 +56,7 @@ class AdminController extends Controller
                 Rule::unique('users', 'email')->ignore($relatedUserId),
             ],
             'administrador_telefono' => 'required|regex:/^[0-9]+$/|digits:10',
-            'administrador_foto' => 'nullable|image|max:2048',
+            'administrador_foto' => 'nullable|image|max:2048|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
             'administrador_nombre.required' => 'El nombre del administrador es obligatorio.',
             'administrador_nombre.string' => 'El nombre del administrador debe ser una cadena de texto.',
@@ -75,6 +75,7 @@ class AdminController extends Controller
 
             'administrador_foto.image' => 'El archivo debe ser una imagen.',
             'administrador_foto.max' => 'La imagen no puede exceder los 2MB.',
+            'administrador_foto.mimes' => 'La imagen debe ser de tipo jpeg, png, jpg o gif.',
         ]);
 
 

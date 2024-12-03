@@ -11,13 +11,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Models\Administrador;
+use App\Models\Tutor;
 
 /**
  * Archivo: ResponsableController.php
  * Propósito: Controlador para gestionar responsables.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-12-01
+ * Última Modificación: 2024-12-02
  */
 class ResponsableController extends Controller
 {
@@ -116,8 +117,14 @@ class ResponsableController extends Controller
         $adminId = Administrador::where('administrador_usuario', $admin->email)->pluck('id')->first();
         $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
-        })->get()->first();
+        })->first();
         $ui = $escuela ? $escuela->uis->first() : null;
+        $tutor = Tutor::where('id', $responsable->cesi_tutore_id)->first();
+
+        if ($tutor && $tutor->tutor_usuario === $responsable->responsable_usuario) {
+            return redirect()->route('responsables.index')
+                ->with('error', 'El responsable está relacionado con un tutor similar. Modifíquelo en tutores.');
+        }
         return view('responsables.edit', compact('responsable', 'ui', 'escuela'));
     }
 

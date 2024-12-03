@@ -118,7 +118,6 @@ class PaseApiController extends Controller
             $pases[] = Pase::create([
                 'cesi_alumno_id' => $alumno['id'],
                 'cesi_asistencia_id' => $asistencia->id,
-                'cesi_maestro_id' => $maestro->id,
                 'pase_status' => $alumno[''],
             ]);
         }

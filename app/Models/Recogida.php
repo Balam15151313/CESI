@@ -22,8 +22,15 @@ class Recogida extends Model
         'recogida_fecha',
         'recogida_observaciones',
         'recogida_estatus',
-        'recogida_qr'
+        'recogida_qr',
+        'cesi_responsable_id'
     ];
+
+    public function responsables()
+    {
+        return $this->hasMany(Responsable::class,  'cesi_responsable_id')
+            ->withTimestamps();
+    }
 
     public function alumnos()
     {

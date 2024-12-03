@@ -9,13 +9,14 @@ use App\Models\Escuela;
 use App\Models\Tutor;
 use App\Models\UI;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Archivo: ResponsableApiController.php
  * Propósito: Controlador para gestionar datos relacionados con responsables.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-12-01
+ * Última Modificación: 2024-12-02
  */
 
 class ResponsableApiController extends Controller
@@ -41,6 +42,8 @@ class ResponsableApiController extends Controller
             $user->password = bcrypt($request->responsable_contraseña);
             $user->role = 'responsable';
 
+
+
             if ($request->hasFile('responsable_foto')) {
                 $imagePath = $request->file('responsable_foto')->store('responsables', 'public');
                 $responsable->responsable_foto = $imagePath;
@@ -55,7 +58,9 @@ class ResponsableApiController extends Controller
         }
     }
 
-
+    /**
+     * Mostrar el recurso especificado.
+     */
     public function show($id)
     {
         $user = User::find($id);
@@ -69,61 +74,44 @@ class ResponsableApiController extends Controller
     }
 
     /**
-     * Update the specified responsable in storage.
+     * Actualizar la foto del responsable por su ID
      */
-    public function update(Request $request, Responsable $responsable)
+    public function updateFoto(Request $request, $id)
     {
-        try {
-            $responsable->fill($request->only(['responsable_nombre', 'responsable_usuario', 'responsable_telefono', 'cesi_tutore_id']));
+        $request->validate([
+            'responsable_foto' => 'required|image|mimes:jpeg,png,jpg,gif',
+        ]);
+        $user = User::find($id);
+        $responsable = Responsable::where('responsable_usuario', $user->email)->first();
 
-            if ($request->filled('responsable_contraseña')) {
-                $responsable->responsable_contraseña = bcrypt($request->responsable_contraseña);
-            }
-
-            if ($request->hasFile('responsable_foto')) {
-                if ($responsable->responsable_foto) {
-                    $this->deletePhoto($responsable->responsable_foto);
-                }
-
-                $imagePath = $request->file('responsable_foto')->store('responsables', 'public');
-                $responsable->responsable_foto = $imagePath;
-            }
-
-            $responsable->responsable_activacion = $request->responsable_activacion;
-
-
-            $user = User::find('email', $responsable->responsable_usuario);
-            $user->name = $request->responsable_nombre;
-            $user->email = $request->responsable_usuario;
-            if ($request->filled('responsable_contraseña')) {
-                $user->password = bcrypt($request->responsable_contraseña);
-            }
-            $user->role = 'responsable';
-            $user->save();
-
-            $responsable->save();
-
-            return response()->json(['message' => 'Responsable actualizado exitosamente', 'data' => $responsable], 200);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Error al actualizar responsable', 'message' => $e->getMessage()], 500);
+        if (!$responsable) {
+            return response()->json(['error' => 'responsable no encontrado'], 404);
         }
+        if ($request->hasFile('responsable_foto') && $request->file('responsable_foto')->isValid()) {
+            if ($responsable->responsable_foto) {
+                Storage::delete('public/' . $responsable->responsable_foto);
+            }
+            $fotoPath = $request->file('responsable_foto')->store('responsables', 'public');
+            $responsable->responsable_foto = $fotoPath;
+            $responsable->save();
+        }
+
+        return response()->json(['success' => 'Foto actualizada exitosamente']);
     }
 
     /**
      * Remove the specified responsable from storage.
      */
-    public function destroy(Responsable $responsable)
+    public function destroy($responsableId)
     {
         try {
+            $user = User::find($responsableId);
+            $responsable = Responsable::where('responsable_usuario', $user->email)->first();
 
             if ($responsable->responsable_foto) {
                 $this->deletePhoto($responsable->responsable_foto);
             }
-
-
-            $user = User::find($responsable->cesi_responsable_id);
             $user->delete();
-
             $responsable->delete();
 
             return response()->json(['message' => 'Responsable eliminado exitosamente'], 200);
@@ -131,6 +119,10 @@ class ResponsableApiController extends Controller
             return response()->json(['error' => 'Error al eliminar responsable', 'message' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Obtener los colores de la escuela asociada al responsable.
+     */
 
     public function getSchoolColorsByResponsable($responsableId)
     {

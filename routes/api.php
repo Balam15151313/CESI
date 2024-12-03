@@ -41,18 +41,20 @@ Route::prefix('dashboard')->group(function () {
 
 // Rutas para el controlador ResponsableApiController (gestión de responsables)
 Route::prefix('responsables')->group(function () {
-    Route::post('{id}', [ResponsableApiController::class, 'store']); // Crear un nuevo responsable
-    Route::get('{id}', [ResponsableApiController::class, 'show']); // Mostrar un responsable por ID
-    Route::put('{responsable}', [ResponsableApiController::class, 'update']); // Actualizar responsable
-    Route::delete('{responsable}', [ResponsableApiController::class, 'destroy']); // Eliminar responsable
+    Route::post('{responsableId}', [ResponsableApiController::class, 'store']); // Crear un nuevo responsable
+    Route::get('{responsableId}', [ResponsableApiController::class, 'show']); // Mostrar un responsable por ID
+    Route::put('{responsableId}/foto', [ResponsableApiController::class, 'updateFoto']); // Actualizar responsable
+    Route::delete('{responsableId}', [ResponsableApiController::class, 'destroy']); // Eliminar responsable
     Route::get('{responsableId}/school-colors', [ResponsableApiController::class, 'getSchoolColorsByResponsable']); // Obtener colores y logo de la escuela asociada a un responsable
 });
 
 // Rutas para el controlador RecogidaApiController (gestión de recogidas de alumnos)
 Route::prefix('recogida')->group(function () {
     Route::get('alumnos/{idTutor}', [RecogidaApiController::class, 'alumnosSinRecogida']); // Obtener alumnos sin recogida
+    Route::post('generar/{idResponsable}', [RecogidaApiController::class, 'generarRecogidaTutor']); // Crear una nueva recogida
     Route::post('generar/{idTutor}', [RecogidaApiController::class, 'generarRecogida']); // Crear una nueva recogida
-    Route::get('tutor/{idTutor}', [RecogidaApiController::class, 'recogidasPorTutor']); // Obtener todas las recogidas de un tutor
+    Route::get('tutor/{idResponsable}', [RecogidaApiController::class, 'recogidasPorTutor']); // Obtener todas las recogidas de un tutor
+    Route::get('tutor/{idTutor}', [RecogidaApiController::class, 'recogidasPorResponsable']); // Obtener todas las recogidas de un tutor
     Route::get('estatus', [RecogidaApiController::class, 'recogidasPorEstatus']); // Obtener recogidas por estatus (pendiente, completa, cancelada)
     Route::get('reporte/{idTutor}', [RecogidaApiController::class, 'generarReportePDF']); // Generar reporte en PDF de recogidas
     Route::get('reportes/{idTutor}', [RecogidaApiController::class, 'reportesPorTutor']); // Obtener reportes generados por un tutor
@@ -117,11 +119,9 @@ Route::prefix('notificaciones')->group(function () {
 
 // Rutas para MaestrosApiController
 Route::prefix('maestros')->group(function () {
-    Route::get('/', [MaestrosApiController::class, 'index']); // Obtener la lista de todos los maestros
     Route::get('/{maestroId}/colores', [MaestrosApiController::class, 'obtenerColoresDeEscuela']); // Obtener los colores de la escuela de un maestro específico
-    Route::get('/{id}', [MaestrosApiController::class, 'show']); // Obtener un maestro específico por su ID
-    Route::post('/', [MaestrosApiController::class, 'store']); // Crear un nuevo maestro
-    Route::put('/{maestro}', [MaestrosApiController::class, 'update']); // Actualizar la información de un maestro específico
+    Route::get('/{maestroId}', [MaestrosApiController::class, 'show']); // Obtener un maestro específico por su ID
+    Route::put('/{maestroId}/foto', [MaestrosApiController::class, 'updateFoto']); // Actualizar la información de un maestro específico
 });
 
 // Rutas para el controlador PaseApiController

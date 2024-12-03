@@ -3,66 +3,39 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UpdateMaestroRequest;
 use App\Models\Maestro;
 use App\Models\Escuela;
+use App\Models\UI;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Hash;
 
 /**
  * Archivo: MaestrosApiController.php
  * Propósito: Controlador para gestionar datos relacionados con maestros.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-27
+ * Última Modificación: 2024-12-02
  */
 class MaestrosApiController extends Controller
 {
-    /**
-     * Mostrar una lista de los recursos.
-     */
-    public function index(Request $request)
-    {
-        $adminId = Auth::id();
-
-        $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
-            $query->where('cesi_administrador_id', $adminId);
-        })->pluck('id');
-
-        $nombre = $request->input('nombre');
-
-        $maestros = Maestro::whereIn('cesi_escuela_id', $escuelas)
-            ->when($nombre, function ($query, $nombre) {
-                return $query->where('maestro_nombre', 'like', '%' . $nombre . '%');
-            })
-            ->get();
-
-        return response()->json(['maestros' => $maestros]);
-    }
-
     /**
      * Obtener los colores de la escuela asociada al maestro.
      */
     public function obtenerColoresDeEscuela($maestroId)
     {
-        $maestro = Maestro::find($maestroId);
+        $user = User::find($maestroId);
+        $maestro = Maestro::where('maestro_usuario', $user->email)->first();
 
-        if (!$maestro) {
-            return response()->json(['error' => 'Maestro no encontrado'], 404);
+        $ui = UI::where('cesi_escuela_id', $maestro->cesi_escuela_id)->first();
+        $escuela = Escuela::find($maestro->cesi_escuela_id)->get()->first();
+        $escuelaLogo = $escuela->escuela_logo;
+        if (!$ui) {
+            return response()->json(['error' => 'Colores de la escuela no encontrados'], 404);
         }
-
-        $escuela = $maestro->escuelas;
-
-        $colores = $escuela->uis()->select('ui_color1', 'ui_color2', 'ui_color3', 'ui_logo')->get();
-
-        if ($colores->isEmpty()) {
-            return response()->json(['error' => 'No se encontraron colores para la escuela'], 404);
-        }
-
-        return response()->json(['colores' => $colores]);
+        return response()->json(
+            ['ui_color1' => $ui->ui_color1, 'ui_color2' => $ui->ui_color2, 'ui_color3' => $ui->ui_color3, 'escuela_logo' => $escuelaLogo]
+        );
     }
 
     /**
@@ -70,7 +43,8 @@ class MaestrosApiController extends Controller
      */
     public function show($id)
     {
-        $maestro = Maestro::find($id);
+        $user = User::find($id);
+        $maestro = Maestro::where('maestro_usuario', $user->email)->first();
 
         if (!$maestro) {
             return response()->json(['error' => 'Maestro no encontrado'], 404);
@@ -79,113 +53,30 @@ class MaestrosApiController extends Controller
         return response()->json(['data' => $maestro], 200);
     }
 
+
     /**
-     * Almacenar un nuevo recurso en el almacenamiento.
+     * Actualizar la foto del maestro por su ID
      */
-    public function store(Request $request)
+    public function updateFoto(Request $request, $id)
     {
-        $request->validate($this->validationRules(), $this->validationMessages());
-
-        $maestro = new Maestro();
-        $maestro->maestro_nombre = $request->maestro_nombre;
-        $maestro->maestro_usuario = $request->maestro_usuario;
-        $maestro->maestro_contraseña = Hash::make($request->maestro_contraseña);
-        $maestro->maestro_telefono = $request->maestro_telefono;
-        $maestro->cesi_escuela_id = $request->cesi_escuela_id;
-
-        if ($request->hasFile('maestro_foto')) {
-            $maestro->maestro_foto = $this->uploadMaestroFoto($request->file('maestro_foto'));
-        }
-
-        User::create([
-            'name' => $request->maestro_nombre,
-            'email' => $request->maestro_usuario,
-            'password' => Hash::make($request->maestro_contraseña),
-            'role' => 'maestro',
+        $request->validate([
+            'maestro_foto' => 'required|image|mimes:jpeg,png,jpg,gif',
         ]);
+        $user = User::find($id);
+        $maestro = Maestro::where('maestro_usuario', $user->email)->first();
 
-        $maestro->save();
-
-        return response()->json(['message' => 'Maestro creado exitosamente', 'maestro' => $maestro], 201);
-    }
-
-    /**
-     * Actualizar el recurso especificado en el almacenamiento.
-     */
-    public function update(UpdateMaestroRequest $request, Maestro $maestro)
-    {
-        $request->validate($this->validationRules($maestro->id), $this->validationMessages());
-
-        $maestro->maestro_nombre = $request->maestro_nombre;
-        $maestro->maestro_usuario = $request->maestro_usuario;
-
-        if ($request->filled('maestro_contraseña')) {
-            $maestro->maestro_contraseña = Hash::make($request->maestro_contraseña);
+        if (!$maestro) {
+            return response()->json(['error' => 'Maestro no encontrado'], 404);
         }
-
-        $maestro->maestro_telefono = $request->maestro_telefono;
-        $maestro->cesi_escuela_id = $request->cesi_escuela_id;
-
-        if ($request->hasFile('maestro_foto')) {
-            if ($maestro->maestro_foto && Storage::exists('public/' . $maestro->maestro_foto)) {
+        if ($request->hasFile('maestro_foto') && $request->file('maestro_foto')->isValid()) {
+            if ($maestro->maestro_foto) {
                 Storage::delete('public/' . $maestro->maestro_foto);
             }
-            $maestro->maestro_foto = $this->uploadMaestroFoto($request->file('maestro_foto'));
+            $fotoPath = $request->file('maestro_foto')->store('maestros', 'public');
+            $maestro->maestro_foto = $fotoPath;
+            $maestro->save();
         }
 
-        $user = User::where('email', $maestro->maestro_usuario)->first();
-        $user->name = $request->maestro_nombre;
-        $user->email = $request->maestro_usuario;
-        $user->password = Hash::make($request->maestro_contraseña);
-        $user->role = 'maestro';
-        $user->save();
-        $maestro->save();
-
-        return response()->json(['message' => 'Maestro actualizado exitosamente', 'maestro' => $maestro]);
-    }
-
-    /**
-     * Reglas de validación centralizadas.
-     */
-    private function validationRules($maestroId = null)
-    {
-        return [
-            'maestro_nombre' => 'required|string|max:255',
-            'maestro_usuario' => 'required|email|unique:cesi_maestros,maestro_usuario' . ($maestroId ? ',' . $maestroId : ''),
-            'maestro_contraseña' => 'nullable|string|min:8',
-            'maestro_telefono' => 'required|string|max:15',
-            'cesi_escuela_id' => 'required|exists:cesi_escuelas,id',
-        ];
-    }
-
-    /**
-     * Mensajes de validación centralizados en español.
-     */
-    private function validationMessages()
-    {
-        return [
-            'maestro_nombre.required' => 'El nombre del maestro es obligatorio.',
-            'maestro_nombre.string' => 'El nombre del maestro debe ser una cadena de texto.',
-            'maestro_nombre.max' => 'El nombre del maestro no puede exceder los 255 caracteres.',
-            'maestro_usuario.required' => 'El correo electrónico del maestro es obligatorio.',
-            'maestro_usuario.email' => 'El correo electrónico debe tener un formato válido.',
-            'maestro_usuario.unique' => 'El correo electrónico ya está registrado.',
-            'maestro_contraseña.required' => 'La contraseña es obligatoria.',
-            'maestro_contraseña.string' => 'La contraseña debe ser una cadena de texto.',
-            'maestro_contraseña.min' => 'La contraseña debe tener al menos 8 caracteres.',
-            'maestro_telefono.required' => 'El teléfono del maestro es obligatorio.',
-            'maestro_telefono.string' => 'El teléfono debe ser una cadena de texto.',
-            'maestro_telefono.max' => 'El teléfono no puede exceder los 15 caracteres.',
-            'cesi_escuela_id.required' => 'La escuela es obligatoria.',
-            'cesi_escuela_id.exists' => 'La escuela seleccionada no existe.',
-        ];
-    }
-
-    /**
-     * Manejar la carga de la foto del maestro.
-     */
-    private function uploadMaestroFoto($file)
-    {
-        return $file->store('maestros', 'public');
+        return response()->json(['success' => 'Foto actualizada exitosamente']);
     }
 }
