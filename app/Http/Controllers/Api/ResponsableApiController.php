@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
  * Propósito: Controlador para gestionar datos relacionados con responsables.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-12-02
+ * Última Modificación: 2024-12-03
  */
 
 class ResponsableApiController extends Controller
@@ -78,23 +78,42 @@ class ResponsableApiController extends Controller
      */
     public function updateFoto(Request $request, $id)
     {
-        $user = User::find($id);
-        $responsable = Responsable::where('responsable_usuario', $user->email)->first();
+        try {
+            $user = User::findOrFail($id);
+            $responsable = Responsable::where('responsable_usuario', $user->email)->firstOrFail();
+            $request->validate([
+                'responsable_foto' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            ]);
 
-        if (!$responsable) {
-            return response()->json(['error' => 'responsable no encontrado'], 404);
-        }
-        if ($request->hasFile('responsable_foto') && $request->file('responsable_foto')->isValid()) {
-            if ($responsable->responsable_foto) {
-                Storage::delete('public/' . $responsable->responsable_foto);
+            if ($request->hasFile('responsable_foto') && $request->file('responsable_foto')->isValid()) {
+                if ($responsable->responsable_foto) {
+                    Storage::disk('public')->delete($responsable->responsable_foto);
+                }
+
+                $fotoPath = $request->file('responsable_foto')->store('responsables', 'public');
+                $responsable->responsable_foto = $fotoPath;
+                $responsable->save();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Foto actualizada exitosamente',
+                    'foto_url' => Storage::url($fotoPath),
+                ], 200);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Archivo de foto inválido o no proporcionado',
+                ], 400);
             }
-            $fotoPath = $request->file('responsable_foto')->store('responsables', 'public');
-            $responsable->responsable_foto = $fotoPath;
-            $responsable->save();
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al actualizar la foto',
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        return response()->json(['success' => 'Foto actualizada exitosamente']);
     }
+
 
     /**
      * Remove the specified responsable from storage.
