@@ -58,7 +58,7 @@ class RastreoApiController extends Controller
             return response()->json(['error' => 'Rastreo no encontrado'], 404);
         }
 
-        if ($rastreo->cesi_recogida_id !== $recogidaId) {
+        if ($rastreo->cesi_recogida_id != $recogidaId) {
             return response()->json(['error' => 'No autorizado para ver este rastreo'], 403);
         }
 
@@ -76,7 +76,7 @@ class RastreoApiController extends Controller
             return response()->json(['error' => 'Rastreo no encontrado'], 404);
         }
 
-        if ($rastreo->cesi_recogida_id !== $recogidaId) {
+        if ($rastreo->cesi_recogida_id != $recogidaId) {
             return response()->json(['error' => 'No autorizado para actualizar este rastreo'], 403);
         }
 
@@ -101,7 +101,7 @@ class RastreoApiController extends Controller
             return response()->json(['error' => 'Rastreo no encontrado'], 404);
         }
 
-        if ($rastreo->cesi_recogida_id !== $recogidaId) {
+        if ($rastreo->cesi_recogida_id != $recogidaId) {
             return response()->json(['error' => 'No autorizado para eliminar este rastreo'], 403);
         }
 
