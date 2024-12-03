@@ -233,6 +233,8 @@ class ResponsableController extends Controller
      */
     public function delete(Responsable $responsable)
     {
+        $user = User::where('email', $responsable->responsable_usuario)->first();;
+        $user->delete();
         $responsable->delete();
         return redirect()->route('responsables.index')->with('success', 'Responsable eliminado correctamente.');
     }

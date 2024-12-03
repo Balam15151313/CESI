@@ -75,5 +75,5 @@ Route::get('responsables', [ResponsableController::class, 'index'])->name('respo
 Route::get('responsables/{responsable}/edit', [ResponsableController::class, 'edit'])->name('responsables.edit');
 Route::put('responsables/{responsable}', [ResponsableController::class, 'update'])->name('responsables.update');
 Route::get('responsables/activate/{responsable}', [ResponsableController::class, 'activate'])->name('responsables.activate');
-Route::get('responsables/delete/{responsable}', [ResponsableController::class, 'delete'])->name('responsables.delete');
+Route::delete('responsables/delete/{responsable}', [ResponsableController::class, 'delete'])->name('responsables.delete');
 Route::get('/responsables/{id}', [ResponsableController::class, 'show'])->name('responsables.show');
