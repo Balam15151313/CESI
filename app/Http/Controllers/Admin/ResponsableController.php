@@ -105,6 +105,7 @@ class ResponsableController extends Controller
         })->get()->first();
         $ui = $escuela ? $escuela->uis->first() : null;
         $responsable = Responsable::with('tutores')->findOrFail($id);
+
         return view('responsables.show', compact('responsable', 'ui', 'escuela'));
     }
 

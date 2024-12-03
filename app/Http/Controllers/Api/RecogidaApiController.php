@@ -277,7 +277,7 @@ class RecogidaApiController extends Controller
         $alumnos = Alumno::where('cesi_tutore_id', $tutor->id)->pluck('id');
 
         $recogidas = Recogida::whereHas('alumnos', function ($query) use ($alumnos) {
-            $query->whereIn('cesi_alumnos.id', $alumnos);  // Filtrar las recogidas por los alumnos del tutor
+            $query->whereIn('cesi_alumnos.id', $alumnos);
         })->with('alumnos')->get();
 
         if ($recogidas->isEmpty()) {

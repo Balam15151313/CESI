@@ -129,4 +129,5 @@ Route::prefix('pase')->group(function () {
     Route::get('asistencia/{asistenciaId}/generar', [PaseApiController::class, 'generarListaDeAsistencia']); // Ruta para generar la lista de asistencia en formato PDF
     Route::get('{asistenciaId}/mostrar', [PaseApiController::class, 'mostrarPaseDeAsistencia']); // Ruta para mostrar el pase de asistencia
     Route::post('asistencia/registrar', [PaseApiController::class, 'registrarPaseDeAsistencia']); // Ruta para registrar el pase de asistencia
+    Route::get('/listas/{tutorId}', [PaseApiController::class, 'mostrarTodasLasListas']); // Ruta para mostrar las listas del tutor
 });

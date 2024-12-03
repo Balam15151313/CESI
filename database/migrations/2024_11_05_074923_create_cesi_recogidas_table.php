@@ -17,7 +17,7 @@ return new class extends Migration
             $table->longText('recogida_observaciones');
             $table->string('recogida_estatus')->nullable();
             $table->string('recogida_qr')->nullable();
-            $table->$table->foreignId('cesi_responsable_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('cesi_responsable_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

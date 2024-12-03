@@ -77,6 +77,24 @@ class PaseApiController extends Controller
     }
 
     /**
+     * Método para mostrar las listas generadas en pdf
+     */
+
+    public function mostrarListasPorTutor($tutoreId)
+    {
+        $listas = Lista::where('cesi_tutore_id', $tutoreId)->get();
+
+
+        if ($listas->isEmpty()) {
+            return response()->json(['message' => 'No hay listas registradas para este tutor.'], 404);
+        }
+        return response()->json([
+            'success' => true,
+            'data' => $listas,
+        ], 200);
+    }
+
+    /**
      * Método para mostrar el formulario de pase de lista
      */
     public function mostrarPaseDeAsistencia($asistenciaId)
