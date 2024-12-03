@@ -78,9 +78,6 @@ class ResponsableApiController extends Controller
      */
     public function updateFoto(Request $request, $id)
     {
-        $request->validate([
-            'responsable_foto' => 'required|image|mimes:jpeg,png,jpg,gif',
-        ]);
         $user = User::find($id);
         $responsable = Responsable::where('responsable_usuario', $user->email)->first();
 
@@ -105,12 +102,12 @@ class ResponsableApiController extends Controller
     public function destroy($responsableId)
     {
         try {
-            $user = User::find($responsableId);
-            $responsable = Responsable::where('responsable_usuario', $user->email)->first();
+            $responsable = Responsable::find($responsableId);
 
             if ($responsable->responsable_foto) {
                 $this->deletePhoto($responsable->responsable_foto);
             }
+            $user = User::where('email', $responsable->responsable_usuario)->first();;
             $user->delete();
             $responsable->delete();
 
