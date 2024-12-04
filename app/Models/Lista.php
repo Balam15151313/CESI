@@ -27,6 +27,6 @@ class Lista extends Model
     // Relación con Asistencia (opcional, si se requiere)
     public function asistencias()
     {
-        return $this->hasMany(Asistencia::class, 'cesi_lista_id'); // Ajusta el campo 'cesi_lista_id' según tu esquema
+        return $this->hasMany(Asistencia::class, 'cesi_lista_id');
     }
 }

@@ -219,40 +219,58 @@ class PaseApiController extends Controller
     public function registrarPaseDeAsistencia(Request $request, $idMaestro)
     {
         $admin = User::find($idMaestro);
-        $maestro = Maestro::where('maestro_usuario', $admin->email)->first();
-        $fechaHoy = now()->toDateString();
-        $asistenciaExistente = Asistencia::where('cesi_maestro_id', $maestro->id)
-            ->where('asistencia_fecha', $fechaHoy)
-            ->first();
-
-        if ($asistenciaExistente) {
+        if (!$admin) {
             return response()->json([
                 'success' => false,
-                'message' => 'El pase de lista ya fue registrado para el día de hoy.',
-                'asistencia' => $asistenciaExistente,
-            ], 400);
+                'message' => 'Maestro no encontrado.'
+            ], 404);
         }
 
-        $asistencia = Asistencia::create([
-            'asistencia_fecha' => $fechaHoy,
-            'asistencia_hora' => now()->toTimeString(),
-            'cesi_maestro_id' => $maestro->id,
-        ]);
+        $maestro = Maestro::where('maestro_usuario', $admin->email)->first();
+        if (!$maestro) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se encontró el registro del maestro asociado.'
+            ], 404);
+        }
+
+        $fechaHoy = now()->toDateString();
+
+        $asistencia = Asistencia::where('asistencia_fecha', $fechaHoy)
+            ->first();
+
+        if (!$asistencia) {
+            $asistencia = Asistencia::create([
+                'asistencia_fecha' => $fechaHoy,
+                'asistencia_hora' => now()->toTimeString(),
+            ]);
+        } else {
+            $asistencia->update([
+                'asistencia_hora' => now()->toTimeString(),
+            ]);
+        }
 
         $pases = [];
         foreach ($request->alumnos as $alumno) {
-            $pases[] = Pase::create([
-                'cesi_alumno_id' => $alumno['id'],
-                'cesi_asistencia_id' => $asistencia->id,
-                'pase_status' => $alumno['status'],
-            ]);
+            $paseExistente = Pase::where('cesi_asistencia_id', $asistencia->id)
+                ->where('cesi_alumno_id', $alumno['id'])
+                ->first();
+            if ($paseExistente) {
+                $paseExistente->update(['pase_status' => $alumno['status']]);
+            } else {
+                $pases[] = Pase::create([
+                    'cesi_alumno_id' => $alumno['id'],
+                    'cesi_asistencia_id' => $asistencia->id,
+                    'pase_status' => $alumno['status'],
+                ]);
+            }
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Pase de lista registrado correctamente.',
             'asistencia' => $asistencia,
-            'pases' => $pases
+            'pases' => $pases,
         ], 200);
     }
 }
