@@ -96,6 +96,7 @@ class TutorController extends Controller
             'cesi_escuela_id' => 'required|exists:cesi_escuelas,id',
         ], [
             'tutor_usuario.required' => 'El campo correo electrónico es obligatorio.',
+            'tutor_usuario.email' => 'El correo electrónico ingresado no es válido. Por ejemplo, usa un formato como "usuario@dominio.com".',
             'tutor_usuario.regex' => 'El correo electrónico ingresado no es válido. Por ejemplo, usa un formato como "usuario@dominio.com".',
             'tutor_usuario.unique' => 'El correo electrónico ya está registrado.',
 

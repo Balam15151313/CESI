@@ -218,16 +218,23 @@ class PaseApiController extends Controller
      */
     public function registrarPaseDeAsistencia(Request $request, $idMaestro)
     {
-        /*$request->validate([
-            'alumnos' => 'required|array',
-            'alumnos.*.id' => 'exists:cesi_alumnos,id',
-            'alumnos.*.' => 'required|string|in:presente,ausente',
-        ]);*/
-
         $admin = User::find($idMaestro);
         $maestro = Maestro::where('maestro_usuario', $admin->email)->first();
+        $fechaHoy = now()->toDateString();
+        $asistenciaExistente = Asistencia::where('cesi_maestro_id', $maestro->id)
+            ->where('asistencia_fecha', $fechaHoy)
+            ->first();
+
+        if ($asistenciaExistente) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El pase de lista ya fue registrado para el día de hoy.',
+                'asistencia' => $asistenciaExistente,
+            ], 400);
+        }
+
         $asistencia = Asistencia::create([
-            'asistencia_fecha' => now()->toDateString(),
+            'asistencia_fecha' => $fechaHoy,
             'asistencia_hora' => now()->toTimeString(),
             'cesi_maestro_id' => $maestro->id,
         ]);
