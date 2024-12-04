@@ -215,6 +215,7 @@ class TutorController extends Controller
             'cesi_escuela_id' => 'required|exists:cesi_escuelas,id',
         ], [
             'tutor_usuario.required' => 'El campo correo electrónico es obligatorio.',
+            'tutor_usuario.email' => 'El correo electrónico ingresado no es válido. Por ejemplo, usa un formato como "usuario@dominio.com".',
             'tutor_usuario.regex' => 'El correo electrónico ingresado no es válido. Por ejemplo, usa un formato como "usuario@dominio.com".',
             'tutor_usuario.unique' => 'El correo electrónico ya está registrado.',
 
@@ -268,7 +269,7 @@ class TutorController extends Controller
         $responsable->responsable_telefono = $request->tutor_telefono;
         $responsable->responsable_contraseña = bcrypt($request->tutor_contraseña);
         $responsable->responsable_activacion = 0;
-        $responsable->responsable_foto = $data['tutor_foto'];
+        $responsable->responsable_foto = $tutor->tutor_foto;
         $responsable->cesi_tutore_id = $tutor->id;
         $responsable->save();
         return redirect()->route('tutores.index')->with('success', 'Tutor actualizado exitosamente.');
@@ -279,14 +280,24 @@ class TutorController extends Controller
      */
     public function destroy(Tutor $tutor)
     {
+        $responsables = Responsable::where('cesi_tutore_id', $tutor->id)->get();
+        foreach ($responsables as $responsable) {
+            $user = User::where('email', $responsable->responsable_usuario)->first();
+            if ($user) {
+                $user->delete();
+            }
+        }
         if ($tutor->tutor_foto) {
             Storage::delete('public/' . $tutor->tutor_foto);
         }
         $user = User::where('email', $tutor->tutor_usuario)->first();
         $responsable = Responsable::where('cesi_tutore_id', $tutor->id)->first();
+
         $user->delete();
         $responsable->delete();
         $tutor->delete();
+
+
 
         return redirect()->route('tutores.index')->with('success', 'Tutor eliminado exitosamente.');
     }

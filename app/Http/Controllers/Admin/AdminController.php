@@ -64,7 +64,7 @@ class AdminController extends Controller
             'administrador_nombre.regex' => 'El nombre del administrador solo puede contener letras (incluyendo tildes y la letra ñ) y espacios.',
 
             'administrador_usuario.required' => 'El usuario del administrador es obligatorio.',
-            'administrador_usuario.email' => 'El correo electrónico ingresado debe ser válido.',
+            'administrador_usuario.email' => 'El correo electrónico ingresado no es válido. Por ejemplo, usa un formato como "usuario@dominio.com".',
             'administrador_usuario.regex' => 'El correo electrónico ingresado no es válido. Por ejemplo, usa un formato como "usuario@dominio.com".',
             'administrador_usuario.unique' => 'El correo electrónico ingresado ya está registrado. Por favor, elige otro.',
 

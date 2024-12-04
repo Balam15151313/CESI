@@ -11,7 +11,7 @@ use App\Models\Administrador;
  * Propósito: Modelo para gestionar datos de la escuela.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-11-26
+ * Última Modificación: 2024-12-03
  */
 class Escuela extends Model
 {

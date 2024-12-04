@@ -6,6 +6,7 @@
     <h1 class="text-center mb-4">Editar Alumno</h1>
 
     <form action="{{ route('alumnos.update', $alumno->id) }}" method="POST" enctype="multipart/form-data">
+
         @csrf
         @method('PUT')
 
@@ -14,7 +15,6 @@
                 <div class="mb-3">
                     <label for="alumno_nombre" class="form-label">Nombre completo</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-user"></i></span>
                         <input type="text" class="form-control @error('alumno_nombre') is-invalid @enderror"
                             id="alumno_nombre" name="alumno_nombre"
                             value="{{ old('alumno_nombre', $alumno->alumno_nombre) }}" required
@@ -29,7 +29,6 @@
                 <div class="mb-3">
                     <label for="alumno_nacimiento" class="form-label">Fecha de nacimiento</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-calendar"></i></span>
                         <input type="date" class="form-control @error('alumno_nacimiento') is-invalid @enderror"
                             id="alumno_nacimiento" name="alumno_nacimiento"
                             value="{{ old('alumno_nacimiento', $alumno->alumno_nacimiento) }}" required>
@@ -46,7 +45,6 @@
                 <div class="mb-3">
                     <label for="cesi_salon_id" class="form-label">Salón asociado</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-users"></i></span>
                         <select class="form-select @error('cesi_salon_id') is-invalid @enderror" id="cesi_salon_id"
                             name="cesi_salon_id" required>
                             <option value="">Selecciona un salón</option>
@@ -67,7 +65,6 @@
                 <div class="mb-3">
                     <label for="cesi_tutore_id" class="form-label">Tutor asociado</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-user-graduate"></i></span>
                         <select class="form-select @error('cesi_tutore_id') is-invalid @enderror" id="cesi_tutore_id"
                             name="cesi_tutore_id" required>
                             <option value="">Selecciona un tutor</option>
@@ -89,7 +86,6 @@
         <div class="mb-3">
             <label for="alumno_foto" class="form-label">Foto</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-image"></i></span>
                 <input type="file" class="form-control @error('alumno_foto') is-invalid @enderror" id="alumno_foto"
                     name="alumno_foto" accept="image/*">
             </div>

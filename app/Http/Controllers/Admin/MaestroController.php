@@ -222,6 +222,7 @@ class MaestroController extends Controller
             ],
             'maestro_contraseña' => $maestroId ? 'nullable|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/|min:8' : 'required|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/|min:8',
             'maestro_telefono' => 'required|regex:/^[0-9]+$/|digits:10',
+            'maestro_foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'cesi_escuela_id' => 'required|exists:cesi_escuelas,id',
         ];
     }
@@ -240,6 +241,7 @@ class MaestroController extends Controller
             'maestro_usuario.required' => 'El correo electrónico del maestro es obligatorio.',
             'maestro_usuario.unique' => 'El correo electrónico del maestro ya está registrado.',
             'maestro_usuario.regex' => 'El correo electrónico ingresado no es válido. Por ejemplo, usa un formato como "usuario@dominio.com".',
+            'maestro_usuario.email' => 'El correo electrónico ingresado no es válido. Por ejemplo, usa un formato como "usuario@dominio.com".',
 
             'maestro_contraseña.required' => 'La contraseña es obligatoria.',
             'maestro_contraseña.min' => 'La contraseña debe tener al menos 8 caracteres.',

@@ -103,19 +103,15 @@ class RecogidaApiController extends Controller
             }
 
             if ($request->hasFile('recogida_qr') && $request->file('recogida_qr')->isValid()) {
-                $imageData = $request->input('recogida_qr');
-                $imageParts = explode(',', $imageData);
-                $decodedImage = base64_decode(end($imageParts));
-                $imagePath = 'recogidas_imagenes/' . uniqid() . '.png';
-                Storage::disk('public')->put($imagePath, $decodedImage);
+                $imagePath = $request->file('recogida_foto')->store('recogidas', 'public');
+                $responsable->responsable_foto = $imagePath;
             } else {
                 $imagePath = null;
             }
 
-
             $recogida = Recogida::create([
                 'recogida_fecha' => now()->toDateString(),
-                'recogida_observaciones' => $request->recogida_observaciones,
+                'recogida_observaciones' => $request->recogida_observaciones ?? 'No hay observación',
                 'recogida_estatus' => 'pendiente',
                 'cesi_responsable_id' => $responsable->id,
                 'recogida_qr' => $imagePath,

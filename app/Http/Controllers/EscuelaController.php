@@ -9,6 +9,9 @@ use App\Models\Privilegio;
 use Illuminate\Support\Facades\Storage;
 use App\Models\User;
 use App\Models\Administrador;
+use App\Models\Maestro;
+use App\Models\Responsable;
+use App\Models\Tutor;
 
 /**
  * Archivo: RegisterController.php
@@ -226,26 +229,47 @@ class EscuelaController extends Controller
     }
 
 
-
     /**
      * Remove the specified resource from storage.
      */
     public function destroy($id)
     {
         $escuela = Escuela::findOrFail($id);
+        $escuelaId = $escuela->id;
+        $tutores = Tutor::where('cesi_escuela_id', $escuelaId)->get();
+        foreach ($tutores as $tutor) {
+            $user = User::where('email', $tutor->tutor_usuario)->first();
+            if ($user) {
+                $user->delete();
+            }
+        }
+
+        $responsables = Responsable::with(['tutores' => function ($query) use ($escuelaId) {
+            $query->whereIn('cesi_escuela_id', $escuelaId);
+        }]);
+        foreach ($responsables as $responsable) {
+            $user = User::where('email', $responsable->responsable_usuario)->first();
+            if ($user) {
+                $user->delete();
+            }
+        }
+
+        $maestros = Maestro::where('cesi_escuela_id', $escuelaId)->get();
+        foreach ($maestros as $maestro) {
+            $user = User::where('email', $maestro->maestro_usuario)->first();
+            if ($user) {
+                $user->delete();
+            }
+        }
 
         if ($escuela->escuela_logo && Storage::exists('public/' . $escuela->escuela_logo)) {
             Storage::delete('public/' . $escuela->escuela_logo);
         }
-
-        $escuela->uis()->delete();
-
-        Privilegio::where('cesi_escuela_id', $escuela->id)->delete();
+        Privilegio::where('cesi_escuela_id', $escuelaId)->delete();
 
         $escuela->delete();
 
         session()->forget(['escuela_logo', 'ui_color1', 'ui_color2', 'ui_color3']);
-
         return redirect()->route('escuelas.index')->with('success', 'Escuela eliminada exitosamente');
     }
 }

@@ -213,6 +213,7 @@ class ResponsableController extends Controller
 
             'responsable_usuario.required' => 'El correo electrónico del responsable es obligatorio.',
             'responsable_usuario.unique' => 'Este correo electrónico ya está registrado.',
+            'responsable_usuario.email' => 'El correo electrónico ingresado no es válido. Por ejemplo, usa un formato como "usuario@dominio.com".',
             'responsable_usuario.regex' => 'El correo electrónico ingresado no es válido. Por ejemplo, usa un formato como "usuario@dominio.com".',
 
             'responsable_contraseña.nullable' => 'La contraseña es opcional.',
