@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * Propósito: Modelo para gestionar los datos de los alumnos.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-12-01
+ * Última Modificación: 2024-12-03
  */
 class Alumno extends Model
 {
@@ -44,11 +44,11 @@ class Alumno extends Model
 
     public function pases()
     {
-        return $this->hasMany(Pase::class, 'cesi_alumno_id');
+        return $this->hasMany(Pase::class, 'id');
     }
     public function notificaciones()
     {
-        return $this->hasMany(Notificacion::class, 'cesi_alumno_id');
+        return $this->hasMany(Notificacion::class, 'id');
     }
 
     public function asistencias()

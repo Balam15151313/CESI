@@ -24,7 +24,7 @@
                 <div class="col-md-4">
                     @if ($salon->maestros && $salon->maestros->maestro_foto)
                         <img src="{{ asset('storage/' . $salon->maestros->maestro_foto) }}" alt="Foto del maestro"
-                            class="img-fluid">
+                            class="foto-show">
                     @else
                         <p>Sin foto del maestro</p>
                     @endif

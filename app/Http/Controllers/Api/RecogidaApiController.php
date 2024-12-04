@@ -6,11 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Recogida;
 use App\Models\Alumno;
+use App\Models\Maestro;
 use App\Models\Reporte;
 use App\Models\Responsable;
+use App\Models\Salon;
 use App\Models\Tutor;
 use App\Models\User;
-use Barryvdh\DomPDF\Facade\PDF;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -19,7 +22,7 @@ use Illuminate\Support\Facades\Storage;
  * Propósito: Controlador para gestionar datos relacionados con recogidas.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-12-02
+ * Última Modificación: 2024-12-03
  */
 class RecogidaApiController extends Controller
 {
@@ -39,6 +42,7 @@ class RecogidaApiController extends Controller
 
         $hoy = now()->toDateString();
 
+
         $alumnos = DB::table('cesi_alumnos')
             ->where('cesi_alumnos.cesi_tutore_id', $tutor->id)
             ->whereNotExists(function ($query) use ($hoy) {
@@ -51,7 +55,7 @@ class RecogidaApiController extends Controller
             ->join('cesi_pases', 'cesi_alumnos.id', '=', 'cesi_pases.cesi_alumno_id')
             ->join('cesi_asistencias', 'cesi_pases.cesi_asistencia_id', '=', 'cesi_asistencias.id')
             ->whereDate('cesi_asistencias.asistencia_fecha', $hoy)
-            ->where('cesi_pases.pase_estatus', 'presente')
+            ->where('cesi_pases.pase_status', 'presente')
             ->select('cesi_alumnos.*')
             ->get();
 
@@ -76,6 +80,7 @@ class RecogidaApiController extends Controller
             $tutor = Tutor::where('id', $responsable->cesi_tutore_id)->firstOrFail();
 
             $hoy = now()->toDateString();
+
 
             $alumnosSinRecogida = DB::table('cesi_alumnos')
                 ->where('cesi_alumnos.cesi_tutore_id', $tutor->id)
@@ -109,7 +114,7 @@ class RecogidaApiController extends Controller
 
 
             $recogida = Recogida::create([
-                'recogida_fecha' => $request->recogida_fecha,
+                'recogida_fecha' => now()->toDateString(),
                 'recogida_observaciones' => $request->recogida_observaciones,
                 'recogida_estatus' => 'pendiente',
                 'cesi_responsable_id' => $responsable->id,
@@ -179,7 +184,7 @@ class RecogidaApiController extends Controller
 
 
             $recogida = Recogida::create([
-                'recogida_fecha' => $request->recogida_fecha,
+                'recogida_fecha' => now()->toDateString(),
                 'recogida_observaciones' => $request->recogida_observaciones,
                 'recogida_estatus' => 'pendiente',
                 'cesi_responsable_id' => $responsable->id,
@@ -249,19 +254,36 @@ class RecogidaApiController extends Controller
      * Obtener las recogidas por estatus.
      * Este método permite filtrar las recogidas por su estatus (pendiente, completa, o cancelada).
      */
-    public function recogidasPorEstatus(Request $request)
+    public function recogidasPorEstatus(Request $request, $maestroId)
     {
+        $user = User::find($maestroId);
+        $maestro = Maestro::where('maestro_usuario', $user->email)->first();
+
+        if (!$maestro) {
+            return response()->json(['message' => 'El maestro no existe'], 404);
+        }
 
         $validated = $request->validate([
             'estatus' => 'required|in:pendiente,completa,cancelada',
         ]);
 
-        $recogidas = Recogida::where('recogida_estatus', $validated['estatus'])
-            ->with('alumnos')
-            ->get();
-        if ($recogidas->isEmpty()) {
-            return response()->json(['message' => 'No hay recogidas con el estatus especificado'], 200);
+        $salon = Salon::where('cesi_maestro_id', $maestro->id)->first();
+
+        if (!$salon) {
+            return response()->json(['message' => 'No se encontró el salón del maestro'], 404);
         }
+
+        $alumnosIds = Alumno::where('cesi_salon_id', $salon->id)->pluck('id');
+        $recogidas = Recogida::where('recogida_estatus', $validated['estatus'])
+            ->whereHas('alumnos', function ($query) use ($alumnosIds) {
+                $query->whereIn('cesi_alumnos.id', $alumnosIds);
+            })
+            ->get();
+
+        if ($recogidas->isEmpty()) {
+            return response()->json(['message' => 'No hay recogidas con el estatus especificado para los alumnos del salón del maestro'], 200);
+        }
+
         return response()->json(['data' => $recogidas], 200);
     }
 
@@ -270,11 +292,24 @@ class RecogidaApiController extends Controller
      * Este método genera un archivo PDF con la lista de recogidas de los alumnos de un tutor
      * y lo guarda en el almacenamiento.
      */
+
+
     public function generarReportePDF($idTutor)
     {
         $user = User::find($idTutor);
         $tutor = Tutor::where('tutor_usuario', $user->email)->first();
         $alumnos = Alumno::where('cesi_tutore_id', $tutor->id)->pluck('id');
+
+        if (!$tutor) {
+            return response()->json(['message' => 'El tutor no existe.'], 400);
+        }
+        $reporteExistente = Reporte::where('cesi_tutore_id', $tutor->id)
+            ->whereDate('created_at', now()->toDateString())
+            ->first();
+
+        if ($reporteExistente) {
+            return response()->json(['message' => 'Ya se ha generado un reporte para este tutor hoy.'], 400);
+        }
 
         $recogidas = Recogida::whereHas('alumnos', function ($query) use ($alumnos) {
             $query->whereIn('cesi_alumnos.id', $alumnos);
@@ -283,21 +318,142 @@ class RecogidaApiController extends Controller
         if ($recogidas->isEmpty()) {
             return response()->json(['message' => 'No hay datos de recogidas para generar el reporte'], 200);
         }
+        $html = '<!DOCTYPE html>
+         <html lang="es">
+         <head>
+             <meta charset="UTF-8">
+             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+             <title>Reporte de Recogidas</title>
+             <style>
+                 body {
+                     font-family: Arial, sans-serif;
+                     margin: 0;
+                     padding: 0;
+                     background-color: #f4f4f4;
+                     color: #333;
+                 }
 
-        $pdf = PDF::loadView('reportes.recogidas', ['recogidas' => $recogidas]);
-        $filePath = 'reportes/' . uniqid('reporte_') . '.pdf';
-        $pdf->save(storage_path('app/public/' . $filePath));
+                 .container {
+                     width: 100%;
+                     max-width: 800px;
+                     margin: 20px auto;
+                     background-color: #fff;
+                     padding: 20px;
+                     border-radius: 8px;
+                     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                 }
+
+                 h1 {
+                     text-align: center;
+                     color: #4CAF50;
+                 }
+
+                 .recogida-details {
+                     margin-bottom: 20px;
+                 }
+
+                 .recogida-details table {
+                     width: 100%;
+                     border-collapse: collapse;
+                     margin: 20px 0;
+                 }
+
+                 .recogida-details th,
+                 .recogida-details td {
+                     padding: 10px;
+                     text-align: left;
+                     border: 1px solid #ddd;
+                 }
+
+                 .recogida-details th {
+                     background-color: #f2f2f2;
+                     font-weight: bold;
+                 }
+
+                 .footer {
+                     text-align: center;
+                     margin-top: 40px;
+                     font-size: 12px;
+                     color: #777;
+                 }
+             </style>
+         </head>
+         <body>
+             <div class="container">
+                 <h1>Reporte de Recogidas de Alumnos</h1>
+                 <p><strong>Fecha de reporte:</strong> ' . now()->toDateString() . '</p>';
+
+        foreach ($recogidas as $recogida) {
+            $html .= '
+                 <div class="recogida-details">
+                     <h2>Recogida del ' . $recogida->recogida_fecha . '</h2>
+                     <p><strong>Responsable:</strong> ' . $recogida->responsables->responsable_nombre . '</p>
+                     <p><strong>Observaciones:</strong> ' . $recogida->recogida_observaciones . '</p>
+                     <p><strong>Estatus:</strong> ' . $recogida->recogida_estatus . '</p>
+
+                     <h3>Alumnos Recogidos</h3>
+                     <table>
+                         <thead>
+                             <tr>
+                                 <th>Nombre del Alumno</th>
+                                 <th>Estado de Recogida</th>
+                             </tr>
+                         </thead>
+                         <tbody>';
+
+            foreach ($recogida->alumnos as $alumno) {
+                $html .= '
+                             <tr>
+                                 <td>' . $alumno->alumno_nombre . '</td>
+                                 <td>' . $recogida->recogida_estatus . '</td>
+                             </tr>';
+            }
+
+            $html .= '
+                         </tbody>
+                     </table>
+                 </div>';
+        }
+
+        $html .= '
+                 <div class="footer">
+                     <p>Reporte generado por el sistema de recogidas.</p>
+                 </div>
+             </div>
+         </body>
+         </html>';
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isPhpEnabled', true);
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $output = $dompdf->output();
+
+        $directory = storage_path('app/public/reportes');
+        if (!file_exists($directory)) {
+            mkdir($directory, 0755, true);
+        }
+        $fileName = 'reporte_' . uniqid() . '.pdf';
+        $path = $directory . '/' . $fileName;
+
+        file_put_contents($path, $output);
 
         $reporte = Reporte::create([
-            'reporte_pdf' => $filePath,
-            'cesi_tutore_id' => $idTutor,
+            'reporte_pdf' => 'storage/reportes/' . $fileName,
+            'cesi_tutore_id' => $tutor->id,
         ]);
 
         return response()->json([
             'message' => 'Reporte generado correctamente',
-            'data' => ['url' => asset('storage/' . $filePath)],
+            'data' => ['url' => asset('storage/reportes/' . $fileName)],
         ], 201);
     }
+
+
+
 
     /**
      * Obtener los reportes generados para un tutor.
@@ -312,5 +468,28 @@ class RecogidaApiController extends Controller
             return response()->json(['message' => 'No hay reportes registrados para este tutor'], 200);
         }
         return response()->json(['data' => $reportes], 200);
+    }
+
+
+    /*
+     * Método para actualizar el estatus de una recogida
+     */
+
+    public function actualizarEstatusRecogida(Request $request, $recogidaId)
+    {
+        $validated = $request->validate([
+            'estatus' => 'required|in:pendiente,completa,cancelada',
+        ]);
+
+        $recogida = Recogida::find($recogidaId);
+
+        if (!$recogida) {
+            return response()->json(['message' => 'Recogida no encontrada'], 404);
+        }
+
+        $recogida->recogida_estatus = $validated['estatus'];
+        $recogida->save();
+
+        return response()->json(['message' => 'Estatus de la recogida actualizado correctamente', 'data' => $recogida], 200);
     }
 }

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * Propósito: Modelo para gestionar datos de las recogidas generadas.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-12-01
+ * Última Modificación: 2024-12-03
  */
 class Recogida extends Model
 {
@@ -28,8 +28,7 @@ class Recogida extends Model
 
     public function responsables()
     {
-        return $this->hasMany(Responsable::class,  'cesi_responsable_id')
-            ->withTimestamps();
+        return $this->hasOne(Responsable::class,  'id');
     }
 
     public function alumnos()

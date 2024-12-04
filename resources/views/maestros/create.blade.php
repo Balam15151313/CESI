@@ -98,8 +98,7 @@
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
-            <img id="imagenPrevisualizacion" src="#" alt="Vista previa de la imagen"
-                style="max-width: 200px; max-height: 200px; display: none;">
+            <img id="imagenPrevisualizacion" class="foto-show">
         </div>
 
         <div class="mt-4">

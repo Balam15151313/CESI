@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
  * Propósito: Genera las rutas de la API.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-12-02
+ * Última Modificación: 2024-12-03
  */
 
 // Rutas para el controlador LogInApiController (autenticación)
@@ -41,7 +41,7 @@ Route::prefix('dashboard')->group(function () {
 
 // Rutas para el controlador ResponsableApiController (gestión de responsables)
 Route::prefix('responsables')->group(function () {
-    Route::post('{responsableId}', [ResponsableApiController::class, 'store']); // Crear un nuevo responsable
+    Route::post('{tutorId}', [ResponsableApiController::class, 'store']); // Crear un nuevo responsable
     Route::get('{responsableId}', [ResponsableApiController::class, 'show']); // Mostrar un responsable por ID
     Route::put('{responsableId}/foto', [ResponsableApiController::class, 'updateFoto']); // Actualizar responsable
     Route::delete('{responsableId}', [ResponsableApiController::class, 'destroy']); // Eliminar responsable
@@ -55,9 +55,10 @@ Route::prefix('recogida')->group(function () {
     Route::post('generarResponsable/{idResponsable}', [RecogidaApiController::class, 'generarRecogida']); // Crear una nueva recogida
     Route::get('tutor/{idTutor}', [RecogidaApiController::class, 'recogidasPorTutor']); // Obtener todas las recogidas de un tutor
     Route::get('responsable/{idResponsable}', [RecogidaApiController::class, 'recogidasPorResponsable']); // Obtener todas las recogidas de un tutor
-    Route::get('estatus', [RecogidaApiController::class, 'recogidasPorEstatus']); // Obtener recogidas por estatus (pendiente, completa, cancelada)
+    Route::get('estatus/{idMaestro}', [RecogidaApiController::class, 'recogidasPorEstatus']); // Obtener recogidas por estatus (pendiente, completa, cancelada)
     Route::get('reporte/{idTutor}', [RecogidaApiController::class, 'generarReportePDF']); // Generar reporte en PDF de recogidas
     Route::get('reportes/{idTutor}', [RecogidaApiController::class, 'reportesPorTutor']); // Obtener reportes generados por un tutor
+    Route::put('{id}/estatus', [RecogidaApiController::class, 'actualizarEstatusRecogida']);
 });
 
 // Rutas para el controlador RastreoApiController (gestión de rastreos de recogidas)
@@ -126,8 +127,8 @@ Route::prefix('maestros')->group(function () {
 
 // Rutas para el controlador PaseApiController
 Route::prefix('pase')->group(function () {
-    Route::get('asistencia/{asistenciaId}/generar', [PaseApiController::class, 'generarListaDeAsistencia']); // Ruta para generar la lista de asistencia en formato PDF
-    Route::get('{asistenciaId}/mostrar', [PaseApiController::class, 'mostrarPaseDeAsistencia']); // Ruta para mostrar el pase de asistencia
-    Route::post('asistencia/registrar', [PaseApiController::class, 'registrarPaseDeAsistencia']); // Ruta para registrar el pase de asistencia
-    Route::get('/listas/{tutorId}', [PaseApiController::class, 'mostrarTodasLasListas']); // Ruta para mostrar las listas del tutor
+    Route::get('asistencia/{asistenciaId}/generar/{maestroId}', [PaseApiController::class, 'generarListaDeAsistencia']); // Ruta para generar la lista de asistencia en formato PDF
+    Route::get('{asistenciaId}/mostrar/{maestroId}', [PaseApiController::class, 'mostrarPaseDeAsistencia']); // Ruta para mostrar el pase de asistencia
+    Route::post('asistencia/registrar/{maestroId}', [PaseApiController::class, 'registrarPaseDeAsistencia']); // Ruta para registrar el pase de asistencia
+    Route::get('/listas/{maestroId}', [PaseApiController::class, 'mostrarListasPorTutor']); // Ruta para mostrar las listas del tutor
 });

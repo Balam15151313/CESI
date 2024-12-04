@@ -73,10 +73,9 @@
                     </div>
                     @if ($admin->administrador_foto)
                         <img src="{{ asset('storage/' . $admin->administrador_foto) }}" alt="Foto actual" width="100"
-                            class="mt-2">
+                            class="foto-show">
                     @endif
-                    <img id="imagenPrevisualizacion" src="#" alt="Vista previa de la imagen"
-                        style="max-width: 200px; max-height: 200px; display: none;">
+                    <img id="imagenPrevisualizacion" class="foto-show">
                 </div>
             </div>
         </div>

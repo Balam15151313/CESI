@@ -94,10 +94,10 @@
                     name="alumno_foto" accept="image/*">
             </div>
             @if ($alumno->alumno_foto)
-                <img src="{{ asset('storage/' . $alumno->alumno_foto) }}" alt="Foto actual" width="100" class="mt-2">
+                <img src="{{ asset('storage/' . $alumno->alumno_foto) }}" alt="Foto actual" width="100"
+                    class="foto-show">
             @endif
-            <img id="imagenPrevisualizacion" src="#" alt="Vista previa de la imagen"
-                style="max-width: 200px; max-height: 200px; display: none;">
+            <img id="imagenPrevisualizacion" class="foto-show">
             @error('alumno_foto')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror

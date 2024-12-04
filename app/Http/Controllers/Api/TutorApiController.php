@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Storage;
  * Propósito: Controlador para gestionar datos relacionados con tutor.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-27
- * Última Modificación: 2024-11-28
+ * Última Modificación: 2024-12-03
  */
 class TutorApiController extends Controller
 {
@@ -145,9 +145,6 @@ class TutorApiController extends Controller
      */
     public function updateFoto(Request $request, $id)
     {
-        $request->validate([
-            'tutor_foto' => 'required|image|mimes:jpeg,png,jpg,gif',
-        ]);
         $user = User::find($id);
         $tutor = Tutor::where('tutor_usuario', $user->email)->first();
 
@@ -161,8 +158,8 @@ class TutorApiController extends Controller
             $fotoPath = $request->file('tutor_foto')->store('tutores', 'public');
             $tutor->tutor_foto = $fotoPath;
             $tutor->save();
+            return response()->json(['success' => 'Foto actualizada exitosamente']);
         }
-
-        return response()->json(['success' => 'Foto actualizada exitosamente']);
+        return response()->json(['error' => 'No se actualizo la foto']);
     }
 }

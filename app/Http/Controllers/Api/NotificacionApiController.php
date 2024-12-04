@@ -15,7 +15,7 @@ use App\Models\User;
  * Propósito: Controlador para gestionar datos relacionados con notificaciones.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-12-02
+ * Última Modificación: 2024-12-03
  */
 
 class NotificacionApiController extends Controller
@@ -95,7 +95,7 @@ class NotificacionApiController extends Controller
             return response()->json(['error' => 'Notificación no encontrada'], 404);
         }
 
-        if ($notificacion->cesi_alumno_id !== $alumnoId) {
+        if ($notificacion->cesi_alumno_id != $alumnoId) {
             return response()->json(['error' => 'No autorizado para actualizar esta notificación'], 403);
         }
 

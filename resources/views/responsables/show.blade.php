@@ -34,7 +34,7 @@
                 <div class="col-md-4">
                     @if ($responsable->tutores->tutor_foto)
                         <img src="{{ asset('storage/' . $responsable->tutores->tutor_foto) }}" alt="Foto del tutor"
-                            class="img-fluid">
+                            class="foto-show">
                     @else
                         <p>Sin foto</p>
                     @endif

@@ -10,14 +10,14 @@ use Illuminate\Database\Eloquent\Model;
  * Propósito: Modelo para gestionar el pase de lista generado por los maestros.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-12-02
+ * Última Modificación: 2024-12-03
  */
 class Pase extends Model
 {
     /** @use HasFactory<\Database\Factories\PaseFactory> */
     use HasFactory;
     protected $table = 'cesi_pases';
-    protected $fillable = ['pase_estatus', 'cesi_alumno_id', 'cesi_asistencia_id'];
+    protected $fillable = ['pase_status', 'cesi_alumno_id', 'cesi_asistencia_id'];
 
     public function alumno()
     {

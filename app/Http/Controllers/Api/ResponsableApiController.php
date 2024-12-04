@@ -35,12 +35,11 @@ class ResponsableApiController extends Controller
             $responsable->responsable_contraseña = bcrypt($request->responsable_contraseña);
             $responsable->responsable_activacion = 0;
             $responsable->cesi_tutore_id = $tutor->id;
-
-            $user = new User();
-            $user->name = $request->responsable_nombre;
-            $user->email = $request->responsable_usuario;
-            $user->password = bcrypt($request->responsable_contraseña);
-            $user->role = 'responsable';
+            $user2 = new User();
+            $user2->name = $request->responsable_nombre;
+            $user2->email = $request->responsable_usuario;
+            $user2->password = bcrypt($request->responsable_contraseña);
+            $user2->role = 'responsable';
 
 
 
@@ -49,7 +48,7 @@ class ResponsableApiController extends Controller
                 $responsable->responsable_foto = $imagePath;
             }
 
-            $user->save();
+            $user2->save();
             $responsable->save();
 
             return response()->json(['message' => 'Responsable creado exitosamente', 'data' => $responsable], 201);
@@ -78,40 +77,22 @@ class ResponsableApiController extends Controller
      */
     public function updateFoto(Request $request, $id)
     {
-        try {
-            $user = User::findOrFail($id);
-            $responsable = Responsable::where('responsable_usuario', $user->email)->firstOrFail();
-            $request->validate([
-                'responsable_foto' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-            ]);
+        $user = User::find($id);
+        $responsable = Responsable::where('responsable_usuario', $user->email)->first();
 
-            if ($request->hasFile('responsable_foto') && $request->file('responsable_foto')->isValid()) {
-                if ($responsable->responsable_foto) {
-                    Storage::disk('public')->delete($responsable->responsable_foto);
-                }
-
-                $fotoPath = $request->file('responsable_foto')->store('responsables', 'public');
-                $responsable->responsable_foto = $fotoPath;
-                $responsable->save();
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Foto actualizada exitosamente',
-                    'foto_url' => Storage::url($fotoPath),
-                ], 200);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Archivo de foto inválido o no proporcionado',
-                ], 400);
-            }
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => 'Error al actualizar la foto',
-                'message' => $e->getMessage(),
-            ], 500);
+        if (!$responsable) {
+            return response()->json(['error' => 'Responsable no encontrado'], 404);
         }
+        if ($request->hasFile('responsable_foto') && $request->file('responsable_foto')->isValid()) {
+            if ($responsable->responsable_foto) {
+                Storage::delete('public/' . $responsable->responsable_foto);
+            }
+            $fotoPath = $request->file('responsable_foto')->store('responsables', 'public');
+            $responsable->responsable_foto = $fotoPath;
+            $responsable->save();
+            return response()->json(['success' => 'Foto actualizada exitosamente']);
+        }
+        return response()->json(['error' => 'No se actualizo la foto']);
     }
 
 
@@ -121,7 +102,9 @@ class ResponsableApiController extends Controller
     public function destroy($responsableId)
     {
         try {
-            $responsable = Responsable::find($responsableId);
+            $user = User::find($responsableId);
+            $responsable = Responsable::where('responsable_usuario', $user->email)->first();
+
 
             if ($responsable->responsable_foto) {
                 $this->deletePhoto($responsable->responsable_foto);

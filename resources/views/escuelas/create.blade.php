@@ -3,7 +3,7 @@
 @section('title', 'Crear escuela')
 
 @section('content')
-    <h2>Agregar Nueva Escuela</h2>
+    <h1>Agregar Nueva Escuela</h1>
     <form action="{{ route('escuelas.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
@@ -126,7 +126,8 @@
 
             timeout = setTimeout(function() {
                 fetch(
-                        `https://nominatim.openstreetmap.org/search?format=json&q=${query}&addressdetails=1&limit=5&accept-language=es`)
+                        `https://nominatim.openstreetmap.org/search?format=json&q=${query}&addressdetails=1&limit=5&accept-language=es`
+                    )
                     .then(response => response.json())
                     .then(data => {
                         const suggestionsList = document.getElementById('suggestions');

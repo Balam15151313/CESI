@@ -11,7 +11,7 @@ use App\Models\Rastreo;
  * Propósito: Controlador para gestionar datos relacionados con rastreo.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-27
+ * Última Modificación: 2024-12-03
  */
 
 class RastreoApiController extends Controller
@@ -35,14 +35,12 @@ class RastreoApiController extends Controller
      */
     public function create(Request $request, $recogidaId)
     {
-        $validated = $request->validate([
-            'rastreo_longitud' => 'required|numeric',
-            'rastreo_latitud' => 'required|numeric',
+        // Aquí los datos se reciben tal cual, sin validación
+        $rastreo = Rastreo::create([
+            'cesi_recogida_id' => $recogidaId,
+            'rastreo_longitud' => $request->rastreo_longitud,
+            'rastreo_latitud' => $request->rastreo_latitud,
         ]);
-
-        $validated['cesi_recogida_id'] = $recogidaId;
-
-        $rastreo = Rastreo::create($validated);
 
         return response()->json(['message' => 'Rastreo creado correctamente', 'data' => $rastreo], 201);
     }
@@ -80,12 +78,11 @@ class RastreoApiController extends Controller
             return response()->json(['error' => 'No autorizado para actualizar este rastreo'], 403);
         }
 
-        $validated = $request->validate([
-            'rastreo_longitud' => 'nullable|numeric',
-            'rastreo_latitud' => 'nullable|numeric',
+        // Aquí los datos se reciben tal cual, sin validación
+        $rastreo->update([
+            'rastreo_longitud' => $request->rastreo_longitud,
+            'rastreo_latitud' => $request->rastreo_latitud,
         ]);
-
-        $rastreo->update($validated);
 
         return response()->json(['message' => 'Rastreo actualizado correctamente', 'data' => $rastreo], 200);
     }

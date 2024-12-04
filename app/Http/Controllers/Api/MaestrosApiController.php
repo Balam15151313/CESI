@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
  * Propósito: Controlador para gestionar datos relacionados con maestros.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-12-02
+ * Última Modificación: 2024-12-03
  */
 class MaestrosApiController extends Controller
 {
@@ -59,9 +59,6 @@ class MaestrosApiController extends Controller
      */
     public function updateFoto(Request $request, $id)
     {
-        $request->validate([
-            'maestro_foto' => 'required|image|mimes:jpeg,png,jpg,gif',
-        ]);
         $user = User::find($id);
         $maestro = Maestro::where('maestro_usuario', $user->email)->first();
 
@@ -75,8 +72,8 @@ class MaestrosApiController extends Controller
             $fotoPath = $request->file('maestro_foto')->store('maestros', 'public');
             $maestro->maestro_foto = $fotoPath;
             $maestro->save();
+            return response()->json(['success' => 'Foto actualizada exitosamente']);
         }
-
-        return response()->json(['success' => 'Foto actualizada exitosamente']);
+        return response()->json(['error' => 'No se actualizo la foto']);
     }
 }

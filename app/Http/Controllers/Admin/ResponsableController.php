@@ -18,7 +18,8 @@ use App\Models\Tutor;
  * Propósito: Controlador para gestionar responsables.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-12-02
+ * Última Modificación: 2024-12-03
+ * Última Modificación: 2024-12-03
  */
 class ResponsableController extends Controller
 {
@@ -234,6 +235,12 @@ class ResponsableController extends Controller
     public function delete(Responsable $responsable)
     {
         $user = User::where('email', $responsable->responsable_usuario)->first();;
+        $tutor = Tutor::where('id', $responsable->cesi_tutore_id)->first();
+
+        if ($tutor && $tutor->tutor_usuario === $responsable->responsable_usuario) {
+            return redirect()->route('responsables.index')
+                ->with('error', 'El responsable está relacionado con un tutor similar. Eliminelo en tutores.');
+        }
         $user->delete();
         $responsable->delete();
         return redirect()->route('responsables.index')->with('success', 'Responsable eliminado correctamente.');

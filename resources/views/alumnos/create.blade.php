@@ -72,10 +72,13 @@
         <div class="mb-3">
             <label for="alumno_foto" class="form-label">Foto del Alumno</label>
             <input type="file" class="form-control @error('alumno_foto') is-invalid @enderror" id="alumno_foto"
-                name="alumno_foto" required accept="image/*">
+                name="alumno_foto" required accept="image/*" onchange="previewImage(event)">
             @error('alumno_foto')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
+            <div class="mt-3">
+                <img id="foto_preview" class="foto-show">
+            </div>
         </div>
 
         <div class="mt-4">
@@ -83,4 +86,26 @@
             <a href="#" class="btn btn-secondary">Cancelar</a>
         </div>
     </form>
+
+    <script>
+        function previewImage(event) {
+            const input = event.target;
+            const preview = document.getElementById('foto_preview');
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+    </script>
+
+
 @endsection

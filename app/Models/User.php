@@ -3,16 +3,18 @@
 // User.php
 
 namespace App\Models;
+
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+
 /**
  * Archivo: User.php
  * Propósito: Modelo para gestionar datos de los usuarios.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-11-26
+ * Última Modificación: 2024-12-03
  */
 class User extends Authenticatable
 {
@@ -42,4 +44,3 @@ class User extends Authenticatable
         return $this->hasOne(Administrador::class, 'user_id'); // Asegúrate de que 'user_id' sea el campo que conecta al usuario con el administrador
     }
 }
-

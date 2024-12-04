@@ -104,10 +104,9 @@
                 @enderror
             </div>
             @if ($tutor->tutor_foto)
-                <img src="{{ asset('storage/' . $tutor->tutor_foto) }}" alt="Foto actual" width="100" class="mt-2">
+                <img src="{{ asset('storage/' . $tutor->tutor_foto) }}" alt="Foto actual" width="100" class="foto-show">
             @endif
-            <img id="imagenPrevisualizacion" src="#" alt="Vista previa de la imagen"
-                style="max-width: 200px; max-height: 200px; display: none;">
+            <img id="imagenPrevisualizacion" class="foto-show">
         </div>
 
         <div class="mt-4">

@@ -3,7 +3,7 @@
 @section('title', 'Lista de Escuelas')
 
 @section('content')
-    <h2>Lista de Escuelas</h2>
+    <h1>Lista de Escuelas</h1>
     <!-- Tabla de escuelas -->
     <div class="table-container">
         <table class="table">
@@ -46,7 +46,8 @@
                     <!-- Script para obtener dirección -->
                     <script>
                         fetch(
-                                `https://nominatim.openstreetmap.org/reverse?format=json&lat={{ $escuela->escuela_latitud }}&lon={{ $escuela->escuela_longitud }}&addressdetails=1`)
+                                `https://nominatim.openstreetmap.org/reverse?format=json&lat={{ $escuela->escuela_latitud }}&lon={{ $escuela->escuela_longitud }}&addressdetails=1`
+                            )
                             .then(response => response.json())
                             .then(data => {
                                 const direccion = data.display_name || 'Dirección no disponible';

@@ -11,7 +11,7 @@
             <div class="row">
                 <div class="col-md-4">
                     @if ($maestro->maestro_foto)
-                        <img src="{{ asset('storage/' . $maestro->maestro_foto) }}" alt="Foto del maestro" class="img-fluid">
+                        <img src="{{ asset('storage/' . $maestro->maestro_foto) }}" alt="Foto del maestro" class="foto-show">
                     @else
                         <p>Sin foto</p>
                     @endif

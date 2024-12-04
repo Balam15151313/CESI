@@ -23,7 +23,6 @@
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
     <style>
-        /* Estilos de layout app */
         .dashboard {
             display: flex;
             height: 100vh;
@@ -53,14 +52,12 @@
             background-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* Estilos para el logotipo */
         .sidebar img {
             width: 100px;
             margin-bottom: 10px;
             border-radius: 50%;
         }
 
-        /* Estilos para el contenido principal */
         .main-content {
             flex: 1;
             overflow-y: auto;
@@ -88,12 +85,401 @@
             border-top: 1px solid #dee2e6;
         }
 
-        /* Fotos para show */
-        .foto-show {
-            max-width: 150px;
-            max-height: 150px;
+        #imagenPrevisualizacion {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            display: none;
+            margin: 10px auto;
             border: 1px solid #dee2e6;
             border-radius: 5px;
+        }
+
+        /* Estilos Generales*/
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F2F2F2;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .container {
+            display: flex;
+            width: 70%;
+            height: 80%;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            flex-direction: row;
+            justify-content: space-between;
+            margin: auto;
+        }
+
+        .login-section {
+            width: 40%;
+            max-width: 400px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            margin: 0;
+        }
+
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .form-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .form-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 20px;
+            margin-top: -30px;
+        }
+
+        .logos img {
+            max-width: 100px;
+            max-height: 60px;
+            margin: 0 20px;
+        }
+
+        h2 {
+            color: #FFFFFFFF;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #000000;
+        }
+
+        .form-group input {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            background-color: #F2F2F2;
+            font-size: 16px;
+            color: #733917;
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            gap: 10px;
+        }
+
+
+
+        .image-section {
+            width: 60%;
+            background: url('/imagenes/escuelasimagen.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .register-image-section {
+            width: 50%;
+            background: url('/imagenes/empresa2.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .register-form-section {
+            width: 50%;
+            max-width: 500px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            margin: 0;
+        }
+
+        .register-form-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .register-form-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .register-form-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .register-form-group {
+            margin-bottom: 10px;
+        }
+
+        .register-form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #000000;
+            font-size: 13px;
+        }
+
+        .register-form-group input {
+            width: 95%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            background-color: #F2F2F2;
+            font-size: 13px;
+            color: #733917;
+        }
+
+        .register-button {
+            border: none;
+            padding: 8px;
+            width: auto;
+            cursor: pointer;
+            font-size: 13px;
+            border-radius: 30px;
+            font-weight: bold;
+            text-align: center;
+            display: block;
+            text-decoration: none;
+            background-color: #D96828;
+            color: white;
+        }
+
+        .register-button:hover {
+            background-color: #D97730;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .modal-body {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .modal-footer {
+            text-align: right;
+        }
+
+        .modal-footer button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #D96828;
+            color: white;
+            cursor: pointer;
+        }
+
+        .modal-footer button:hover {
+            background-color: #D97730;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .container {
+                width: 100vw;
+                height: 100vh;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                box-shadow: none;
+                padding: 10px;
+                margin: 0;
+            }
+
+            .login-section {
+                width: 100%;
+                height: 400px;
+                padding: 20px;
+            }
+
+            .logos img {
+                max-width: 80px;
+                max-height: 50px;
+                margin: 0 10px;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .form-group input {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+
+            .image-section {
+                width: 100%;
+                height: 200px;
+                background-size: cover;
+            }
+
+            .register-form-section {
+                width: 80%;
+                max-width: 400px;
+                padding: 30px;
+            }
+
+            .register-form-group input {
+                padding: 10px;
+                font-size: 8px;
+            }
+
+            .register-button {
+                font-size: 10px;
+                padding: 8px;
+            }
+
+            .register-image-section {
+                width: 100%;
+                height: 200px;
+                background-size: cover;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logos img {
+                max-width: 60px;
+                max-height: 40px;
+                margin: 0 5px;
+            }
+
+            h2 {
+                font-size: 1.25rem;
+            }
+
+            .form-group input {
+                padding: 10px;
+                font-size: 12px;
+            }
+
+            .modal-content {
+                width: 100%;
+            }
+
+            /* Registro */
+            .register-form-group {
+                margin-bottom: 10px;
+            }
+
+            .register-form-group label {
+                font-size: 12px;
+            }
+
+            .register-form-group input {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .register-button {
+                padding: 8px;
+                font-size: 12px;
+            }
+        }
+
+        .foto-show {
+            width: 100%;
+            max-width: 150px;
+            height: auto;
+            object-fit: cover;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+        }
+
+        .custom-shadow {
+            box-shadow:
+                0 4px 8px rgba(0, 0, 0, 0.0),
+                0 -4px 8px rgba(0, 0, 0, 0.0),
+                4px 0 8px rgba(0, 0, 0, 0.0),
+                -4px 0 8px rgba(0, 0, 0, 0.0);
+        }
+
+        /* Sombreado a los contenedores internos */
+        .custom-shadow-internal {
+            box-shadow:
+                0 4px 8px rgba(216, 95, 95, 0.1),
+                0 -4px 8px rgba(0, 0, 0, 0.1),
+                4px 0 8px rgba(0, 0, 0, 0.1),
+                -4px 0 8px rgba(0, 0, 0, 0.1);
         }
 
         #suggestions {
