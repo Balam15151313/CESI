@@ -15,7 +15,7 @@ use App\Models\User;
  * Propósito: Controlador para gestionar datos relacionados con notificaciones.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-12-03
+ * Última Modificación: 2024-12-04
  */
 
 class NotificacionApiController extends Controller
@@ -63,24 +63,20 @@ class NotificacionApiController extends Controller
     public function show($tutorId)
     {
         $user = User::find($tutorId);
-
         $tutor = Tutor::where('tutor_usuario', $user->email)->first();
         if (!$tutor) {
             return response()->json(['error' => 'Tutor no encontrado'], 404);
         }
-
         $alumnosConNotificaciones = $tutor->alumnos()->with('notificaciones')->get();
         if ($alumnosConNotificaciones->isEmpty()) {
             return response()->json(['error' => 'El tutor no tiene alumnos asignados'], 404);
         }
-
         $data = $alumnosConNotificaciones->map(function ($alumnosConNotificaciones) {
             return [
                 'alumno_nombre' => $alumnosConNotificaciones->alumno_nombre,
                 'notificaciones' => $alumnosConNotificaciones->notificaciones
             ];
         });
-
         return response()->json(['data' => $data], 200);
     }
 

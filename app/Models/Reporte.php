@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * Propósito: Modelo para gestionar datos de los reportes generados.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-12-03
+ * Última Modificación: 2024-12-04
  */
 class Reporte extends Model
 {
@@ -25,6 +25,6 @@ class Reporte extends Model
 
     public function tutores()
     {
-        return $this->belongsTo(Tutor::class, 'cesi_tutore_id');
+        return $this->belongsTo(Tutor::class, 'id');
     }
 }

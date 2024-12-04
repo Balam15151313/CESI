@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Storage;
  * Propósito: Controlador para gestionar datos relacionados con recogidas.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-12-03
+ * Última Modificación: 2024-12-04
  */
 class RecogidaApiController extends Controller
 {
@@ -103,8 +103,11 @@ class RecogidaApiController extends Controller
             }
 
             if ($request->hasFile('recogida_qr') && $request->file('recogida_qr')->isValid()) {
-                $imagePath = $request->file('recogida_foto')->store('recogidas', 'public');
-                $responsable->responsable_foto = $imagePath;
+                $imageData = $request->input('recogida_qr');
+                $imageParts = explode(',', $imageData);
+                $decodedImage = base64_decode(end($imageParts));
+                $imagePath = 'recogidas_imagenes/' . uniqid() . '.png';
+                Storage::disk('public')->put($imagePath, $decodedImage);
             } else {
                 $imagePath = null;
             }
@@ -133,114 +136,20 @@ class RecogidaApiController extends Controller
         }
     }
 
-
-    /**
-     * Crear una nueva recogida de alumnos para un tutor en una fecha específica.
-     * Este método valida los datos de la solicitud, filtra los alumnos que no han sido
-     * recogidos en la fecha indicada y genera una nueva recogida con los alumnos seleccionados.
-     */
-
-    public function generarRecogidaTutor(Request $request, $id)
-    {
-        try {
-            $user = User::findOrFail($id);
-            $tutor = Tutor::where('tutor_usuario', $user->email)->firstOrFail();
-            $responsable = Responsable::where('cesi_tutore_id', $tutor->id)->firstOrFail();
-            $hoy = now()->toDateString();
-
-            $alumnosSinRecogida = DB::table('cesi_alumnos')
-                ->where('cesi_alumnos.cesi_tutore_id', $tutor->id)
-                ->whereNotExists(function ($query) use ($hoy) {
-                    $query->select(DB::raw(1))
-                        ->from('cesi_recogidas')
-                        ->join('cesi_escogidos', 'cesi_recogidas.id', '=', 'cesi_escogidos.cesi_recogida_id')
-                        ->whereColumn('cesi_alumnos.id', 'cesi_escogidos.cesi_alumno_id')
-                        ->whereDate('cesi_recogidas.recogida_fecha', $hoy);
-                })
-                ->join('cesi_pases', 'cesi_alumnos.id', '=', 'cesi_pases.cesi_alumno_id')
-                ->join('cesi_asistencias', 'cesi_pases.cesi_asistencia_id', '=', 'cesi_asistencias.id')
-                ->whereDate('cesi_asistencias.asistencia_fecha', $hoy)
-                ->where('cesi_pases.pase_status', 'presente')
-                ->select('cesi_alumnos.*')
-                ->get();
-
-            if ($alumnosSinRecogida->isEmpty()) {
-                return response()->json(['message' => 'No hay alumnos disponibles para recogida en esta fecha.'], 400);
-            }
-
-            if ($request->hasFile('recogida_qr') && $request->file('recogida_qr')->isValid()) {
-                $imageData = $request->input('recogida_qr');
-                $imageParts = explode(',', $imageData);
-                $decodedImage = base64_decode(end($imageParts));
-                $imagePath = 'recogidas_imagenes/' . uniqid() . '.png';
-                Storage::disk('public')->put($imagePath, $decodedImage);
-            } else {
-                $imagePath = null;
-            }
-
-
-            $recogida = Recogida::create([
-                'recogida_fecha' => now()->toDateString(),
-                'recogida_observaciones' => $request->recogida_observaciones,
-                'recogida_estatus' => 'pendiente',
-                'cesi_responsable_id' => $responsable->id,
-                'recogida_qr' => $imagePath,
-            ]);
-            $recogida->alumnos()->attach($alumnosSinRecogida->pluck('id'));
-
-            return response()->json([
-                'message' => 'Recogida creada correctamente',
-                'data' => [
-                    'recogida' => $recogida,
-                    'alumnos_asociados' => $alumnosSinRecogida,
-                ],
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Error al generar recogida',
-                'message' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
-
-
     /**
      * Obtener las recogidas asociadas a los alumnos de un responsable.
      * Este método devuelve todas las recogidas registradas para los alumnos de un tutor específico.
      */
     public function recogidasPorResponsable($idResponsable)
     {
-        // Buscar al usuario y al responsable relacionado
-        $user = User::findOrFail($idResponsable);
+        $user = User::find($idResponsable);
         $responsable = Responsable::where('responsable_usuario', $user->email)->firstOrFail();
-
         $recogidas = Recogida::where('cesi_responsable_id', $responsable->id)
             ->with('alumnos')
             ->get();
 
         if ($recogidas->isEmpty()) {
             return response()->json(['message' => 'No hay recogidas registradas para este responsable'], 200);
-        }
-
-        return response()->json(['data' => $recogidas], 200);
-    }
-
-    /**
-     * Obtener las recogidas asociadas a los alumnos de un tutor.
-     * Este método devuelve todas las recogidas registradas para los alumnos de un tutor específico.
-     */
-    public function recogidasPorTutor($idTutor)
-    {
-        $user = User::find($idTutor);
-        $tutor = Tutor::where('tutor_usuario', $user->email)->firstOrFail();
-        $responsable = Responsable::where('cesi_tutore_id', $tutor->id)->firstOrFail();
-        $recogidas = Recogida::where('cesi_responsable_id', $responsable->id)
-            ->with('alumnos')
-            ->get();
-
-        if ($recogidas->isEmpty()) {
-            return response()->json(['message' => 'No hay recogidas registradas para este tutor'], 200);
         }
 
         return response()->json(['data' => $recogidas], 200);
@@ -282,6 +191,40 @@ class RecogidaApiController extends Controller
 
         return response()->json(['data' => $recogidas], 200);
     }
+
+
+    /**
+     * Obtiene las recogidas asociadas a los alumnos del salón de un maestro.
+     *
+     */
+
+    public function recogidasDeMaestro(Request $request, $maestroId)
+    {
+        $user = User::find($maestroId);
+        $maestro = Maestro::where('maestro_usuario', $user->email)->first();
+
+        if (!$maestro) {
+            return response()->json(['message' => 'El maestro no existe'], 404);
+        }
+
+        $salon = Salon::where('cesi_maestro_id', $maestro->id)->first();
+
+        if (!$salon) {
+            return response()->json(['message' => 'No se encontró el salón del maestro'], 404);
+        }
+
+        $alumnosIds = Alumno::where('cesi_salon_id', $salon->id)->pluck('id');
+        $recogidas = Recogida::whereHas('alumnos', function ($query) use ($alumnosIds) {
+            $query->whereIn('cesi_alumnos.id', $alumnosIds);
+        })->get();
+
+        if ($recogidas->isEmpty()) {
+            return response()->json(['message' => 'No hay recogidas registradas para los alumnos del salón del maestro'], 200);
+        }
+
+        return response()->json(['data' => $recogidas], 200);
+    }
+
 
     /**
      * Generar un reporte en PDF de las recogidas asociadas a un tutor.

@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  * Propósito: Modelo para gestionar la conexión entre la escuela con el administrador.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-11-26
+ * Última Modificación: 2024-12-04
  */
 class Privilegio extends Model
 {
@@ -23,11 +23,11 @@ class Privilegio extends Model
 
     public function administrador()
     {
-        return $this->belongsTo(Administrador::class, 'cesi_administrador_id');
+        return $this->belongsTo(Administrador::class, 'id');
     }
 
     public function escuela()
     {
-        return $this->belongsTo(Escuela::class, 'cesi_escuela_id');
+        return $this->belongsTo(Escuela::class, 'id');
     }
 }

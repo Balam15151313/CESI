@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Storage;
  * Propósito: Controlador para gestionar datos relacionados con tutor.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-27
- * Última Modificación: 2024-12-03
+ * Última Modificación: 2024-12-04
  */
 class TutorApiController extends Controller
 {
@@ -108,13 +108,28 @@ class TutorApiController extends Controller
     public function showResponsablesByTutor($id)
     {
         $user = User::find($id);
+        if (!$user) {
+            return response()->json(['error' => 'Usuario no encontrado'], 404);
+        }
+
         $tutor = Tutor::where('tutor_usuario', $user->email)->first();
-        $id = $tutor->id;
-        $responsables = Responsable::where('cesi_tutore_id', $id)->get();
+        if (!$tutor) {
+            return response()->json(['error' => 'Tutor no encontrado'], 404);
+        }
 
-        return response()->json($responsables);
+        $responsables = Responsable::where('cesi_tutore_id', $tutor->id)->get();
+
+        $responsablesFiltrados = $responsables->reject(function ($responsable) use ($tutor) {
+            return $responsable->nombre === $tutor->nombre &&
+                $responsable->apellido === $tutor->apellido &&
+                $responsable->email === $tutor->email;
+        });
+        if ($responsablesFiltrados->isEmpty()) {
+            return response()->json(['message' => 'No hay responsables distintos al tutor.'], 200);
+        }
+
+        return response()->json(['responsables' => $responsablesFiltrados->values()], 200);
     }
-
     /**
      * Obtener un responsable por su ID
      */

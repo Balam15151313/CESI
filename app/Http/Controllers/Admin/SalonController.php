@@ -17,7 +17,7 @@ use App\Models\Administrador;
  * Propósito: Controlador para gestionar salones.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-11-29
+ * Última Modificación: 2024-12-04
  */
 class SalonController extends Controller
 {
@@ -89,7 +89,11 @@ class SalonController extends Controller
     public function store(Request $request)
     {
         $this->validateRequest($request);
+        $maestro = Maestro::find($request->input('cesi_maestro_id'));
 
+        if ($maestro && $maestro->salones) {
+            return redirect()->back()->with('error', 'Este maestro ya tiene un salón asignado.');
+        }
         Salon::create($request->all());
 
         return redirect()->route('salones.index')->with('success', 'Salón creado exitosamente');

@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
  * Propósito: Genera las rutas de la API.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-12-03
+ * Última Modificación: 2024-12-04
  */
 
 // Rutas para el controlador LogInApiController (autenticación)
@@ -50,15 +50,14 @@ Route::prefix('responsables')->group(function () {
 
 // Rutas para el controlador RecogidaApiController (gestión de recogidas de alumnos)
 Route::prefix('recogida')->group(function () {
-    Route::get('alumnos/{idTutor}', [RecogidaApiController::class, 'alumnosSinRecogida']); // Obtener alumnos sin recogida
-    Route::post('generarTutor/{idTutor}', [RecogidaApiController::class, 'generarRecogidaTutor']); // Crear una nueva recogida
+    Route::get('alumnos/{idTutor}', [RecogidaApiController::class, 'alumnosSinRecogida']); // Obtener alumnos sin recogida Crear una nueva recogida
     Route::post('generarResponsable/{idResponsable}', [RecogidaApiController::class, 'generarRecogida']); // Crear una nueva recogida
-    Route::get('tutor/{idTutor}', [RecogidaApiController::class, 'recogidasPorTutor']); // Obtener todas las recogidas de un tutor
     Route::get('responsable/{idResponsable}', [RecogidaApiController::class, 'recogidasPorResponsable']); // Obtener todas las recogidas de un tutor
     Route::get('estatus/{idMaestro}', [RecogidaApiController::class, 'recogidasPorEstatus']); // Obtener recogidas por estatus (pendiente, completa, cancelada)
+    Route::get('recogidas/{idMaestro}', [RecogidaApiController::class, 'recogidasDeMaestro']);
     Route::get('reporte/{idTutor}', [RecogidaApiController::class, 'generarReportePDF']); // Generar reporte en PDF de recogidas
     Route::get('reportes/{idTutor}', [RecogidaApiController::class, 'reportesPorTutor']); // Obtener reportes generados por un tutor
-    Route::put('{id}/estatus', [RecogidaApiController::class, 'actualizarEstatusRecogida']);
+    Route::put('{idRecogida}/estatus', [RecogidaApiController::class, 'actualizarEstatusRecogida']);
 });
 
 // Rutas para el controlador RastreoApiController (gestión de rastreos de recogidas)
@@ -91,13 +90,13 @@ Route::prefix('salones')->group(function () {
 
 // Rutas para el controlador TutorApiController (gestión de tutores)
 Route::prefix('tutores')->group(function () {
-    Route::get('/{id}', [TutorApiController::class, 'showTutor']); // Obtener datos de un tutor por su ID
-    Route::get('/{id}/alumnos', [TutorApiController::class, 'showAlumnosByTutor']); // Obtener los alumnos de un tutor
-    Route::get('/{tutorId}/alumnos/{id}', [TutorApiController::class, 'showAlumno']); // Obtener datos de un alumno por su ID y tutor
-    Route::get('/{id}/escuela/colores', [TutorApiController::class, 'showEscuelaColores']); // Obtener colores de la escuela asociada a un tutor
-    Route::get('/{id}/responsables', [TutorApiController::class, 'showResponsablesByTutor']); // Obtener responsables asociados a un tutor
-    Route::get('/{tutorId}/responsables/{id}', [TutorApiController::class, 'showResponsable']); // Mostrar un responsable específico de un tutor
-    Route::post('/{id}/foto', [TutorApiController::class, 'updateFoto']); // Actualizar la foto de un tutor
+    Route::get('/{tutorId}', [TutorApiController::class, 'showTutor']); // Obtener datos de un tutor por su ID
+    Route::get('/{tutorId}/alumnos', [TutorApiController::class, 'showAlumnosByTutor']); // Obtener los alumnos de un tutor
+    Route::get('/{tutorId}/alumnos/{alumnoId}', [TutorApiController::class, 'showAlumno']); // Obtener datos de un alumno por su ID y tutor
+    Route::get('/{tutorId}/escuela/colores', [TutorApiController::class, 'showEscuelaColores']); // Obtener colores de la escuela asociada a un tutor
+    Route::get('/{tutorId}/responsables', [TutorApiController::class, 'showResponsablesByTutor']); // Obtener responsables asociados a un tutor
+    Route::get('/{tutorId}/responsables/{responsableId}', [TutorApiController::class, 'showResponsable']); // Mostrar un responsable específico de un tutor
+    Route::post('/{tutorId}/foto', [TutorApiController::class, 'updateFoto']); // Actualizar la foto de un tutor
 });
 
 // Rutas para el controlador EscuelaApiController (gestión de escuelas)
@@ -114,8 +113,8 @@ Route::prefix('notificaciones')->group(function () {
     Route::get('alumno/{alumnoId}', [NotificacionApiController::class, 'index']); // Obtener todas las notificaciones de un alumno específico
     Route::post('alumno/{maestroId}/{alumnoId}', [NotificacionApiController::class, 'create']); // Crear una nueva notificación para un alumno específico
     Route::get('tutor/{tutorId}', [NotificacionApiController::class, 'show']); // Obtener las notificaciones de un tutor específico
-    Route::put('alumno/{alumnoId}/notificacion/{id}', [NotificacionApiController::class, 'update']); // Actualizar una notificación de un alumno específico
-    Route::delete('alumno/{alumnoId}/notificacion/{id}', [NotificacionApiController::class, 'destroy']); // Eliminar una notificación de un alumno específico
+    Route::put('alumno/{alumnoId}/notificacion/{idNotificaciones}', [NotificacionApiController::class, 'update']); // Actualizar una notificación de un alumno específico
+    Route::delete('alumno/{alumnoId}/notificacion/{idNotificaciones}', [NotificacionApiController::class, 'destroy']); // Eliminar una notificación de un alumno específico
 });
 
 // Rutas para MaestrosApiController
@@ -123,6 +122,7 @@ Route::prefix('maestros')->group(function () {
     Route::get('/{maestroId}/colores', [MaestrosApiController::class, 'obtenerColoresDeEscuela']); // Obtener los colores de la escuela de un maestro específico
     Route::get('/{maestroId}', [MaestrosApiController::class, 'show']); // Obtener un maestro específico por su ID
     Route::put('/{maestroId}/foto', [MaestrosApiController::class, 'updateFoto']); // Actualizar la información de un maestro específico
+    Route::get('/{maestroId}/alumnos', [MaestrosApiController::class, 'showAlumnosByTeacher']);
 });
 
 // Rutas para el controlador PaseApiController

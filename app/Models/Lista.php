@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * Propósito: Modelo para gestionar datos de las listas que tendrá cada grupo.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-12-02
+ * Última Modificación: 2024-12-04
  */
 class Lista extends Model
 {
@@ -21,7 +21,7 @@ class Lista extends Model
 
     public function maestros()
     {
-        return $this->belongsTo(Maestro::class, 'cesi_maestro_id');
+        return $this->belongsTo(Maestro::class, 'id');
     }
 
     // Relación con Asistencia (opcional, si se requiere)

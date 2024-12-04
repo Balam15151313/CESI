@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * Propósito: Modelo para gestionar las notificaciones que se tienen entre los maestros y los tutores.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-11-26
+ * Última Modificación: 2024-12-04
  */
 class Notificacion extends Model
 {
@@ -26,6 +26,6 @@ class Notificacion extends Model
 
     public function alumnos()
     {
-        return $this->belongsTo(Alumno::class, 'cesi_alumno_id');
+        return $this->belongsTo(Alumno::class, 'id');
     }
 }

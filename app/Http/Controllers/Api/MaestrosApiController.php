@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Alumno;
 use App\Models\Maestro;
 use App\Models\Escuela;
+use App\Models\Salon;
 use App\Models\UI;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -15,7 +17,7 @@ use Illuminate\Support\Facades\Storage;
  * Propósito: Controlador para gestionar datos relacionados con maestros.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-12-03
+ * Última Modificación: 2024-12-04
  */
 class MaestrosApiController extends Controller
 {
@@ -36,6 +38,20 @@ class MaestrosApiController extends Controller
         return response()->json(
             ['ui_color1' => $ui->ui_color1, 'ui_color2' => $ui->ui_color2, 'ui_color3' => $ui->ui_color3, 'escuela_logo' => $escuelaLogo]
         );
+    }
+
+
+    /**
+     * Obtener los alumnos del maestro por su ID
+     */
+    public function showAlumnosByTeacher($id)
+    {
+        $user = User::find($id);
+        $maestro = Maestro::where('maestro_usuario', $user->email)->first();
+        $salon = Salon::where('cesi_maestro_id', $maestro->id)->first();
+        $alumnos = Alumno::where('cesi_salon_id', $salon->id)->get();
+
+        return response()->json($alumnos);
     }
 
     /**

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * Propósito: Modelo para gestionar el pase de lista generado por los maestros.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-12-03
+ * Última Modificación: 2024-12-04
  */
 class Pase extends Model
 {
@@ -21,11 +21,11 @@ class Pase extends Model
 
     public function alumno()
     {
-        return $this->belongsTo(Alumno::class, 'cesi_alumno_id');
+        return $this->belongsTo(Alumno::class, 'id');
     }
 
     public function asistencia()
     {
-        return $this->belongsTo(Asistencia::class, 'cesi_asistencia_id');
+        return $this->belongsTo(Asistencia::class, 'id');
     }
 }

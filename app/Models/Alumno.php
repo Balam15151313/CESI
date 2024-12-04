@@ -44,11 +44,11 @@ class Alumno extends Model
 
     public function pases()
     {
-        return $this->hasMany(Pase::class, 'id');
+        return $this->hasMany(Pase::class, 'cesi_pase_id');
     }
     public function notificaciones()
     {
-        return $this->hasMany(Notificacion::class, 'id');
+        return $this->hasMany(Notificacion::class, 'cesi_alumno_id');
     }
 
     public function asistencias()

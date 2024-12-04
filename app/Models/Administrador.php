@@ -11,13 +11,13 @@ use App\Models\Escuela;
  * Propósito: Modelo para gestionar datos de los administradores.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-11-26
+ * Última Modificación: 2024-12-04
  */
 class Administrador extends Model
 {
     /** @use HasFactory<\Database\Factories\AdministradorFactory> */
     use HasFactory;
-    protected $table='cesi_administradors';
+    protected $table = 'cesi_administradors';
     protected $fillable = [
         'administrador_usuario',
         'administrador_contraseña',
@@ -28,7 +28,6 @@ class Administrador extends Model
 
     public function escuela()
     {
-        return $this->belongsToMany(Escuela::class, 'cesi_privilegios', 'cesi_administrador_id', 'cesi_escuela_id');
+        return $this->belongsToMany(Escuela::class, 'cesi_privilegios', 'cesi_administrador_id', 'id');
     }
-
 }

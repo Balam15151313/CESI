@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * Propósito: Modelo para gestionar datos de los maestros.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-12-03
+ * Última Modificación: 2024-12-04
  */
 class Maestro extends Model
 {
@@ -34,7 +34,7 @@ class Maestro extends Model
 
     public function escuelas()
     {
-        return $this->belongsTo(Escuela::class, 'cesi_escuela_id');
+        return $this->belongsTo(Escuela::class, 'id');
     }
 
     public function listas()
