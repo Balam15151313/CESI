@@ -290,11 +290,6 @@ class TutorController extends Controller
         if ($tutor->tutor_foto) {
             Storage::delete('public/' . $tutor->tutor_foto);
         }
-        $user = User::where('email', $tutor->tutor_usuario)->first();
-        $responsable = Responsable::where('cesi_tutore_id', $tutor->id)->first();
-
-        $user->delete();
-        $responsable->delete();
         $tutor->delete();
 
 
