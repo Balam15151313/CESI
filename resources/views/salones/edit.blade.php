@@ -3,7 +3,7 @@
 @section('title', 'Editar salón')
 
 @section('content')
-    <h1 class="text-center mb-4">Editar salón <i>{{ $salon->salon_grado }} {{ $salon->salon_grupo }}</i></h1>
+    <h1 class="mb-4 text-center">Editar salón <i>{{ $salon->salon_grado }} {{ $salon->salon_grupo }}</i></h1>
 
     <form action="{{ route('salones.update', $salon->id) }}" method="POST">
         @csrf
@@ -49,7 +49,6 @@
                         <span class="input-group-text"><i class="fas fa-school"></i></span>
                         <select name="cesi_escuela_id" id="cesi_escuela_id"
                             class="form-select @error('cesi_escuela_id') is-invalid @enderror" required>
-                            <option selected disabled>Seleccione una escuela</option>
                             @foreach ($escuelas as $escuela)
                                 <option value="{{ $escuela->id }}"
                                     {{ old('cesi_escuela_id', $salon->cesi_escuela_id) == $escuela->id ? 'selected' : '' }}>

@@ -117,18 +117,15 @@ class TutorApiController extends Controller
             return response()->json(['error' => 'Tutor no encontrado'], 404);
         }
 
-        $responsables = Responsable::where('cesi_tutore_id', $tutor->id)->get();
-
-        $responsablesFiltrados = $responsables->reject(function ($responsable) use ($tutor) {
-            return $responsable->nombre === $tutor->nombre &&
-                $responsable->apellido === $tutor->apellido &&
-                $responsable->email === $tutor->email;
-        });
-        if ($responsablesFiltrados->isEmpty()) {
+        $responsables = Responsable::where('cesi_tutore_id', $tutor->id)
+            ->where('responsable_nombre', '!=', $tutor->tutor_nombre)
+            ->where('responsable_usuario', '!=', $tutor->tutor_usuario)
+            ->get();
+        if ($responsables->isEmpty()) {
             return response()->json(['message' => 'No hay responsables distintos al tutor.'], 200);
         }
 
-        return response()->json(['responsables' => $responsablesFiltrados->values()], 200);
+        return response()->json(['responsables' => $responsables], 200);
     }
     /**
      * Obtener un responsable por su ID

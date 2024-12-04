@@ -3,7 +3,7 @@
 @section('title', 'Crear Alumno')
 
 @section('content')
-    <h1 class="text-center mb-4">Crear Nuevo Alumno</h1>
+    <h1 class="mb-4 text-center">Crear Nuevo Alumno</h1>
 
     <form action="{{ route('alumnos.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
@@ -54,7 +54,6 @@
                     <label for="cesi_tutore_id" class="form-label">Tutor asociado</label>
                     <select class="form-select @error('cesi_tutore_id') is-invalid @enderror" id="cesi_tutore_id"
                         name="cesi_tutore_id" required>
-                        <option value="">Selecciona un tutor</option>
                         @foreach ($tutores as $tutor)
                             <option value="{{ $tutor->id }}"
                                 {{ old('cesi_tutore_id') == $tutor->id ? 'selected' : '' }}>

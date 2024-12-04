@@ -3,7 +3,7 @@
 @section('title', 'Editar Tutor')
 
 @section('content')
-    <h1 class="text-center mb-4">Editar Tutor</h1>
+    <h1 class="mb-4 text-center">Editar Tutor</h1>
 
     <form action="{{ route('tutores.update', $tutor->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
@@ -79,7 +79,6 @@
                 <span class="input-group-text"><i class="fas fa-school"></i></span>
                 <select class="form-select @error('cesi_escuela_id') is-invalid @enderror" id="cesi_escuela_id"
                     name="cesi_escuela_id" required>
-                    <option value="">Selecciona una escuela</option>
                     @foreach ($escuelas as $escuela)
                         <option value="{{ $escuela->id }}"
                             {{ old('cesi_escuela_id', $tutor->cesi_escuela_id) == $escuela->id ? 'selected' : '' }}>

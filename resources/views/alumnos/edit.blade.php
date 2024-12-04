@@ -3,7 +3,7 @@
 @section('title', 'Editar Alumno')
 
 @section('content')
-    <h1 class="text-center mb-4">Editar Alumno</h1>
+    <h1 class="mb-4 text-center">Editar Alumno</h1>
 
     <form action="{{ route('alumnos.update', $alumno->id) }}" method="POST" enctype="multipart/form-data">
 
@@ -67,7 +67,6 @@
                     <div class="input-group">
                         <select class="form-select @error('cesi_tutore_id') is-invalid @enderror" id="cesi_tutore_id"
                             name="cesi_tutore_id" required>
-                            <option value="">Selecciona un tutor</option>
                             @foreach ($tutores as $tutor)
                                 <option value="{{ $tutor->id }}"
                                     {{ old('cesi_tutore_id', $alumno->cesi_tutore_id) == $tutor->id ? 'selected' : '' }}>
