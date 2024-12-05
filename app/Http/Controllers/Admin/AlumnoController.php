@@ -19,7 +19,7 @@ use Carbon\Carbon;
  * Propósito: Controlador para gestionar alumnos.
  * Autor: Alexis Daniel Uribe Oleriano
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-12-04
+ * Última Modificación: 2024-12-05
  */
 class AlumnoController extends Controller
 {
@@ -66,12 +66,22 @@ class AlumnoController extends Controller
         $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get()->first();
+        if (!$escuela) {
+            return redirect()->back()->with('error', 'Genere una escuela primero.');
+        }
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->pluck('id');
 
         $salones = Salon::whereIn('cesi_escuela_id', $escuelas)->get();
         $tutores = Tutor::whereIn('cesi_escuela_id', $escuelas)->get();
+        if ($salones->isEmpty()) {
+            return redirect()->back()->with('error', 'Genere al menos un salón primero.');
+        }
+
+        if ($tutores->isEmpty()) {
+            return redirect()->back()->with('error', 'Genere al menos un tutor primero.');
+        }
         $ui = $escuela ? $escuela->uis->first() : null;
 
         $escolaridad = $escuela->escuela_escolaridad;
@@ -223,7 +233,7 @@ class AlumnoController extends Controller
                 'date',
                 'before_or_equal:today',
                 function ($attribute, $value, $fail) use ($alumno) {
-                    $this->validateEdad($value, $alumno->salones->first()->id, $fail);
+                    $this->validateEdad($value, $alumno->salones->id, $fail);
                 },
             ],
             'alumno_foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -235,6 +245,7 @@ class AlumnoController extends Controller
             'alumno_nombre.max' => 'El nombre no puede exceder los 255 caracteres.',
             'alumno_nacimiento.required' => 'El campo fecha de nacimiento es obligatorio.',
             'alumno_nacimiento.before_or_equal' => 'La fecha de nacimiento no puede ser en el futuro.',
+            'alumno_nacimiento.after_or_equal' => 'La fecha de nacimiento no puede ser en el pasado.',
             'alumno_foto.image' => 'El archivo debe ser una imagen.',
             'alumno_foto.mimes' => 'La imagen debe ser de tipo jpeg, png, jpg o gif.',
             'alumno_foto.max' => 'La imagen no debe exceder los 2 MB.',
@@ -286,10 +297,9 @@ class AlumnoController extends Controller
     {
         $edad = Carbon::parse($value)->age;
         $salon = Salon::find($salonId);
-
         if ($salon && $salon->escuelas) {
             $escuela = $salon->escuelas;
-            $escolaridad = $escuela->escuela_escolaridad;
+            $escolaridad = $salon->escuelas->escuela_escolaridad;
 
             if ($escolaridad === 'Kinder' && ($edad < 3 || $edad > 5)) {
                 $fail('La fecha de nacimiento no corresponde al nivel Kinder.');

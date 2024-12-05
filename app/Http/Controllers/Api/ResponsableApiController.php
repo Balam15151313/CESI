@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
  * Propósito: Controlador para gestionar datos relacionados con responsables.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-12-03
+ * Última Modificación: 2024-12-05
  */
 
 class ResponsableApiController extends Controller
@@ -46,10 +46,8 @@ class ResponsableApiController extends Controller
                 $imagePath = $request->file('responsable_foto')->store('responsables', 'public');
                 $responsable->responsable_foto = $imagePath;
             }
-
             $user2->save();
             $responsable->save();
-
             return response()->json(['message' => 'Responsable creado exitosamente', 'data' => $responsable], 201);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al crear responsable', 'message' => $e->getMessage()], 500);
@@ -129,7 +127,7 @@ class ResponsableApiController extends Controller
         $tutor = Tutor::where('id', $responsable->cesi_tutore_id)->first();
 
         $ui = UI::where('cesi_escuela_id', $tutor->cesi_escuela_id)->first();
-        $escuela = Escuela::find($tutor->cesi_escuela_id)->get()->first();
+        $escuela = Escuela::find($tutor->cesi_escuela_id);
         $escuelaLogo = $escuela->escuela_logo;
         if (!$ui) {
             return response()->json(['error' => 'Colores de la escuela no encontrados'], 404);

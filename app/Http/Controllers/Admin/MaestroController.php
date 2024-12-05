@@ -19,7 +19,7 @@ use App\Models\Administrador;
  * Propósito: Controlador para gestionar maestros.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-12-04
+ * Última Modificación: 2024-12-05
  */
 class MaestroController extends Controller
 {
@@ -63,6 +63,9 @@ class MaestroController extends Controller
         $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get()->first();
+        if (!$escuela) {
+            return redirect()->back()->with('error', 'Genere una escuela primero.');
+        }
         $ui = $escuela ? $escuela->uis->first() : null;
         return view('maestros.create', compact('escuelas', 'ui'));
     }
@@ -127,7 +130,7 @@ class MaestroController extends Controller
     {
         $admin = User::find(Auth::id());
         $administrador = Administrador::where('administrador_usuario', $admin->email)->first();
-
+        $user = User::where('email', $maestro->maestro_usuario)->first();
         if (!$administrador) {
             return redirect()->back()->with('error', 'Administrador no encontrado.');
         }
@@ -149,7 +152,7 @@ class MaestroController extends Controller
             $imagePath = $request->file('maestro_foto')->store('maestros', 'public');
             $maestro->maestro_foto = $imagePath;
         }
-        $user = User::where('email', $maestro->maestro_usuario)->first();
+
         if ($user) {
             $user->name = $request->maestro_nombre;
             $user->email = $request->maestro_usuario;

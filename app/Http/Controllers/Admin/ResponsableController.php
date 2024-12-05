@@ -18,8 +18,7 @@ use App\Models\Tutor;
  * Propósito: Controlador para gestionar responsables.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-12-03
- * Última Modificación: 2024-12-03
+ * Última Modificación: 2024-12-05
  */
 class ResponsableController extends Controller
 {
@@ -136,7 +135,7 @@ class ResponsableController extends Controller
     public function update(Request $request, Responsable $responsable)
     {
         $request->validate($this->validationRules($responsable->id), $this->validationMessages());
-
+        $user = User::where('email', $responsable->responsable_usuario)->first();
         $responsable->responsable_nombre = $request->responsable_nombre;
         $responsable->responsable_usuario = $request->responsable_usuario;
 
@@ -157,8 +156,6 @@ class ResponsableController extends Controller
             $imagePath = $request->file('responsable_foto')->store('responsables', 'public');
             $responsable->responsable_foto = $imagePath;
         }
-
-        $user = User::where('email', $responsable->responsable_usuario)->first();
         $user->name = $request->responsable_nombre;
         $user->email = $request->responsable_usuario;
         if ($request->filled('responsable_contraseña')) {

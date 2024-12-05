@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Administrador;
 use App\Models\User;
 use App\Models\Escuela;
+use App\Models\Maestro;
 use Illuminate\Validation\Rule;
 
 /**
@@ -15,7 +16,7 @@ use Illuminate\Validation\Rule;
  * Propósito: Controlador para gestionar el registro y actualización de administradores.
  * Autor: Altair Ricardo Villamares Villegas
  * Fecha de Creación: 2024-11-26
- * Última Modificación: 2024-11-29
+ * Última Modificación: 2024-12-05
  */
 class AdminController extends Controller
 {
@@ -84,6 +85,25 @@ class AdminController extends Controller
         $admin->administrador_usuario = $request->administrador_usuario;
         $admin->administrador_telefono = $request->administrador_telefono;
 
+        // Extraer el dominio del correo del administrador
+        $adminDomain = substr(strrchr($admin->administrador_usuario, "@"), 1);
+
+        // Obtener la escuela asociada al administrador
+        $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
+            $query->where('cesi_administrador_id', $adminId);
+        })->first();
+
+        if ($escuela) {
+            $escuelaIds = [$escuela->id];
+
+            $maestros = Maestro::whereIn('cesi_escuela_id', $escuelaIds)->get();
+
+            foreach ($maestros as $maestro) {
+                $currentUsername = strstr($maestro->maestro_usuario, '@', true);
+                $maestro->maestro_usuario = $currentUsername . '@' . $adminDomain;
+                $maestro->save();
+            }
+        }
         if ($request->hasFile('administrador_foto')) {
             if ($admin->administrador_foto) {
                 Storage::delete('public/storage/' . $admin->administrador_foto);
@@ -92,11 +112,14 @@ class AdminController extends Controller
             $admin->administrador_foto = $path;
         }
 
-        $user = User::where('email', $admin->administrador_usuario)->first();
-        $user->name = $request->administrador_nombre;
-        $user->email = $request->administrador_usuario;
-        $user->role = 'admin';
-        $user->save();
+        if ($user) {
+            $user->name = $request->administrador_nombre;
+            $user->email = $request->administrador_usuario;
+            $user->role = 'admin';
+            $user->save();
+        } else {
+            return response()->json(['error' => 'Usuario no encontrado.'], 404);
+        }
 
         $admin->update();
 

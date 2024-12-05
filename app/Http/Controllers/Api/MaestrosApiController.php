@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Storage;
  * Propósito: Controlador para gestionar datos relacionados con maestros.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-12-04
+ * Última Modificación: 2024-12-05
  */
 class MaestrosApiController extends Controller
 {
@@ -30,7 +30,7 @@ class MaestrosApiController extends Controller
         $maestro = Maestro::where('maestro_usuario', $user->email)->first();
 
         $ui = UI::where('cesi_escuela_id', $maestro->cesi_escuela_id)->first();
-        $escuela = Escuela::find($maestro->cesi_escuela_id)->get()->first();
+        $escuela = Escuela::find($maestro->cesi_escuela_id);
         $escuelaLogo = $escuela->escuela_logo;
         if (!$ui) {
             return response()->json(['error' => 'Colores de la escuela no encontrados'], 404);

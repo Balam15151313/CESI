@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Storage;
  * Propósito: Controlador para gestionar datos relacionados con tutor.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-27
- * Última Modificación: 2024-12-04
+ * Última Modificación: 2024-12-05
  */
 class TutorApiController extends Controller
 {
@@ -89,7 +89,7 @@ class TutorApiController extends Controller
         $tutor = Tutor::where('tutor_usuario', $user->email)->first();
 
         $ui = UI::where('cesi_escuela_id', $tutor->cesi_escuela_id)->first();
-        $escuela = Escuela::find($tutor->cesi_escuela_id)->get()->first();
+        $escuela = Escuela::find($tutor->cesi_escuela_id);
         $escuelaLogo = $escuela->escuela_logo;
         if (!$ui) {
             return response()->json(['error' => 'Colores de la escuela no encontrados'], 404);

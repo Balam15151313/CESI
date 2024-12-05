@@ -17,7 +17,7 @@ use App\Models\Administrador;
  * Propósito: Controlador para gestionar salones.
  * Autor: José Balam González Rojas
  * Fecha de Creación: 2024-11-06
- * Última Modificación: 2024-12-04
+ * Última Modificación: 2024-12-05
  */
 class SalonController extends Controller
 {
@@ -73,11 +73,22 @@ class SalonController extends Controller
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get();
+        if (!$escuelas) {
+            return redirect()->back()->with('error', 'Genere una escuela primero.');
+        }
         $escuelaIds = $escuelas->pluck('id');
         $maestros = Maestro::whereIn('cesi_escuela_id', $escuelaIds)->get();
+        $existenMaestros = Maestro::whereIn('cesi_escuela_id', $escuelaIds)->exists();
+
+        if (!$existenMaestros) {
+            return redirect()->back()->with('error', 'Genere un maestro primero.');
+        }
         $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get()->first();
+        if (!$escuela) {
+            return redirect()->back()->with('error', 'Genere una escuela primero.');
+        }
         $ui = $escuela ? $escuela->uis->first() : null;
 
         return view('salones.create', compact('escuelas', 'maestros', 'ui'));

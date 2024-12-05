@@ -18,7 +18,7 @@ use App\Models\Responsable;
  * Propósito: Controlador para gestionar tutores.
  * Autor: Alexis Daniel Uribe Oleriano
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-12-02
+ * Última Modificación: 2024-12-05
  */
 class TutorController extends Controller
 {
@@ -58,9 +58,13 @@ class TutorController extends Controller
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get();
+
         $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get()->first();
+        if (!$escuela) {
+            return redirect()->back()->with('error', 'Genere una escuela primero.');
+        }
         $ui = $escuela ? $escuela->uis->first() : null;
 
         return view('tutores.create', compact('escuelas', 'ui'));
