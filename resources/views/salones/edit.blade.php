@@ -87,7 +87,7 @@
         </div>
 
         <div class="mt-4 text-end">
-            <button type="submit" class="btn btn-primary">Actualizar salón</button>
+            <button type="submit" class="btn btn-primary btn-submit">Actualizar salón</button>
             <a href="{{ route('salones.index') }}" class="btn btn-secondary">Volver a la lista</a>
         </div>
     </form>

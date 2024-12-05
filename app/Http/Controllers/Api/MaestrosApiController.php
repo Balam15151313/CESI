@@ -44,16 +44,26 @@ class MaestrosApiController extends Controller
     /**
      * Obtener los alumnos del maestro por su ID
      */
+
     public function showAlumnosByTeacher($id)
     {
-        $user = User::find($id);
-        $maestro = Maestro::where('maestro_usuario', $user->email)->first();
-        $salon = Salon::where('cesi_maestro_id', $maestro->id)->first();
-        $alumnos = Alumno::where('cesi_salon_id', $salon->id)->get();
-
-        return response()->json($alumnos);
+        try {
+            $user = User::find($id);
+            $maestro = Maestro::where('maestro_usuario', $user->email)->first();
+            $salon = Salon::where('cesi_maestro_id', $maestro->id)->first();
+            $alumnos = Alumno::where('cesi_salon_id', $salon->id)->get();
+            return response()->json([
+                'salon' => $salon,
+                'escuela' => $salon->escuelas,
+                'alumnos' => $alumnos,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error al obtener los datos',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
-
     /**
      * Mostrar el recurso especificado.
      */

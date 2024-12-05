@@ -3,7 +3,7 @@
 @section('title', 'Editar responsable')
 
 @section('content')
-    <h1 class="text-center mb-4">Editar responsable</h1>
+    <h1 class="mb-4 text-center">Editar responsable</h1>
 
     <form action="{{ route('responsables.update', ['responsable' => $responsable->id]) }}" method="POST"
         enctype="multipart/form-data">
@@ -96,7 +96,7 @@
         </div>
 
         <div class="mt-4">
-            <button type="submit" class="btn btn-primary">Actualizar</button>
+            <button type="submit" class="btn btn-primary btn-submit">Actualizar</button>
             <a href="{{ route('responsables.index') }}" class="btn btn-secondary">Volver a la lista</a>
         </div>
     </form>

@@ -1,3 +1,4 @@
+<!-- resources/views/tutores/crear_tutor.blade.php -->
 @extends('layouts.app')
 
 @section('title', 'Crear Tutor')
@@ -45,7 +46,7 @@
                     <label for="tutor_usuario" class="form-label">Correo electrónico</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                        <input type="text" class="form-control @error('tutor_usuario') is-invalid @enderror"
+                        <input type="email" class="form-control @error('tutor_usuario') is-invalid @enderror"
                             id="tutor_usuario" name="tutor_usuario" value="{{ old('tutor_usuario') }}" required
                             placeholder="Ingresa el correo electrónico">
                         @error('tutor_usuario')
@@ -88,43 +89,45 @@
         </div>
 
         <div class="mb-3">
-            <label for="tutor_foto" class="form-label">Foto del tutor</label>
+            <label for="tutor_foto" class="form-label">Foto del Tutor</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-image"></i></span>
                 <input type="file" class="form-control @error('tutor_foto') is-invalid @enderror" id="tutor_foto"
-                    name="tutor_foto" required accept="image/*">
+                    name="tutor_foto" required accept="image/*" onchange="previewImage(event)">
                 @error('tutor_foto')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
-            <img id="imagenPrevisualizacion" class="foto-show">
+            <div class="mt-3">
+                <!-- Añadimos 'style="display: none;"' para ocultar la imagen inicialmente -->
+                <img id="imagenPrevisualizacion" class="foto-show" style="display: none;">
+            </div>
         </div>
 
         <div class="mt-4">
-            <button type="submit" class="btn btn-primary">Guardar</button>
+            <!-- Añadimos la clase 'btn-submit' al botón 'Guardar' -->
+            <button type="submit" class="btn btn-primary btn-submit">Guardar</button>
             <a href="{{ route('tutores.index') }}" class="btn btn-secondary">Volver a la lista</a>
         </div>
     </form>
 
     <script>
-        const inputImagen = document.getElementById('tutor_foto');
-        const imagenPrevisualizacion = document.getElementById('imagenPrevisualizacion');
+        function previewImage(event) {
+            const input = event.target;
+            const preview = document.getElementById('imagenPrevisualizacion');
 
-        inputImagen.addEventListener('change', () => {
-            const archivo = inputImagen.files[0];
-            const lector = new FileReader();
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
 
-            lector.onload = (e) => {
-                imagenPrevisualizacion.src = e.target.result;
-                imagenPrevisualizacion.style.display = 'block';
-            }
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
 
-            if (archivo) {
-                lector.readAsDataURL(archivo);
+                reader.readAsDataURL(input.files[0]);
             } else {
-                imagenPrevisualizacion.src = '#';
-                imagenPrevisualizacion.style.display = 'none';
+                preview.style.display = 'none';
             }
-        });
+        }
     </script>
 @endsection

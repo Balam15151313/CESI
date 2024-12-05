@@ -94,7 +94,7 @@
             <input type="file" id="escuela_logo" name="escuela_logo" class="form-control" accept="image/*">
         </div>
 
-        <button type="submit" class="mt-3 btn btn-primary">Guardar Escuela</button>
+        <button type="submit" class="mt-3 btn btn-primary btn-submit">Guardar Escuela</button>
     </form>
 
     <script>

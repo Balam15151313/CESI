@@ -42,7 +42,7 @@
                 <ul id="suggestions" style="list-style-type: none; padding: 0; margin-top: 10px;"></ul>
             </div>
 
-            <div class="row mb-3">
+            <div class="mb-3 row">
                 <div class="col-md-6">
                     <div id="map" style="height: 400px; margin-bottom: 20px;"></div>
                 </div>
@@ -52,7 +52,7 @@
                         <input type="text" id="escuela_latitud" name="escuela_latitud" class="form-control"
                             value="{{ $escuela->escuela_latitud }}" readonly required>
                     </div>
-                    <div class="form-group mt-3">
+                    <div class="mt-3 form-group">
                         <label for="escuela_longitud">Longitud</label>
                         <input type="text" id="escuela_longitud" name="escuela_longitud" class="form-control"
                             value="{{ $escuela->escuela_longitud }}" readonly required>
@@ -61,7 +61,7 @@
             </div>
 
             <!-- Colores -->
-            <div class="row mb-3">
+            <div class="mb-3 row">
                 <div class="col-md-4">
                     <label for="ui_color1" class="form-label">Color 1</label>
                     <input type="color" id="ui_color1" name="ui_color1" class="form-control"
@@ -78,7 +78,7 @@
                         value="{{ $escuela->ui_color3 }}" required>
                 </div>
             </div>
-            <div class="color-preview mb-3" id="colorPreview" style="height: 50px;"></div>
+            <div class="mb-3 color-preview" id="colorPreview" style="height: 50px;"></div>
 
             <!-- Logotipo -->
             <div class="mb-3">
@@ -86,7 +86,7 @@
                 <input type="file" id="escuela_logo" name="escuela_logo" class="form-control" accept="image/*">
             </div>
 
-            <button type="submit" class="btn btn-primary">Guardar Escuela</button>
+            <button type="submit" class="btn btn-primary btn-submit">Guardar Escuela</button>
         </form>
     </div>
 

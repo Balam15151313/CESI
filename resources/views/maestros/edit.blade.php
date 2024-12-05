@@ -111,7 +111,7 @@
         </div>
 
         <div class="mt-4">
-            <button type="submit" class="btn btn-primary">Actualizar</button>
+            <button type="submit" class="btn btn-primary btn-submit">Actualizar</button>
             <a href="{{ route('maestros.index') }}" class="btn btn-secondary">Volver a la lista</a>
         </div>
     </form>

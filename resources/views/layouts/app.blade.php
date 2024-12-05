@@ -234,6 +234,12 @@
                 font-size: 12px;
             }
         }
+
+        /* Estilos para el botón deshabilitado */
+        .btn-submit:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
     </style>
 </head>
 
@@ -273,12 +279,39 @@
 
                 @yield('content')
             </div>
-
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous">
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const formularios = document.querySelectorAll('form');
+
+            formularios.forEach(function(formulario) {
+                formulario.addEventListener('submit', function(event) {
+                    const btnEnviar = formulario.querySelector('.btn-submit');
+
+                    if (btnEnviar) {
+                        btnEnviar.disabled = true;
+                        const textoOriginal = btnEnviar.innerHTML;
+                        btnEnviar.dataset.originalText = textoOriginal;
+                        btnEnviar.innerHTML = 'Guardando';
+                    }
+                });
+            });
+
+            @if ($errors->any())
+                const botones = document.querySelectorAll('.btn-submit');
+                botones.forEach(function(btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = btn.dataset.originalText || 'Guardar';
+                });
+            @endif
+        });
     </script>
 </body>
 

@@ -54,6 +54,7 @@
                     <label for="cesi_tutore_id" class="form-label">Tutor asociado</label>
                     <select class="form-select @error('cesi_tutore_id') is-invalid @enderror" id="cesi_tutore_id"
                         name="cesi_tutore_id" required>
+                        <option value="">Selecciona un tutor</option>
                         @foreach ($tutores as $tutor)
                             <option value="{{ $tutor->id }}"
                                 {{ old('cesi_tutore_id') == $tutor->id ? 'selected' : '' }}>
@@ -76,13 +77,14 @@
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
             <div class="mt-3">
-                <img id="foto_preview" class="foto-show">
+                <img id="foto_preview" class="foto-show" style="display: none;">
             </div>
         </div>
 
         <div class="mt-4">
-            <button type="submit" class="btn btn-primary">Guardar</button>
-            <a href="#" class="btn btn-secondary">Cancelar</a>
+            <!-- Añadimos la clase 'btn-submit' al botón 'Guardar' -->
+            <button type="submit" class="btn btn-primary btn-submit">Guardar</button>
+            <a href="{{ route('alumnos.index') }}" class="btn btn-secondary">Cancelar</a>
         </div>
     </form>
 
@@ -105,6 +107,4 @@
             }
         }
     </script>
-
-
 @endsection

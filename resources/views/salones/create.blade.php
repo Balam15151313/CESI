@@ -90,7 +90,7 @@
         </div>
 
         <div class="mt-4 text-end">
-            <button type="submit" class="btn btn-primary">Guardar Salón</button>
+            <button type="submit" class="btn btn-primary btn-submit">Guardar Salón</button>
             <a href="{{ route('salones.index') }}" class="btn btn-secondary">Volver a la lista</a>
         </div>
     </form>

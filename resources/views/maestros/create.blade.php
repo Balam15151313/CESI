@@ -3,7 +3,7 @@
 @section('title', 'Crear maestro')
 
 @section('content')
-    <h1 class="mb-4 text-center">Crear Nuevo maestro</h1>
+    <h1 class="mb-4 text-center">Crear Nuevo Maestro</h1>
 
     <form action="{{ route('maestros.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
@@ -45,7 +45,7 @@
                     <label for="maestro_usuario" class="form-label">Correo electrónico</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                        <input type="text" class="form-control @error('maestro_usuario') is-invalid @enderror"
+                        <input type="email" class="form-control @error('maestro_usuario') is-invalid @enderror"
                             id="maestro_usuario" name="maestro_usuario" value="{{ old('maestro_usuario') }}" required
                             placeholder="Ingresa el correo electrónico">
                         @error('maestro_usuario')
@@ -97,16 +97,17 @@
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
-            <img id="imagenPrevisualizacion" class="foto-show">
+            <img id="imagenPrevisualizacion" class="foto-show" style="display: none;">
         </div>
 
         <div class="mt-4">
-            <button type="submit" class="btn btn-primary">Guardar</button>
+            <button type="submit" class="btn btn-primary btn-submit">Guardar</button>
             <a href="{{ route('maestros.index') }}" class="btn btn-secondary">Volver a la lista</a>
         </div>
     </form>
 
     <script>
+        // Previsualización de la imagen
         const inputImagen = document.getElementById('maestro_foto');
         const imagenPrevisualizacion = document.getElementById('imagenPrevisualizacion');
 
