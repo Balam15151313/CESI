@@ -141,11 +141,10 @@ class TutorController extends Controller
         $responsable->responsable_usuario = $request->tutor_usuario;
         $responsable->responsable_telefono = $request->tutor_telefono;
         $responsable->responsable_contraseña = bcrypt($request->tutor_contraseña);
-        $responsable->responsable_activacion = 0;
+        $responsable->responsable_activacion = 1;
         $responsable->responsable_foto = $tutor->tutor_foto;
         $responsable->cesi_tutore_id = $tutor->id;
         $responsable->save();
-
         return redirect()->route('tutores.index')->with('success', 'Tutor creado exitosamente.');
     }
 
@@ -269,10 +268,11 @@ class TutorController extends Controller
         $responsable->responsable_usuario = $request->tutor_usuario;
         $responsable->responsable_telefono = $request->tutor_telefono;
         $responsable->responsable_contraseña = bcrypt($request->tutor_contraseña);
-        $responsable->responsable_activacion = 0;
+        $responsable->responsable_activacion = 1;
         $responsable->responsable_foto = $tutor->tutor_foto;
         $responsable->cesi_tutore_id = $tutor->id;
         $responsable->save();
+
         return redirect()->route('tutores.index')->with('success', 'Tutor actualizado exitosamente.');
     }
 

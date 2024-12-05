@@ -3,10 +3,10 @@
 @section('title', 'Ver Salón')
 
 @section('content')
-    <h1 class="text-center mb-4">Información del Salón</h1>
+    <h1 class="mb-4 text-center">Información del Salón</h1>
 
     <!-- Card para la información del salón -->
-    <div class="card mb-4">
+    <div class="mb-4 card">
         <div class="card-body">
             <h5 class="card-title">Información del Salón</h5>
             <p class="card-text"><strong>Salón:</strong> {{ $salon->salon_grado }}
@@ -43,6 +43,37 @@
             </div>
         </div>
     </div>
+
+    <!-- Card para la información de alumnos -->
+    <div class="card">
+        <div class="card-body">
+
+            @if ($salon->alumno && $salon->alumno->isNotEmpty())
+                <ul class="list-group">
+                    <h5 class="mt-4 card-title">Alumnos en el Salón</h5>
+                    @foreach ($salon->alumno as $alumno)
+                        <li class="list-group-item d-flex align-items-center">
+                            <!-- Columna de la Foto del Alumno -->
+                            <div class="col-md-3">
+                                <img src="{{ asset('storage/' . $alumno->alumno_foto) }}" alt="Foto del alumno"
+                                    class="foto-show img-fluid" class="foto-show">
+                            </div>
+
+                            <!-- Columna de la Información del Alumno -->
+                            <div class="col-md-9">
+                                <p><strong>Nombre:</strong> {{ $alumno->alumno_nombre }}</p>
+                                <p><strong>Fecha de nacimiento:</strong> {{ $alumno->alumno_nacimiento }}</p>
+                                <p><strong>Escuela:</strong> {{ $salon->escuelas->escuela_nombre }}</p>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <p>No hay alumnos asignados a este salón.</p>
+            @endif
+        </div>
+    </div>
+
 
     <div class="mt-4">
         <a href="{{ route('salones.index') }}" class="btn btn-secondary">Volver a la lista</a>

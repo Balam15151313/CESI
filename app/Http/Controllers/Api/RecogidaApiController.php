@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Recogida;
 use App\Models\Alumno;
 use App\Models\Maestro;
+use App\Models\Rastreo;
 use App\Models\Reporte;
 use App\Models\Responsable;
 use App\Models\Salon;
@@ -81,7 +82,6 @@ class RecogidaApiController extends Controller
 
             $hoy = now()->toDateString();
 
-
             $alumnosSinRecogida = DB::table('cesi_alumnos')
                 ->where('cesi_alumnos.cesi_tutore_id', $tutor->id)
                 ->whereNotExists(function ($query) use ($hoy) {
@@ -111,7 +111,6 @@ class RecogidaApiController extends Controller
             } else {
                 $imagePath = null;
             }
-
             $recogida = Recogida::create([
                 'recogida_fecha' => now()->toDateString(),
                 'recogida_observaciones' => $request->recogida_observaciones ?? 'No hay observación',
@@ -206,23 +205,47 @@ class RecogidaApiController extends Controller
         if (!$maestro) {
             return response()->json(['message' => 'El maestro no existe'], 404);
         }
-
         $salon = Salon::where('cesi_maestro_id', $maestro->id)->first();
 
         if (!$salon) {
             return response()->json(['message' => 'No se encontró el salón del maestro'], 404);
         }
-
         $alumnosIds = Alumno::where('cesi_salon_id', $salon->id)->pluck('id');
         $recogidas = Recogida::whereHas('alumnos', function ($query) use ($alumnosIds) {
             $query->whereIn('cesi_alumnos.id', $alumnosIds);
-        })->get();
+        })
+            ->with('alumnos', 'responsables')
+            ->get();
 
         if ($recogidas->isEmpty()) {
             return response()->json(['message' => 'No hay recogidas registradas para los alumnos del salón del maestro'], 200);
         }
 
-        return response()->json(['data' => $recogidas], 200);
+        $recogidasConDetalles = $recogidas->map(function ($recogida) {
+            $recogida->alumnos = $recogida->alumnos->map(function ($alumno) {
+                return [
+                    'nombre' => $alumno->alumno_nombre,
+                    'fecha_nacimiento' => $alumno->alumno_nacimiento,
+                ];
+            });
+
+            if ($recogida->responsables) {
+                $recogida->responsables = [
+                    'nombre' => $recogida->responsables->responsable_nombre,
+                    'telefono' => $recogida->responsables->responsable_telefono,
+                ];
+            }
+
+            return $recogida;
+        });
+
+        return response()->json([
+            'maestro' => [
+                'nombre' => $maestro->maestro_nombre,
+                'email' => $maestro->maestro_usuario,
+            ],
+            'recogidas' => $recogidasConDetalles,
+        ], 200);
     }
 
 
@@ -235,8 +258,7 @@ class RecogidaApiController extends Controller
 
     public function generarReportePDF($idTutor)
     {
-        $user = User::find($idTutor);
-        $tutor = Tutor::where('tutor_usuario', $user->email)->first();
+        $tutor = Tutor::find($idTutor);
         $alumnos = Alumno::where('cesi_tutore_id', $tutor->id)->pluck('id');
 
         if (!$tutor) {
@@ -375,7 +397,7 @@ class RecogidaApiController extends Controller
         if (!file_exists($directory)) {
             mkdir($directory, 0755, true);
         }
-        $fileName = 'reporte_' . uniqid() . '.pdf';
+        $fileName = 'reporte_' . now()->toDateString() . '_tutor_' . $tutor->id . '.pdf';
         $path = $directory . '/' . $fileName;
 
         file_put_contents($path, $output);
@@ -430,5 +452,32 @@ class RecogidaApiController extends Controller
         $recogida->save();
 
         return response()->json(['message' => 'Estatus de la recogida actualizado correctamente', 'data' => $recogida], 200);
+    }
+
+    /*
+     * Método para completar una recogida
+     */
+
+    public function completarRecogida($recogidaId)
+    {
+        try {
+            $recogida = Recogida::findOrFail($recogidaId);
+            $responsable = Responsable::where('id', $recogida->cesi_responsable_id)->first();
+            $tutor = Tutor::where('id', $responsable->cesi_tutore_id)->first();
+            $recogida->update([
+                'recogida_estatus' => 'completa',
+            ]);
+            Rastreo::where('cesi_recogida_id', $recogida->id)->delete();
+
+            return response()->json([
+                'message' => 'Recogida marcada como completa y ubicación cancelada',
+                'tutor_id' => $tutor->id,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error al completar la recogida',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
