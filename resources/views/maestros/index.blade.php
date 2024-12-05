@@ -60,18 +60,23 @@
 
     <script>
         $(document).ready(function() {
-            const table = $('#tabla-maestros').DataTable({
+            var table = $('#tabla-maestros').DataTable({
                 "pagingType": "full_numbers",
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
-                },
-                "responsive": true,
+                }
             });
 
-            // Búsqueda por columna
-            $('#tabla-maestros thead tr:eq(1) th input').on('keyup change', function() {
-                const columnIndex = $(this).parent().index();
-                table.column(columnIndex).search(this.value).draw();
+            // Configura la búsqueda por columna
+            $('#tabla-maestros thead tr:eq(1) th').each(function(i) {
+                $('input', this).on('keyup change', function() {
+                    if (table.column(i).search() !== this.value) {
+                        table
+                            .column(i)
+                            .search(this.value)
+                            .draw();
+                    }
+                });
             });
         });
     </script>

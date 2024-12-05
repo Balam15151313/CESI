@@ -53,7 +53,7 @@
 
     <script>
         $(document).ready(function() {
-            // Inicializar DataTable con búsqueda por columna
+            // Usamos el ID correcto para la tabla
             var table = $('#tabla-salones').DataTable({
                 "pagingType": "full_numbers",
                 "language": {
@@ -61,10 +61,16 @@
                 }
             });
 
-            // Configurar búsqueda por columnas
-            $('#tabla-salones thead tr:eq(1) th input').on('keyup change', function() {
-                let columnIndex = $(this).parent().index();
-                table.column(columnIndex).search(this.value).draw();
+            // Configura la búsqueda por columna para cada input de búsqueda
+            $('#tabla-salones thead tr:eq(1) th').each(function(i) {
+                $('input', this).on('keyup change', function() {
+                    if (table.column(i).search() !== this.value) {
+                        table
+                            .column(i)
+                            .search(this.value)
+                            .draw();
+                    }
+                });
             });
         });
     </script>

@@ -59,7 +59,7 @@
 
     <script>
         $(document).ready(function() {
-            // Inicializar DataTable con búsqueda por columnas
+            // Inicialización de DataTable para la tabla de tutores
             var table = $('#tabla-tutores').DataTable({
                 "pagingType": "full_numbers",
                 "language": {
@@ -67,11 +67,19 @@
                 }
             });
 
-            // Configurar búsqueda por columnas
-            $('#tabla-tutores thead tr:eq(1) th input').on('keyup change', function() {
-                let columnIndex = $(this).parent().index();
-                table.column(columnIndex).search(this.value).draw();
+            // Configura la búsqueda por columna para cada input de búsqueda
+            $('#tabla-tutores thead tr:eq(1) th').each(function(i) {
+                $('input', this).on('keyup change', function() {
+                    // Asegura que el valor de búsqueda se aplique solo a la columna correspondiente
+                    if (table.column(i).search() !== this.value) {
+                        table
+                            .column(i)
+                            .search(this.value)
+                            .draw();
+                    }
+                });
             });
         });
     </script>
+
 @endsection

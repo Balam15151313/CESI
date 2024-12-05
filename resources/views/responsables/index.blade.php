@@ -108,34 +108,39 @@
 
     <script>
         $(document).ready(function() {
-            // Configuración de la tabla Responsables Activos
-            const activosTable = $('#tabla-responsables-activos').DataTable({
+            var tableActivos = $('#tabla-responsables-activos').DataTable({
                 "pagingType": "full_numbers",
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
-                },
-                "responsive": true,
+                }
             });
-
-            // Búsqueda por columna en Responsables Activos
-            $('#tabla-responsables-activos thead tr:eq(1) th input').on('keyup change', function() {
-                const columnIndex = $(this).parent().index();
-                activosTable.column(columnIndex).search(this.value).draw();
-            });
-
-            // Configuración de la tabla Responsables Inactivos
-            const inactivosTable = $('#tabla-responsables-inactivos').DataTable({
+            var tableInactivos = $('#tabla-responsables-inactivos').DataTable({
                 "pagingType": "full_numbers",
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
-                },
-                "responsive": true,
+                }
             });
 
-            // Búsqueda por columna en Responsables Inactivos
-            $('#tabla-responsables-inactivos thead tr:eq(1) th input').on('keyup change', function() {
-                const columnIndex = $(this).parent().index();
-                inactivosTable.column(columnIndex).search(this.value).draw();
+            $('#tabla-responsables-activos thead tr:eq(1) th').each(function(i) {
+                $('input', this).on('keyup change', function() {
+                    if (tableActivos.column(i).search() !== this.value) {
+                        tableActivos
+                            .column(i)
+                            .search(this.value)
+                            .draw();
+                    }
+                });
+            });
+
+            $('#tabla-responsables-inactivos thead tr:eq(1) th').each(function(i) {
+                $('input', this).on('keyup change', function() {
+                    if (tableInactivos.column(i).search() !== this.value) {
+                        tableInactivos
+                            .column(i)
+                            .search(this.value)
+                            .draw();
+                    }
+                });
             });
         });
     </script>
