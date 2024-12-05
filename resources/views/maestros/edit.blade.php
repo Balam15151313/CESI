@@ -56,6 +56,9 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                    <small class="form-text text-muted">
+                        El correo electrónico debe tener el dominio {{ substr(strrchr(Auth::user()->email, '@'), 1) }}
+                    </small>
                 </div>
             </div>
             <div class="col-md-6">

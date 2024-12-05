@@ -139,7 +139,11 @@ class ResponsableController extends Controller
 
         $responsable->responsable_nombre = $request->responsable_nombre;
         $responsable->responsable_usuario = $request->responsable_usuario;
-        $responsable->responsable_contraseña = bcrypt($request->responsable_contraseña);
+
+        if ($request->filled('responsable_contraseña')) {
+            $responsable->responsable_contraseña = bcrypt($request->responsable_contraseña);
+        }
+
         $responsable->responsable_telefono = $request->responsable_telefono;
 
         if ($request->hasFile('responsable_foto')) {
@@ -154,12 +158,13 @@ class ResponsableController extends Controller
             $responsable->responsable_foto = $imagePath;
         }
 
-        $user = User::where('email', $responsable->responsable_usuario)->first();;
+        $user = User::where('email', $responsable->responsable_usuario)->first();
         $user->name = $request->responsable_nombre;
         $user->email = $request->responsable_usuario;
         if ($request->filled('responsable_contraseña')) {
             $user->password = bcrypt($request->responsable_contraseña);
         }
+
         $user->role = 'responsable';
         $user->save();
 
@@ -167,6 +172,7 @@ class ResponsableController extends Controller
 
         return redirect()->route('responsables.index')->with('success', 'Responsable actualizado exitosamente');
     }
+
 
     /**
      * Define las reglas de validación para la creación o edición de un responsable.

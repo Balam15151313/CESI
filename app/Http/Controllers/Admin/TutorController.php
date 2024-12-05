@@ -191,6 +191,8 @@ class TutorController extends Controller
     {
         $user = User::where('email', $tutor->tutor_usuario)->first();
         $relatedUserId = $user?->id;
+
+        // Validación de los datos
         $request->validate([
             'tutor_usuario' => [
                 'required',
@@ -238,36 +240,46 @@ class TutorController extends Controller
             'cesi_escuela_id.exists' => 'La escuela seleccionada no es válida.',
         ]);
 
-
+        // Prepara los datos
         $data = $request->all();
 
-        if ($request->has('tutor_contraseña') && trim($request->tutor_contraseña) !== '') {
+        // Actualiza la contraseña solo si se proporciona
+        if ($request->filled('tutor_contraseña')) {
             $data['tutor_contraseña'] = bcrypt($request->tutor_contraseña);
         } else {
-            unset($data['tutor_contraseña']);
+            unset($data['tutor_contraseña']);  // Elimina la contraseña si no se proporciona
         }
 
+        // Actualiza la foto si se proporciona una nueva
         if ($request->hasFile('tutor_foto')) {
             if ($tutor->tutor_foto) {
-                Storage::delete('public/' . $tutor->tutor_foto);
+                Storage::delete('public/' . $tutor->tutor_foto);  // Eliminar la foto anterior
             }
             $data['tutor_foto'] = $request->file('tutor_foto')->store('tutores', 'public');
         }
 
-        $user = User::where('email', $tutor->tutor_usuario)->first();
+        // Actualiza los datos del usuario
         $user->name = $request->tutor_nombre;
         $user->email = $request->tutor_usuario;
-        $user->password = bcrypt($request->tutor_contraseña);
+        if ($request->filled('tutor_contraseña')) {
+            $user->password = bcrypt($request->tutor_contraseña);  // Actualiza solo si la contraseña es proporcionada
+        }
         $user->role = 'tutor';
         $user->save();
 
-
+        // Actualiza los datos del tutor
         $tutor->update($data);
+
+        // Actualiza los datos del responsable
         $responsable = Responsable::where('cesi_tutore_id', $tutor->id)->first();
         $responsable->responsable_nombre = $request->tutor_nombre;
         $responsable->responsable_usuario = $request->tutor_usuario;
         $responsable->responsable_telefono = $request->tutor_telefono;
-        $responsable->responsable_contraseña = bcrypt($request->tutor_contraseña);
+
+        if ($request->filled('tutor_contraseña')) {
+            $responsable->responsable_contraseña = bcrypt($request->tutor_contraseña);  // Solo actualiza la contraseña si se proporciona
+        }
+
         $responsable->responsable_activacion = 1;
         $responsable->responsable_foto = $tutor->tutor_foto;
         $responsable->cesi_tutore_id = $tutor->id;

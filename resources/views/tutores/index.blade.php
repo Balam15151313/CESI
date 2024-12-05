@@ -7,7 +7,7 @@
 @endsection
 
 @section('content')
-    <h1 class="text-center mb-4">Tutores</h1>
+    <h1 class="mb-4 text-center">Tutores</h1>
 
     <div class="table-responsive">
         <table class="table table-striped table-hover" id="tabla-tutores">
@@ -18,6 +18,13 @@
                     <th>Teléfono</th>
                     <th>Foto</th>
                     <th>Acciones</th>
+                </tr>
+                <tr>
+                    <th><input type="text" placeholder="Buscar Nombre" class="form-control form-control-sm"></th>
+                    <th><input type="text" placeholder="Buscar Correo" class="form-control form-control-sm"></th>
+                    <th><input type="text" placeholder="Buscar Teléfono" class="form-control form-control-sm"></th>
+                    <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -36,10 +43,12 @@
                         <td>
                             <a href="{{ route('tutores.edit', $tutor->id) }}" class="btn btn-primary btn-sm">Editar</a>
                             <a href="{{ route('tutores.show', $tutor->id) }}" class="btn btn-secondary btn-sm">Ver</a>
-                            <form action="{{ route('tutores.destroy', $tutor->id) }}" method="POST" style="display: inline-block;">
+                            <form action="{{ route('tutores.destroy', $tutor->id) }}" method="POST"
+                                style="display: inline-block;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('¿Estás seguro de que deseas eliminar este tutor?')">Eliminar</button>
+                                <button type="submit" class="btn btn-primary btn-sm"
+                                    onclick="return confirm('¿Estás seguro de que deseas eliminar este tutor?')">Eliminar</button>
                             </form>
                         </td>
                     </tr>
@@ -49,12 +58,19 @@
     </div>
 
     <script>
-        $(document).ready(function () {
-            $('#tabla-tutores').DataTable({
+        $(document).ready(function() {
+            // Inicializar DataTable con búsqueda por columnas
+            var table = $('#tabla-tutores').DataTable({
                 "pagingType": "full_numbers",
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
                 }
+            });
+
+            // Configurar búsqueda por columnas
+            $('#tabla-tutores thead tr:eq(1) th input').on('keyup change', function() {
+                let columnIndex = $(this).parent().index();
+                table.column(columnIndex).search(this.value).draw();
             });
         });
     </script>

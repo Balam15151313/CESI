@@ -12,13 +12,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\User;
 use App\Models\Administrador;
+use Carbon\Carbon;
 
 /**
  * Archivo: AlumnoController.php
  * Propósito: Controlador para gestionar alumnos.
  * Autor: Alexis Daniel Uribe Oleriano
  * Fecha de Creación: 2024-11-19
- * Última Modificación: 2024-11-29
+ * Última Modificación: 2024-12-04
  */
 class AlumnoController extends Controller
 {
@@ -72,7 +73,29 @@ class AlumnoController extends Controller
         $salones = Salon::whereIn('cesi_escuela_id', $escuelas)->get();
         $tutores = Tutor::whereIn('cesi_escuela_id', $escuelas)->get();
         $ui = $escuela ? $escuela->uis->first() : null;
-        return view('alumnos.create', compact('salones', 'tutores', 'escuela', 'ui'));
+
+        $escolaridad = $escuela->escuela_escolaridad;
+        $añoActual = date('Y');
+
+        switch ($escolaridad) {
+            case 'Kinder':
+                $fechaMinima = ($añoActual - 5) . '-01-01';
+                $fechaMaxima = ($añoActual - 3) . '-12-31';
+                break;
+            case 'Primaria':
+                $fechaMinima = ($añoActual - 12) . '-01-01';
+                $fechaMaxima = ($añoActual - 6) . '-12-31';
+                break;
+            case 'Secundaria':
+                $fechaMinima = ($añoActual - 15) . '-01-01';
+                $fechaMaxima = ($añoActual - 13) . '-12-31';
+                break;
+            default:
+                $fechaMinima = ($añoActual - 15) . '-01-01';
+                $fechaMaxima = ($añoActual - 3) . '-12-31';
+        }
+
+        return view('alumnos.create', compact('salones', 'tutores', 'escuela', 'ui', 'fechaMinima', 'fechaMaxima'));
     }
 
     /**
@@ -88,7 +111,14 @@ class AlumnoController extends Controller
                 'max:255',
                 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
             ],
-            'alumno_nacimiento' => 'required|date',
+            'alumno_nacimiento' => [
+                'required',
+                'date',
+                'before_or_equal:today',
+                function ($attribute, $value, $fail) use ($request) {
+                    $this->validateEdad($value, $request->input('cesi_salon_id'), $fail);
+                },
+            ],
             'alumno_foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'cesi_salon_id' => 'required|exists:cesi_salons,id',
             'cesi_tutore_id' => 'required|exists:cesi_tutores,id',
@@ -97,6 +127,7 @@ class AlumnoController extends Controller
             'alumno_nombre.regex' => 'El nombre solo puede contener letras.',
             'alumno_nombre.max' => 'El nombre no puede exceder los 255 caracteres.',
             'alumno_nacimiento.required' => 'El campo fecha de nacimiento es obligatorio.',
+            'alumno_nacimiento.before_or_equal' => 'La fecha de nacimiento no puede ser en el futuro.',
             'alumno_foto.required' => 'El campo foto es obligatorio.',
             'alumno_foto.image' => 'El archivo debe ser una imagen.',
             'alumno_foto.mimes' => 'La imagen debe ser de tipo jpeg, png, jpg o gif.',
@@ -149,7 +180,34 @@ class AlumnoController extends Controller
             $query->where('cesi_administrador_id', $adminId);
         })->get()->first();
         $ui = $escuela ? $escuela->uis->first() : null;
-        return view('alumnos.edit', compact('alumno', 'salones', 'tutores', 'escuela', 'ui'));
+
+        $salon = $alumno->salones()->with('escuelas')->first();
+
+        if ($salon && $salon->escuelas) {
+            $escolaridad = $salon->escuelas->escuela_escolaridad;
+            $añoActual = date('Y');
+
+            switch ($escolaridad) {
+                case 'Kinder':
+                    $fechaMinima = ($añoActual - 5) . '-01-01';
+                    $fechaMaxima = ($añoActual - 3) . '-12-31';
+                    break;
+                case 'Primaria':
+                    $fechaMinima = ($añoActual - 12) . '-01-01';
+                    $fechaMaxima = ($añoActual - 6) . '-12-31';
+                    break;
+                case 'Secundaria':
+                    $fechaMinima = ($añoActual - 15) . '-01-01';
+                    $fechaMaxima = ($añoActual - 13) . '-12-31';
+                    break;
+                default:
+                    return redirect()->back()->with('error', 'El nivel de escolaridad del alumno no es válido.');
+            }
+
+            return view('alumnos.edit', compact('alumno', 'salones', 'tutores', 'escuela', 'ui', 'fechaMinima', 'fechaMaxima'));
+        } else {
+            return redirect()->back()->with('error', 'No se pudo obtener la información de la escolaridad del alumno.');
+        }
     }
 
     /**
@@ -160,7 +218,14 @@ class AlumnoController extends Controller
     {
         $request->validate([
             'alumno_nombre' => 'required|regex:/^[\p{L}\s]+$/u|max:255',
-            'alumno_nacimiento' => 'required|date',
+            'alumno_nacimiento' => [
+                'required',
+                'date',
+                'before_or_equal:today',
+                function ($attribute, $value, $fail) use ($alumno) {
+                    $this->validateEdad($value, $alumno->salones->first()->id, $fail);
+                },
+            ],
             'alumno_foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'cesi_salon_id' => 'required|exists:cesi_salons,id',
             'cesi_tutore_id' => 'required|exists:cesi_tutores,id',
@@ -169,6 +234,7 @@ class AlumnoController extends Controller
             'alumno_nombre.regex' => 'El nombre solo puede contener letras.',
             'alumno_nombre.max' => 'El nombre no puede exceder los 255 caracteres.',
             'alumno_nacimiento.required' => 'El campo fecha de nacimiento es obligatorio.',
+            'alumno_nacimiento.before_or_equal' => 'La fecha de nacimiento no puede ser en el futuro.',
             'alumno_foto.image' => 'El archivo debe ser una imagen.',
             'alumno_foto.mimes' => 'La imagen debe ser de tipo jpeg, png, jpg o gif.',
             'alumno_foto.max' => 'La imagen no debe exceder los 2 MB.',
@@ -205,5 +271,33 @@ class AlumnoController extends Controller
         $alumno->delete();
 
         return redirect()->route('alumnos.index')->with('success', 'Alumno eliminado exitosamente.');
+    }
+
+    /**
+     * Valida la edad de un alumno en función del tipo de escolaridad asociado a su salón.
+     *
+     * @param string $value Fecha de nacimiento del alumno.
+     * @param int $salonId ID del salón asociado al alumno.
+     * @param \Closure $fail Función de callback para manejar fallos de validación.
+     *
+     * @return void
+     */
+    private function validateEdad($value, $salonId, $fail)
+    {
+        $edad = Carbon::parse($value)->age;
+        $salon = Salon::find($salonId);
+
+        if ($salon && $salon->escuelas) {
+            $escuela = $salon->escuelas;
+            $escolaridad = $escuela->escuela_escolaridad;
+
+            if ($escolaridad === 'Kinder' && ($edad < 3 || $edad > 5)) {
+                $fail('La fecha de nacimiento no corresponde al nivel Kinder.');
+            } elseif ($escolaridad === 'Primaria' && ($edad < 6 || $edad > 12)) {
+                $fail('La fecha de nacimiento no corresponde al nivel Primaria.');
+            } elseif ($escolaridad === 'Secundaria' && ($edad < 13 || $edad > 15)) {
+                $fail('La fecha de nacimiento no corresponde al nivel Secundaria.');
+            }
+        }
     }
 }

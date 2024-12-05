@@ -29,9 +29,11 @@
                 <div class="mb-3">
                     <label for="alumno_nacimiento" class="form-label">Fecha de nacimiento</label>
                     <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-calendar"></i></span>
                         <input type="date" class="form-control @error('alumno_nacimiento') is-invalid @enderror"
                             id="alumno_nacimiento" name="alumno_nacimiento"
-                            value="{{ old('alumno_nacimiento', $alumno->alumno_nacimiento) }}" required>
+                            value="{{ old('alumno_nacimiento', $alumno->alumno_nacimiento) }}" min="{{ $fechaMinima }}"
+                            max="{{ $fechaMaxima }}" required>
                     </div>
                     @error('alumno_nacimiento')
                         <div class="invalid-feedback">{{ $message }}</div>

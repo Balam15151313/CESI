@@ -7,7 +7,7 @@
 @endsection
 
 @section('content')
-    <h1 class="text-center mb-4">Salones</h1>
+    <h1 class="mb-4 text-center">Salones</h1>
 
     <div class="table-responsive">
         <table class="table table-striped table-hover" id="tabla-salones">
@@ -18,6 +18,13 @@
                     <th>Escuela</th>
                     <th>Maestro</th>
                     <th>Acciones</th>
+                </tr>
+                <tr>
+                    <th><input type="text" placeholder="Buscar Grado" class="form-control form-control-sm"></th>
+                    <th><input type="text" placeholder="Buscar Grupo" class="form-control form-control-sm"></th>
+                    <th><input type="text" placeholder="Buscar Escuela" class="form-control form-control-sm"></th>
+                    <th><input type="text" placeholder="Buscar Maestro" class="form-control form-control-sm"></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -46,11 +53,18 @@
 
     <script>
         $(document).ready(function() {
-            $('#tabla-salones').DataTable({
+            // Inicializar DataTable con búsqueda por columna
+            var table = $('#tabla-salones').DataTable({
                 "pagingType": "full_numbers",
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
                 }
+            });
+
+            // Configurar búsqueda por columnas
+            $('#tabla-salones thead tr:eq(1) th input').on('keyup change', function() {
+                let columnIndex = $(this).parent().index();
+                table.column(columnIndex).search(this.value).draw();
             });
         });
     </script>

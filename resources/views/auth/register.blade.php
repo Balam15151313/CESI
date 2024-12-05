@@ -181,7 +181,7 @@
                 <div class="form-group">
                     <label for="password">Contraseña</label>
                     <input type="password" id="password" name="password" required>
-                    <small>Debe incluir al menos una mayúscula, una minúscula, un número y un símbolo.</small>
+                    <small>Debe incluir al menos una mayúscula, una minúscula, un número y un símbolo @$!%*?& </small>
                 </div>
                 <div class="form-group">
                     <label for="password_confirmation">Confirmar Contraseña</label>

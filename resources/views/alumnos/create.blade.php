@@ -23,7 +23,8 @@
                 <div class="mb-3">
                     <label for="alumno_nacimiento" class="form-label">Fecha de nacimiento</label>
                     <input type="date" class="form-control @error('alumno_nacimiento') is-invalid @enderror"
-                        id="alumno_nacimiento" name="alumno_nacimiento" value="{{ old('alumno_nacimiento') }}" required>
+                        id="alumno_nacimiento" name="alumno_nacimiento" value="{{ old('alumno_nacimiento') }}"
+                        min="{{ $fechaMinima }}" max="{{ $fechaMaxima }}" required>
                     @error('alumno_nacimiento')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror

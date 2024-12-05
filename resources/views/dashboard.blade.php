@@ -271,7 +271,6 @@
             <a href="{{ route('alumnos.index') }}">Alumnos</a>
             <a href="{{ route('tutores.index') }}">Tutores</a>
             <a href="{{ route('responsables.index') }}">Responsables</a>
-            <a href="#">Reportes</a>
             <a href="{{ route('admin.edit', $admin->id) }}">Configuraciones</a>
             <a href="{{ route('logout') }}"
                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Cerrar Sesión</a>
@@ -331,14 +330,6 @@
                         <img src="{{ asset('imagenes/Responsable.png') }}" alt="Responsables">
                         <h3>Responsables</h3>
                         <p>Administrar información de los responsables</p>
-                    </a>
-                </div>
-                <!-- Tarjeta para "Reportes" -->
-                <div class="option-card">
-                    <a href="#">
-                        <img src="{{ asset('imagenes/Reportes.png') }}" alt="Reportes">
-                        <h3>Reportes</h3>
-                        <p>Generar y visualizar reportes</p>
                     </a>
                 </div>
                 <!-- Tarjeta para "Configuraciones" -->

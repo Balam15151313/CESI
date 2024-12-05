@@ -423,15 +423,17 @@ class RecogidaApiController extends Controller
     public function reportesPorTutor($idTutor)
     {
         $user = User::find($idTutor);
-        $tutor = Tutor::where('tutor_usuario', $user->email)->first();
-        $reportes = Reporte::where('cesi_tutore_id', $tutor->id)->get();
-        if ($reportes->isEmpty()) {
+        if (!$user) {
+            return response()->json(['error' => 'Usuario no encontrado'], 404);
+        }
+
+        $tutor = Tutor::where('tutor_usuario', $user->email)->with('reportes')->first();
+        if (!$tutor || $tutor->reportes->isEmpty()) {
             return response()->json(['message' => 'No hay reportes registrados para este tutor'], 200);
         }
-        return response()->json(['data' => $reportes], 200);
+
+        return response()->json(['data' => $tutor->reportes], 200);
     }
-
-
     /*
      * Método para actualizar el estatus de una recogida
      */

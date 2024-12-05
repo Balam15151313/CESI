@@ -42,7 +42,6 @@ class ResponsableApiController extends Controller
             $user2->role = 'responsable';
 
 
-
             if ($request->hasFile('responsable_foto')) {
                 $imagePath = $request->file('responsable_foto')->store('responsables', 'public');
                 $responsable->responsable_foto = $imagePath;
