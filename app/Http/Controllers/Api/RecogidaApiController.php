@@ -225,11 +225,7 @@ class RecogidaApiController extends Controller
             $responsable = Responsable::find($recogida->cesi_responsable_id);
             $usuarioResponsable = User::where('email', $responsable->responsable_usuario)->first();
 
-            return [
-                'recogida' => [
-                    'recogida' => $recogida,
-                ]
-            ];
+            return  $recogida;
         });
 
         return response()->json([
