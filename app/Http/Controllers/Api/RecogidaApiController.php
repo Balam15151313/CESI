@@ -215,46 +215,27 @@ class RecogidaApiController extends Controller
         $recogidas = Recogida::whereHas('alumnos', function ($query) use ($alumnosIds) {
             $query->whereIn('cesi_alumnos.id', $alumnosIds);
         })
-            ->with('alumnos', 'responsables.usuario')  // Incluye la relación 'usuario' para obtener datos del User
+            ->with('alumnos', 'responsables.usuario') // Incluye la relación 'usuario' para obtener datos del User
             ->get();
 
         if ($recogidas->isEmpty()) {
             return response()->json(['message' => 'No hay recogidas registradas para los alumnos del salón del maestro'], 200);
         }
+        $recogidasData = $recogidas->map(function ($recogida) {
+            $responsable = Responsable::find($recogida->cesi_responsable_id);
+            $usuarioResponsable = User::where('email', $responsable->responsable_usuario)->first();
 
-        $recogidasConDetalles = $recogidas->map(function ($recogida) {
-            $recogida->alumnos = $recogida->alumnos->map(function ($alumno) {
-                return [
-                    'nombre' => $alumno->alumno_nombre,
-                    'fecha_nacimiento' => $alumno->alumno_nacimiento,
-                ];
-            });
-
-            if ($recogida->responsables) {
-                // Accede al responsable y luego al usuario asociado
-                $responsable = $recogida->responsables;
-                $usuarioResponsable = $responsable->usuario; // Usuario relacionado con el responsable
-
-                $recogida->responsables = [
+            return [
+                'responsable' => [
+                    'id' => $responsable->id,
                     'nombre' => $responsable->responsable_nombre,
-                    'telefono' => $responsable->responsable_telefono,
-                    'id_tutor' => $responsable->cesi_tutore_id,
-                    'usuario' => [
-                        'id' => $usuarioResponsable->id,  // ID del usuario
-                        'email' => $usuarioResponsable->email,  // Email del usuario
-                        'nombre' => $usuarioResponsable->name,  // Nombre del usuario
-                    ]
-                ];
-            }
-
-            if ($recogida->rastreo) {
-                $recogida->rastreo = [
-                    'rastreo_latitud' => $recogida->rastreo->rastreo_latitud,
-                    'rastreo_longitud' => $recogida->rastreo->rastreo_longitud,
-                ];
-            }
-
-            return $recogida;
+                    'tutor id' => $responsable->cesi_tutore_id,
+                ],
+                'usuarioResponsable' => [
+                    'id' => $usuarioResponsable->id,
+                    'nombre' => $usuarioResponsable->name,
+                ],
+            ];
         });
 
         return response()->json([
@@ -262,11 +243,9 @@ class RecogidaApiController extends Controller
                 'nombre' => $maestro->maestro_nombre,
                 'email' => $maestro->maestro_usuario,
             ],
-            'recogidas' => $recogidasConDetalles,
+            'recogidas' => $recogidasData,
         ], 200);
     }
-
-
 
 
     /**
