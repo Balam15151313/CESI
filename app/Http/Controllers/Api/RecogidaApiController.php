@@ -224,8 +224,9 @@ class RecogidaApiController extends Controller
         $recogidasData = $recogidas->map(function ($recogida) {
             $responsable = Responsable::find($recogida->cesi_responsable_id);
             $usuarioResponsable = User::where('email', $responsable->responsable_usuario)->first();
+            $rastreo = Rastreo::where('cesi_recogida_id', $recogida->id)->first();
 
-            return  $recogida;
+            return  [$recogida, 'rastreo' => $rastreo];
         });
 
         return response()->json([
