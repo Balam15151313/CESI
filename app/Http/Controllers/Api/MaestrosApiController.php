@@ -102,4 +102,19 @@ class MaestrosApiController extends Controller
         }
         return response()->json(['error' => 'No se actualizo la foto']);
     }
+
+    /**
+     * Mostrar una escuela específica.
+     */
+    public function showSchool($idMaestro)
+    {
+        $user =  User::find($idMaestro);
+        $maestro = Maestro::where('maestro_usuario', $user->email)->first();
+        $escuela = Escuela::where('id', $maestro->cesi_escuela_id)->first();
+        if (!$escuela) {
+            return response()->json(['mensaje' => 'No hay escuela'], 200);
+        }
+
+        return response()->json(['data' => ['latitud' => $escuela->escuela_latitud, 'longitud' => $escuela->escuela_longitud]], 200);
+    }
 }

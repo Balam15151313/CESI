@@ -124,6 +124,7 @@ Route::prefix('maestros')->group(function () {
     Route::get('/{maestroId}', [MaestrosApiController::class, 'show']); // Obtener un maestro específico por su ID
     Route::put('/{maestroId}/foto', [MaestrosApiController::class, 'updateFoto']); // Actualizar la información de un maestro específico
     Route::get('/{maestroId}/alumnos', [MaestrosApiController::class, 'showAlumnosByTeacher']);
+    Route::get('escuela/{maestroId}', [MaestrosApiController::class, 'showSchool']);
 });
 
 // Rutas para el controlador PaseApiController

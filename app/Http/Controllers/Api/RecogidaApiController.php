@@ -235,6 +235,12 @@ class RecogidaApiController extends Controller
                     'telefono' => $recogida->responsables->responsable_telefono,
                 ];
             }
+            if ($recogida->rastreo) {
+                $recogida->rastreo = [
+                    'rastreo_latitud' => $recogida->rastreo->rastreo_latitud,
+                    'rastreo_longitud' => $recogida->rastreo->rastreo_longitud,
+                ];
+            }
 
             return $recogida;
         });

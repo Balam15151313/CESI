@@ -78,7 +78,6 @@ class RastreoApiController extends Controller
             return response()->json(['error' => 'No autorizado para actualizar este rastreo'], 403);
         }
 
-        // Aquí los datos se reciben tal cual, sin validación
         $rastreo->update([
             'rastreo_longitud' => $request->rastreo_longitud,
             'rastreo_latitud' => $request->rastreo_latitud,
