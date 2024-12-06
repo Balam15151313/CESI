@@ -196,7 +196,6 @@ class RecogidaApiController extends Controller
      * Obtiene las recogidas asociadas a los alumnos del salón de un maestro.
      *
      */
-
     public function recogidasDeMaestro(Request $request, $maestroId)
     {
         $user = User::find($maestroId);
@@ -205,16 +204,18 @@ class RecogidaApiController extends Controller
         if (!$maestro) {
             return response()->json(['message' => 'El maestro no existe'], 404);
         }
+
         $salon = Salon::where('cesi_maestro_id', $maestro->id)->first();
 
         if (!$salon) {
             return response()->json(['message' => 'No se encontró el salón del maestro'], 404);
         }
+
         $alumnosIds = Alumno::where('cesi_salon_id', $salon->id)->pluck('id');
         $recogidas = Recogida::whereHas('alumnos', function ($query) use ($alumnosIds) {
             $query->whereIn('cesi_alumnos.id', $alumnosIds);
         })
-            ->with('alumnos', 'responsables')
+            ->with('alumnos', 'responsables.usuario')  // Incluye la relación 'usuario' para obtener datos del User
             ->get();
 
         if ($recogidas->isEmpty()) {
@@ -230,11 +231,22 @@ class RecogidaApiController extends Controller
             });
 
             if ($recogida->responsables) {
+                // Accede al responsable y luego al usuario asociado
+                $responsable = $recogida->responsables;
+                $usuarioResponsable = $responsable->usuario; // Usuario relacionado con el responsable
+
                 $recogida->responsables = [
-                    'nombre' => $recogida->responsables->responsable_nombre,
-                    'telefono' => $recogida->responsables->responsable_telefono,
+                    'nombre' => $responsable->responsable_nombre,
+                    'telefono' => $responsable->responsable_telefono,
+                    'id_tutor' => $responsable->cesi_tutore_id,
+                    'usuario' => [
+                        'id' => $usuarioResponsable->id,  // ID del usuario
+                        'email' => $usuarioResponsable->email,  // Email del usuario
+                        'nombre' => $usuarioResponsable->name,  // Nombre del usuario
+                    ]
                 ];
             }
+
             if ($recogida->rastreo) {
                 $recogida->rastreo = [
                     'rastreo_latitud' => $recogida->rastreo->rastreo_latitud,
@@ -253,6 +265,8 @@ class RecogidaApiController extends Controller
             'recogidas' => $recogidasConDetalles,
         ], 200);
     }
+
+
 
 
     /**

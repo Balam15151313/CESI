@@ -42,4 +42,8 @@ class Responsable extends Model
     {
         return $this->hasOne(Sesion::class, 'cesi_responsable_id');
     }
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'responsable_usuario', 'email');
+    }
 }
