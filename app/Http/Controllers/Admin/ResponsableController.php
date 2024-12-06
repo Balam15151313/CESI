@@ -33,39 +33,16 @@ class ResponsableController extends Controller
         $escuelas = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->pluck('id');
+        $tutores = Tutor::where('cesi_escuela_id', $escuelas)->get(); // Obtiene todos los tutores
+        $responsablesActivos = Responsable::where('responsable_activacion', 1)->get();
+        $responsablesInactivos = Responsable::where('responsable_activacion', 0)->get();
 
-        $responsablesActivos = Responsable::with(['tutores' => function ($query) use ($escuelas) {
-            $query->whereIn('cesi_escuela_id', $escuelas);
-        }])
-            ->where('responsable_activacion', 1)
-            ->whereHas('tutores', function ($query) use ($escuelas) {
-                $query->whereIn('cesi_escuela_id', $escuelas);
-            })
-            ->when($nombre, function ($query, $nombre) {
-                if (!empty($nombre)) {
-                    return $query->where('responsable_nombre', 'like', '%' . $nombre . '%');
-                }
-            })
-            ->get();
 
-        $responsablesInactivos = Responsable::with(['tutores' => function ($query) use ($escuelas) {
-            $query->whereIn('cesi_escuela_id', $escuelas);
-        }])
-            ->where('responsable_activacion', 0)
-            ->whereHas('tutores', function ($query) use ($escuelas) {
-                $query->whereIn('cesi_escuela_id', $escuelas);
-            })
-            ->when($nombre, function ($query, $nombre) {
-                if (!empty($nombre)) {
-                    return $query->where('responsable_nombre', 'like', '%' . $nombre . '%');
-                }
-            })
-            ->get();
         $escuela = Escuela::whereHas('administrador', function ($query) use ($adminId) {
             $query->where('cesi_administrador_id', $adminId);
         })->get()->first();
         $ui = $escuela ? $escuela->uis->first() : null;
-        return view('responsables.index', compact('responsablesActivos', 'responsablesInactivos', 'escuela', 'ui'));
+        return view('responsables.index', compact('responsablesActivos', 'responsablesInactivos', 'escuela', 'ui', 'tutores'));
     }
 
     /**

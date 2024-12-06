@@ -59,6 +59,7 @@ Route::prefix('recogida')->group(function () {
     Route::get('reportes/{idTutor}', [RecogidaApiController::class, 'reportesPorTutor']); // Obtener reportes generados por un tutor
     Route::put('{idRecogida}/estatus', [RecogidaApiController::class, 'actualizarEstatusRecogida']);
     Route::put('{recogidaId}/completar', [RecogidaApiController::class, 'completarRecogida']);
+    Route::put('{recogidaId}/observacion', [RecogidaApiController::class, 'actualizarObservacionRecogida']);
 });
 
 // Rutas para el controlador RastreoApiController (gestión de rastreos de recogidas)

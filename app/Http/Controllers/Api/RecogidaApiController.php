@@ -488,4 +488,24 @@ class RecogidaApiController extends Controller
             ], 500);
         }
     }
+
+    /*
+    * Método para actualizar la observación de una recogida
+    */
+    public function actualizarObservacionRecogida(Request $request, $recogidaId)
+    {
+        $validated = $request->validate([
+            'observacion' => 'required|string|max:255',
+        ]);
+
+        $recogida = Recogida::find($recogidaId);
+
+        if (!$recogida) {
+            return response()->json(['message' => 'Recogida no encontrada'], 404);
+        }
+        $recogida->recogida_observaciones = $validated['observacion'];
+        $recogida->save();
+
+        return response()->json(['message' => 'Observación de la recogida actualizada correctamente', 'data' => $recogida], 200);
+    }
 }

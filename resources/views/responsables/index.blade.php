@@ -5,6 +5,17 @@
 @section('content')
     <h1 class="mb-4 text-center">Responsables</h1>
 
+    <!-- Filtro por tutor -->
+    <div class="mb-4">
+        <label for="filtro-tutor" class="form-label">Filtrar por Tutor:</label>
+        <select id="filtro-tutor" class="form-select">
+            <option value="">Todos</option>
+            @foreach ($tutores as $tutor)
+                <option value="{{ $tutor->tutor_nombre }}">{{ $tutor->tutor_nombre }}</option>
+            @endforeach
+        </select>
+    </div>
+
     <!-- Responsables Activos -->
     <div class="mb-4 table-responsive">
         <h3>Responsables Activos</h3>
@@ -17,14 +28,6 @@
                     <th>Foto</th>
                     <th>Tutor</th>
                     <th>Acciones</th>
-                </tr>
-                <tr>
-                    <th><input type="text" placeholder="Buscar Nombre" class="form-control form-control-sm"></th>
-                    <th><input type="text" placeholder="Buscar Teléfono" class="form-control form-control-sm"></th>
-                    <th><input type="text" placeholder="Buscar Email" class="form-control form-control-sm"></th>
-                    <th></th>
-                    <th><input type="text" placeholder="Buscar Tutor" class="form-control form-control-sm"></th>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -65,14 +68,6 @@
                     <th>Tutor</th>
                     <th>Acciones</th>
                 </tr>
-                <tr>
-                    <th><input type="text" placeholder="Buscar Nombre" class="form-control form-control-sm"></th>
-                    <th><input type="text" placeholder="Buscar Teléfono" class="form-control form-control-sm"></th>
-                    <th><input type="text" placeholder="Buscar Email" class="form-control form-control-sm"></th>
-                    <th></th>
-                    <th><input type="text" placeholder="Buscar Tutor" class="form-control form-control-sm"></th>
-                    <th></th>
-                </tr>
             </thead>
             <tbody>
                 @foreach ($responsablesInactivos as $responsable)
@@ -106,8 +101,10 @@
         </table>
     </div>
 
+    <!-- Scripts -->
     <script>
         $(document).ready(function() {
+            // Inicialización de DataTables
             var tableActivos = $('#tabla-responsables-activos').DataTable({
                 "pagingType": "full_numbers",
                 "language": {
@@ -121,26 +118,18 @@
                 }
             });
 
-            $('#tabla-responsables-activos thead tr:eq(1) th').each(function(i) {
-                $('input', this).on('keyup change', function() {
-                    if (tableActivos.column(i).search() !== this.value) {
-                        tableActivos
-                            .column(i)
-                            .search(this.value)
-                            .draw();
-                    }
-                });
-            });
-
-            $('#tabla-responsables-inactivos thead tr:eq(1) th').each(function(i) {
-                $('input', this).on('keyup change', function() {
-                    if (tableInactivos.column(i).search() !== this.value) {
-                        tableInactivos
-                            .column(i)
-                            .search(this.value)
-                            .draw();
-                    }
-                });
+            // Filtro por tutor
+            $('#filtro-tutor').on('change', function() {
+                var tutor = $(this).val(); // Obtener el tutor seleccionado
+                if (tutor) {
+                    // Filtrar por tutor
+                    tableActivos.column(4).search(tutor).draw();
+                    tableInactivos.column(4).search(tutor).draw();
+                } else {
+                    // Mostrar todos
+                    tableActivos.column(4).search('').draw();
+                    tableInactivos.column(4).search('').draw();
+                }
             });
         });
     </script>
